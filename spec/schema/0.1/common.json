@@ -98,7 +98,7 @@
     },
     "scalar_type": {
       "type": "string",
-      "pattern": "^(bool|string|[ui](8|16|24|32|64)(le|be)?|f(32|64)(le|be)?|bits\\([1-9][0-9]?\\))$"
+      "pattern": "^(bool|string|bytes|[ui](8|16|24|32|64)(le|be)?|f(32|64)(le|be)?|bits\\([1-9][0-9]?\\))$"
     },
     "field_type": {
       "type": "string",

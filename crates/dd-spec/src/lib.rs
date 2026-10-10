@@ -4,6 +4,7 @@
 //! 2020-12, `spec/schema/0.1`) → [`lint::run`] (semantic rules `DD-Lxxx`). Every finding is a
 //! [`diag::Diagnostic`] with a stable code, a source span, help text and a docs link.
 
+pub mod checksum;
 pub mod diag;
 pub mod expr;
 pub mod lint;

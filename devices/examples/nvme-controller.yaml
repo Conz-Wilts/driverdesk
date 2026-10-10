@@ -42,7 +42,7 @@ types:
     - { cid: u16le }
     - { status: u16le }
 registers:
-  config: { reg_bits: 32, val_bits: 32, byte_order: le, space: regs }
+  config: { reg_bits: 32, val_bits: 32, stride: 4, byte_order: le, space: regs }   # byte-addressed MMIO
   map:
     CAP:  { address: 0x00, bits: 64, access: ro, volatile: false, fields: { mqes: { bits: "15:0" }, to: { bits: "31:24" }, dstrd: { bits: "35:32" } } }
     VS:   { address: 0x08, access: ro, volatile: false }
@@ -88,7 +88,7 @@ sequences:
     - { poll: CSTS.shst, until: "value == 2", interval_us: 1000, timeout_ms: 10000 }
 commands:
   identify_controller:
-    reads_only: true
+    idempotent: true
     steps:
       - { dma_addr: identify, as: buf }
       - enqueue: admin_sq

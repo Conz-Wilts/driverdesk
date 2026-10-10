@@ -42,9 +42,9 @@ commands:
     retries: 2
   set_led:
     args:
-      trigger:    { type: bool }
+      enabled: { type: bool }
       level: { type: u8, unit: "%", min: 0, max: 100 }
-    send:   { header: 0x20, payload: [ { trigger: bool }, { level: u8 } ] }
+    send:   { header: 0x20, payload: [ { enabled: bool }, { level: u8 } ] }
     expect: { header: 0xA0 }
     timeout_ms: 50
 safety:
@@ -55,16 +55,16 @@ safety:
 states:
   initial: unbound
   transitions:
-    - { from: unbound,    to: idle,   trigger: bind,  do: [ { call: hello, as: h }, { check: "h.protocol == 1", error: "unsupported firmware protocol" }, { wait_ms: 10 } ] }
+    - { from: unbound, to: idle,   trigger: bind,  do: [ { call: hello, as: h }, { check: "h.protocol == 1", error: "unsupported firmware protocol" }, { wait_ms: 10 } ] }
     - { from: idle,   to: active, trigger: request }
     - { from: active, to: idle,   trigger: { idle_ms: 5000 } }
-    - { from: "*",    to: unbound,    trigger: unbind }
+    - { from: "*",     to: unbound, trigger: unbind }
 expose:
   - { class: sensor.temperature, channel: temp0, read: read_temp.celsius }
   - { class: light.indicator,    channel: led0,  write: set_led }
 tests:
   - { name: hello_protocol_1, call: hello, expect: { protocol: { equals: 1 } } }
   - { name: room_temperature, call: read_temp, expect: { celsius: { between: [5, 45] } } }
-  - { name: led_on,  call: set_led, args: { trigger: true,  level: 50 }, expect: ok }
-  - { name: led_cap, call: set_led, args: { trigger: true,  level: 90 }, expect: rejected_by_safety }
+  - { name: led_on,  call: set_led, args: { enabled: true, level: 50 }, expect: ok }
+  - { name: led_cap, call: set_led, args: { enabled: true, level: 90 }, expect: rejected_by_safety }
 visibility: { default: public }

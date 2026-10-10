@@ -220,8 +220,8 @@ fn pattern_help(pattern: &str) -> &'static str {
         "^[A-Za-z][A-Za-z0-9_]*$" => {
             "register names start with a letter, then letters, digits or `_`"
         }
-        p if p.starts_with("^(bool|string|[ui]") => {
-            "scalar types are bool, string, u8, i8, u16, i16, u24, i24, u32, i32, u64, i64, f32, f64 (multi-byte types may end in `le` or `be`, e.g. `i16le`)"
+        p if p.starts_with("^(bool|string|bytes|[ui]") => {
+            "scalar types are bool, string, bytes, u8, i8, u16, i16, u24, i24, u32, i32, u64, i64, f32, f64 (multi-byte types may end in `le` or `be`, e.g. `i16le`)"
         }
         p if p.starts_with("^(bool|[ui]") => {
             "field types are scalar types (`u8`, `i16le`, `f32be`, …), `bytes`, `bytes(N)`, `string(N)`, `bits(N)` or a name from `types`"

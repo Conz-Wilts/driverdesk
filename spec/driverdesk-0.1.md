@@ -487,7 +487,7 @@ registers:
 
 ### 9.2 Arguments
 
-`{ type: scalar type (req), unit: UCUM, min, max, enum: [...], default, description }`. Every numeric argument of a command that writes MUST be covered by a safety limit or by `min`/`max` (`DD-L004`).
+`{ type: scalar type or `bytes` (req), unit: UCUM, min, max, enum: [...], default, description }`. A `bytes` argument is given as text in tests and as a byte list by hosts. Every numeric argument of a command that writes MUST be covered by a safety limit or by `min`/`max` (`DD-L004`).
 
 ### 9.3 Steps
 
@@ -928,6 +928,7 @@ Schema errors use `DD-S` codes; lint rules use `DD-L` codes. Each code has a pag
 | DD-L026 | error | unknown UCUM unit |
 | DD-L027 | error | YAML 1.1 boolean-like plain scalar (`on`, `off`, `yes`, `no`, `y`, `n`) used as a key or string |
 | DD-L028 | error | integer with a leading zero (octal in YAML 1.1, decimal in 1.2) |
+| DD-L029 | error | reference to an unknown command, sequence, variable, event, queue, memory region, endpoint, report, type or frame field |
 
 ## Appendix C. Canonical form
 
