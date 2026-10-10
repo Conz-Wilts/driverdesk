@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/profiles/audio.pcm.json",
+  "title": "Class profile audio.pcm",
+  "x-stability": "provisional",
+  "x-requires": "streams",
+  "type": "object",
+  "required": [
+    "streams"
+  ]
+}

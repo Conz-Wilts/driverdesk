@@ -1,0 +1,124 @@
+# TI TMP116/TMP117 digital temperature sensor (I2C).
+# Facts cross-checked against the TMP117 datasheet (SNOSD82) and Linux drivers/iio/temperature/tmp117.c.
+spec: driverdesk/0.1
+device:
+  id: ti.tmp117
+  name: TMP117 high-accuracy digital temperature sensor
+  vendor: { name: Texas Instruments, prefix: ti, url: "https://www.ti.com" }
+  version: 0.1.0
+  classes: [sensor.temperature]
+  compatible: ["ti,tmp117", "ti,tmp116", "ti,tmp119"]
+  license: CC0-1.0
+  sources:
+    - { kind: linux, ref: "drivers/iio/temperature/tmp117.c@3857c2fe5449", note: "device ids, scale, calibbias clamp" }
+    - { kind: datasheet, ref: "https://www.ti.com/lit/gpn/tmp117" }
+variants:
+  # Full 16-bit DEVICE_ID compare, as Linux does (TMP119 differs from TMP117 only in bits 15:12).
+  tmp116: { name: TMP116, id_check: { register: DEVICE_ID, equals: 0x1116 }, exclude: [set_offset] }
+  tmp117: { name: TMP117, id_check: { register: DEVICE_ID, equals: 0x0117 }, default: true }
+  tmp119: { name: TMP119, id_check: { register: DEVICE_ID, equals: 0x2117 } }
+instance:
+  address: { type: u8, enum: [0x48, 0x49, 0x4A, 0x4B], default: 0x48, description: "Selected by the ADD0 pin" }
+match:
+  - bus: i2c
+    compatible: ti,tmp117
+  - bus: i2c
+    compatible: ti,tmp116
+    variant: tmp116
+  - bus: i2c
+    probe: { addresses: [0x48, 0x49, 0x4A, 0x4B] }
+transport:
+  i2c:
+    address: { cel: "instance.address" }
+    max_speed_hz: 400000
+registers:
+  config: { reg_bits: 8, val_bits: 16, byte_order: be }
+  map:
+    TEMP_RESULT: { address: 0x00, access: ro }
+    CONFIG:
+      address: 0x01
+      access: rw
+      reset: 0x0220
+      fields:
+        high_alert: { bits: "15", access: ro }
+        low_alert:  { bits: "14", access: ro }
+        data_ready: { bits: "13", access: ro }
+        eeprom_busy: { bits: "12", access: ro }
+        mode:       { bits: "11:10", enum: { continuous: 0, shutdown: 1, one_shot: 3 } }
+        conv:       { bits: "9:7" }
+        avg:        { bits: "6:5", enum: { none: 0, x8: 1, x32: 2, x64: 3 } }
+        therm_alert: { bits: "4" }
+        polarity:   { bits: "3" }
+        dr_alert:   { bits: "2" }
+        soft_reset: { bits: "1" }
+    HIGH_LIMIT:  { address: 0x02, access: rw, reset: 0x6000 }
+    LOW_LIMIT:   { address: 0x03, access: rw, reset: 0x8000 }
+    EEPROM_UL:   { address: 0x04, access: rw }
+    EEPROM1:     { address: 0x05, access: rw }
+    EEPROM2:     { address: 0x06, access: rw }
+    TEMP_OFFSET: { address: 0x07, access: rw, reset: 0x0000 }
+    EEPROM3:     { address: 0x08, access: rw }
+    DEVICE_ID:
+      address: 0x0F
+      access: ro
+      volatile: false
+      fields:
+        upper: { bits: "15:12" }
+        device: { bits: "11:0" }
+timing:
+  startup_us: 1500
+  reset_us: 1500
+  conversion_us: { cel: "settings.averaging == 'x64' ? 125000 : 15500" }
+settings:
+  averaging:
+    type: string
+    enum: [none, x8, x32, x64]
+    default: x8
+    apply: configure
+sequences:
+  init:
+    - { wait_us: 1500 }
+    - { update: CONFIG, fields: { soft_reset: 1 } }
+    - { wait_us: 1500 }
+  configure:
+    - { update: CONFIG, fields: { mode: continuous, avg: { cel: "settings.averaging == 'none' ? 0 : settings.averaging == 'x8' ? 1 : settings.averaging == 'x32' ? 2 : 3" } } }
+  suspend:
+    - { update: CONFIG, fields: { mode: shutdown } }
+  resume:
+    - { update: CONFIG, fields: { mode: continuous } }
+commands:
+  read_temp:
+    reads_only: true
+    steps:
+      - { read: TEMP_RESULT, as: raw }
+    output:
+      celsius: { cel: "double(sign_extend(raw, 16)) * 0.0078125", unit: Cel }
+    timeout_ms: 20
+  set_offset:
+    description: Calibration offset added to every result (TEMP_OFFSET, 7.8125 m°C per LSB).
+    args:
+      celsius: { type: f64, unit: Cel, min: -256.0, max: 255.9921875 }
+    steps:
+      - { write: TEMP_OFFSET, value: { cel: "band(round(celsius / 0.0078125), 0xFFFF)" } }
+    timeout_ms: 20
+safety:
+  limits:
+    set_offset.celsius: { min: -10.0, max: 10.0, unit: Cel, reason: "larger offsets hide real faults; the factory calibration is within ±0.1 °C" }
+  registers:
+    EEPROM_UL: { writable: false, reason: "EEPROM programming is out of scope for this driver (limited write endurance)" }
+    EEPROM1:   { writable: false, reason: "EEPROM programming is out of scope for this driver" }
+    EEPROM2:   { writable: false, reason: "EEPROM programming is out of scope for this driver" }
+    EEPROM3:   { writable: false, reason: "EEPROM programming is out of scope for this driver" }
+states:
+  initial: unbound
+  transitions:
+    - { from: unbound,       to: ready,     trigger: bind,    do: init }
+    - { from: ready,     to: suspended, trigger: suspend, do: suspend }
+    - { from: suspended, to: ready,     trigger: resume,  do: resume }
+    - { from: "*",       to: unbound,       trigger: unbind }
+expose:
+  - { class: sensor.temperature, channel: temp, read: read_temp.celsius }
+tests:
+  - { name: room_temperature, call: read_temp, expect: { celsius: { between: [5, 45] } } }
+  - { name: small_offset_ok, call: set_offset, args: { celsius: 0.5 }, expect: ok, variant: tmp117 }
+  - { name: large_offset_rejected, call: set_offset, args: { celsius: 50.0 }, expect: rejected_by_safety, variant: tmp117 }

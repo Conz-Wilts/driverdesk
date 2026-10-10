@@ -1,0 +1,1019 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/commands.json",
+  "title": "Commands, steps, variables, sequences, settings (\u00a79, \u00a712)",
+  "$defs": {
+    "step": {
+      "type": "object",
+      "description": "Exactly one operation key: read, read_block, write, update, wait_us, wait_ms, poll, call, let, store, check, send, receive, control, transfer, hid_get, hid_set, hid_read, hid_write, bus, logic, dma_addr, enqueue, await, read_memory, write_memory",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/step_read"
+        },
+        {
+          "$ref": "#/$defs/step_read_block"
+        },
+        {
+          "$ref": "#/$defs/step_write"
+        },
+        {
+          "$ref": "#/$defs/step_update"
+        },
+        {
+          "$ref": "#/$defs/step_wait_us"
+        },
+        {
+          "$ref": "#/$defs/step_wait_ms"
+        },
+        {
+          "$ref": "#/$defs/step_poll"
+        },
+        {
+          "$ref": "#/$defs/step_call"
+        },
+        {
+          "$ref": "#/$defs/step_let"
+        },
+        {
+          "$ref": "#/$defs/step_store"
+        },
+        {
+          "$ref": "#/$defs/step_check"
+        },
+        {
+          "$ref": "#/$defs/step_send"
+        },
+        {
+          "$ref": "#/$defs/step_receive"
+        },
+        {
+          "$ref": "#/$defs/step_control"
+        },
+        {
+          "$ref": "#/$defs/step_transfer"
+        },
+        {
+          "$ref": "#/$defs/step_hid_get"
+        },
+        {
+          "$ref": "#/$defs/step_hid_set"
+        },
+        {
+          "$ref": "#/$defs/step_hid_read"
+        },
+        {
+          "$ref": "#/$defs/step_hid_write"
+        },
+        {
+          "$ref": "#/$defs/step_bus"
+        },
+        {
+          "$ref": "#/$defs/step_logic"
+        },
+        {
+          "$ref": "#/$defs/step_dma_addr"
+        },
+        {
+          "$ref": "#/$defs/step_enqueue"
+        },
+        {
+          "$ref": "#/$defs/step_await"
+        },
+        {
+          "$ref": "#/$defs/step_read_memory"
+        },
+        {
+          "$ref": "#/$defs/step_write_memory"
+        }
+      ]
+    },
+    "step_read": {
+      "type": "object",
+      "properties": {
+        "read": {
+          "$ref": "common.json#/$defs/path"
+        },
+        "as": {
+          "$ref": "common.json#/$defs/name"
+        }
+      },
+      "required": [
+        "read",
+        "as"
+      ],
+      "additionalProperties": false
+    },
+    "step_read_block": {
+      "type": "object",
+      "properties": {
+        "read_block": {
+          "$ref": "common.json#/$defs/reg_name"
+        },
+        "length": {
+          "$ref": "common.json#/$defs/int_or_cel"
+        },
+        "as": {
+          "$ref": "common.json#/$defs/name"
+        }
+      },
+      "required": [
+        "read_block",
+        "length",
+        "as"
+      ],
+      "additionalProperties": false
+    },
+    "step_write": {
+      "type": "object",
+      "properties": {
+        "write": {
+          "$ref": "common.json#/$defs/reg_name"
+        },
+        "value": {
+          "$ref": "common.json#/$defs/int_or_cel"
+        }
+      },
+      "required": [
+        "write",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "step_update": {
+      "type": "object",
+      "properties": {
+        "update": {
+          "$ref": "common.json#/$defs/reg_name"
+        },
+        "fields": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {
+            "$ref": "common.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "common.json#/$defs/cel_obj"
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "update",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
+    "step_wait_us": {
+      "type": "object",
+      "properties": {
+        "wait_us": {
+          "$ref": "common.json#/$defs/int_or_cel"
+        }
+      },
+      "required": [
+        "wait_us"
+      ],
+      "additionalProperties": false
+    },
+    "step_wait_ms": {
+      "type": "object",
+      "properties": {
+        "wait_ms": {
+          "$ref": "common.json#/$defs/int_or_cel"
+        }
+      },
+      "required": [
+        "wait_ms"
+      ],
+      "additionalProperties": false
+    },
+    "step_poll": {
+      "type": "object",
+      "properties": {
+        "poll": {
+          "$ref": "common.json#/$defs/path"
+        },
+        "until": {
+          "$ref": "common.json#/$defs/cel"
+        },
+        "interval_us": {
+          "$ref": "common.json#/$defs/uint"
+        },
+        "timeout_ms": {
+          "$ref": "common.json#/$defs/uint"
+        }
+      },
+      "required": [
+        "poll",
+        "until",
+        "timeout_ms"
+      ],
+      "additionalProperties": false
+    },
+    "step_call": {
+      "type": "object",
+      "properties": {
+        "call": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "args": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "$ref": "common.json#/$defs/scalar"
+              },
+              {
+                "$ref": "common.json#/$defs/cel_obj"
+              }
+            ]
+          }
+        },
+        "as": {
+          "$ref": "common.json#/$defs/name"
+        }
+      },
+      "required": [
+        "call"
+      ],
+      "additionalProperties": false
+    },
+    "step_let": {
+      "type": "object",
+      "properties": {
+        "let": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "cel": {
+          "$ref": "common.json#/$defs/cel"
+        }
+      },
+      "required": [
+        "let",
+        "cel"
+      ],
+      "additionalProperties": false
+    },
+    "step_store": {
+      "type": "object",
+      "properties": {
+        "store": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "cel": {
+          "$ref": "common.json#/$defs/cel"
+        }
+      },
+      "required": [
+        "store",
+        "cel"
+      ],
+      "additionalProperties": false
+    },
+    "step_check": {
+      "type": "object",
+      "properties": {
+        "check": {
+          "$ref": "common.json#/$defs/cel"
+        },
+        "error": {
+          "type": "string"
+        },
+        "layer": {
+          "$ref": "common.json#/$defs/layer"
+        }
+      },
+      "required": [
+        "check",
+        "error"
+      ],
+      "additionalProperties": false
+    },
+    "step_send": {
+      "type": "object",
+      "properties": {
+        "send": {
+          "$ref": "commands.json#/$defs/message"
+        }
+      },
+      "required": [
+        "send"
+      ],
+      "additionalProperties": false
+    },
+    "step_receive": {
+      "type": "object",
+      "properties": {
+        "receive": {
+          "$ref": "commands.json#/$defs/message"
+        },
+        "as": {
+          "$ref": "common.json#/$defs/name"
+        }
+      },
+      "required": [
+        "receive"
+      ],
+      "additionalProperties": false
+    },
+    "step_control": {
+      "type": "object",
+      "properties": {
+        "control": {
+          "type": "object",
+          "properties": {
+            "direction": {
+              "enum": [
+                "in",
+                "out"
+              ]
+            },
+            "type": {
+              "enum": [
+                "standard",
+                "class",
+                "vendor"
+              ]
+            },
+            "recipient": {
+              "enum": [
+                "device",
+                "interface",
+                "endpoint",
+                "other"
+              ]
+            },
+            "request": {
+              "$ref": "common.json#/$defs/u8"
+            },
+            "value": {
+              "$ref": "common.json#/$defs/int_or_cel"
+            },
+            "index": {
+              "$ref": "common.json#/$defs/int_or_cel"
+            },
+            "length": {
+              "$ref": "common.json#/$defs/int_or_cel"
+            },
+            "data": {
+              "$ref": "common.json#/$defs/cel"
+            }
+          },
+          "required": [
+            "direction",
+            "type",
+            "recipient",
+            "request"
+          ],
+          "additionalProperties": false
+        },
+        "as": {
+          "$ref": "common.json#/$defs/name"
+        }
+      },
+      "required": [
+        "control"
+      ],
+      "additionalProperties": false
+    },
+    "step_transfer": {
+      "type": "object",
+      "properties": {
+        "transfer": {
+          "type": "object",
+          "properties": {
+            "endpoint": {
+              "$ref": "common.json#/$defs/name"
+            },
+            "data": {
+              "$ref": "common.json#/$defs/cel"
+            },
+            "length": {
+              "$ref": "common.json#/$defs/int_or_cel"
+            }
+          },
+          "required": [
+            "endpoint"
+          ],
+          "additionalProperties": false
+        },
+        "as": {
+          "$ref": "common.json#/$defs/name"
+        }
+      },
+      "required": [
+        "transfer"
+      ],
+      "additionalProperties": false
+    },
+    "step_hid_get": {
+      "type": "object",
+      "properties": {
+        "hid_get": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "as": {
+          "$ref": "common.json#/$defs/name"
+        }
+      },
+      "required": [
+        "hid_get",
+        "as"
+      ],
+      "additionalProperties": false
+    },
+    "step_hid_set": {
+      "type": "object",
+      "properties": {
+        "hid_set": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "data": {
+          "$ref": "common.json#/$defs/cel"
+        }
+      },
+      "required": [
+        "hid_set",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "step_hid_read": {
+      "type": "object",
+      "properties": {
+        "hid_read": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "as": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "timeout_ms": {
+          "$ref": "common.json#/$defs/uint"
+        }
+      },
+      "required": [
+        "hid_read",
+        "as"
+      ],
+      "additionalProperties": false
+    },
+    "step_hid_write": {
+      "type": "object",
+      "properties": {
+        "hid_write": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "data": {
+          "$ref": "common.json#/$defs/cel"
+        }
+      },
+      "required": [
+        "hid_write",
+        "data"
+      ],
+      "additionalProperties": false
+    },
+    "step_bus": {
+      "type": "object",
+      "properties": {
+        "bus": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 1,
+          "properties": {
+            "i2c_write": {
+              "type": "object",
+              "properties": {
+                "address": {
+                  "$ref": "common.json#/$defs/int_or_cel"
+                },
+                "data": {
+                  "$ref": "common.json#/$defs/cel"
+                }
+              },
+              "required": [
+                "address",
+                "data"
+              ],
+              "additionalProperties": false
+            },
+            "i2c_read": {
+              "type": "object",
+              "properties": {
+                "address": {
+                  "$ref": "common.json#/$defs/int_or_cel"
+                },
+                "length": {
+                  "$ref": "common.json#/$defs/int_or_cel"
+                }
+              },
+              "required": [
+                "address",
+                "length"
+              ],
+              "additionalProperties": false
+            },
+            "i2c_write_read": {
+              "type": "object",
+              "properties": {
+                "address": {
+                  "$ref": "common.json#/$defs/int_or_cel"
+                },
+                "data": {
+                  "$ref": "common.json#/$defs/cel"
+                },
+                "length": {
+                  "$ref": "common.json#/$defs/int_or_cel"
+                }
+              },
+              "required": [
+                "address",
+                "data",
+                "length"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "as": {
+          "$ref": "common.json#/$defs/name"
+        }
+      },
+      "required": [
+        "bus"
+      ],
+      "additionalProperties": false
+    },
+    "step_logic": {
+      "type": "object",
+      "properties": {
+        "logic": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "args": {
+          "type": "object"
+        },
+        "as": {
+          "$ref": "common.json#/$defs/name"
+        }
+      },
+      "required": [
+        "logic"
+      ],
+      "additionalProperties": false
+    },
+    "step_dma_addr": {
+      "type": "object",
+      "properties": {
+        "dma_addr": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "as": {
+          "$ref": "common.json#/$defs/name"
+        }
+      },
+      "required": [
+        "dma_addr",
+        "as"
+      ],
+      "additionalProperties": false
+    },
+    "step_enqueue": {
+      "type": "object",
+      "properties": {
+        "enqueue": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "entry": {
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "$ref": "common.json#/$defs/scalar"
+              },
+              {
+                "$ref": "common.json#/$defs/cel_obj"
+              }
+            ]
+          }
+        },
+        "as": {
+          "$ref": "common.json#/$defs/name"
+        }
+      },
+      "required": [
+        "enqueue",
+        "entry"
+      ],
+      "additionalProperties": false
+    },
+    "step_await": {
+      "type": "object",
+      "properties": {
+        "await": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "match": {
+          "$ref": "common.json#/$defs/cel"
+        },
+        "timeout_ms": {
+          "$ref": "common.json#/$defs/uint"
+        },
+        "as": {
+          "$ref": "common.json#/$defs/name"
+        }
+      },
+      "required": [
+        "await",
+        "timeout_ms"
+      ],
+      "additionalProperties": false
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/step"
+      }
+    },
+    "message": {
+      "type": "object",
+      "properties": {
+        "payload": {
+          "oneOf": [
+            {
+              "$ref": "common.json#/$defs/struct_or_one"
+            },
+            {
+              "type": "object"
+            }
+          ]
+        },
+        "text": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "regex": {
+                  "type": "string"
+                },
+                "cel": {
+                  "$ref": "common.json#/$defs/cel"
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "$ref": "common.json#/$defs/cel_obj"
+          }
+        ]
+      },
+      "description": "Frame field values plus optional payload/text"
+    },
+    "arg": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "common.json#/$defs/scalar_type"
+        },
+        "unit": {
+          "$ref": "common.json#/$defs/unit"
+        },
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "enum": {
+          "type": "array",
+          "items": {
+            "$ref": "common.json#/$defs/scalar"
+          },
+          "minItems": 1
+        },
+        "default": {
+          "$ref": "common.json#/$defs/scalar"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "output": {
+      "type": "object",
+      "properties": {
+        "cel": {
+          "$ref": "common.json#/$defs/cel"
+        },
+        "unit": {
+          "$ref": "common.json#/$defs/unit"
+        },
+        "type": {
+          "$ref": "common.json#/$defs/scalar_type"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "cel"
+      ],
+      "additionalProperties": false
+    },
+    "command": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "args": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "$ref": "common.json#/$defs/scalar_type"
+              },
+              "unit": {
+                "$ref": "common.json#/$defs/unit"
+              },
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              },
+              "enum": {
+                "type": "array",
+                "items": {
+                  "$ref": "common.json#/$defs/scalar"
+                },
+                "minItems": 1
+              },
+              "default": {
+                "$ref": "common.json#/$defs/scalar"
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "send": {
+          "$ref": "#/$defs/message"
+        },
+        "expect": {
+          "$ref": "#/$defs/message"
+        },
+        "steps": {
+          "$ref": "#/$defs/steps"
+        },
+        "output": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "cel": {
+                "$ref": "common.json#/$defs/cel"
+              },
+              "unit": {
+                "$ref": "common.json#/$defs/unit"
+              },
+              "type": {
+                "$ref": "common.json#/$defs/scalar_type"
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "cel"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "timeout_ms": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 600000
+        },
+        "retries": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "idempotent": {
+          "type": "boolean"
+        },
+        "reads_only": {
+          "type": "boolean"
+        },
+        "requires_state": {
+          "type": "array",
+          "items": {
+            "$ref": "common.json#/$defs/name"
+          }
+        }
+      },
+      "patternProperties": {
+        "^x-": true
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "send"
+          ],
+          "not": {
+            "required": [
+              "steps"
+            ]
+          }
+        },
+        {
+          "required": [
+            "steps"
+          ],
+          "not": {
+            "required": [
+              "send"
+            ]
+          }
+        }
+      ]
+    },
+    "commands": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/command"
+      }
+    },
+    "var": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "common.json#/$defs/scalar_type"
+        },
+        "initial": {
+          "$ref": "common.json#/$defs/scalar"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "vars": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/var"
+      }
+    },
+    "sequences": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/steps"
+      }
+    },
+    "setting": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "common.json#/$defs/scalar_type"
+        },
+        "enum": {
+          "type": "array",
+          "items": {
+            "$ref": "common.json#/$defs/scalar"
+          },
+          "minItems": 1
+        },
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "default": {
+          "$ref": "common.json#/$defs/scalar"
+        },
+        "unit": {
+          "$ref": "common.json#/$defs/unit"
+        },
+        "apply": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "default"
+      ],
+      "additionalProperties": false
+    },
+    "settings": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/setting"
+      }
+    },
+    "step_read_memory": {
+      "type": "object",
+      "properties": {
+        "read_memory": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "offset": {
+          "$ref": "common.json#/$defs/int_or_cel"
+        },
+        "length": {
+          "$ref": "common.json#/$defs/int_or_cel"
+        },
+        "as": {
+          "$ref": "common.json#/$defs/name"
+        }
+      },
+      "required": [
+        "read_memory",
+        "length",
+        "as"
+      ],
+      "additionalProperties": false
+    },
+    "step_write_memory": {
+      "type": "object",
+      "properties": {
+        "write_memory": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "offset": {
+          "$ref": "common.json#/$defs/int_or_cel"
+        },
+        "data": {
+          "$ref": "common.json#/$defs/cel"
+        }
+      },
+      "required": [
+        "write_memory",
+        "data"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

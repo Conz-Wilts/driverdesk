@@ -1,0 +1,16 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/46-L020-unknown-enum-value.yaml
+---
+DD-L020 (https://driverdesk.dev/errors/DD-L020)
+
+  × `contiuous` is not a named value of `CONFIG.mode`
+    ╭─[46-L020-unknown-enum-value.yaml:33:41]
+ 32 │   init:
+ 33 │     - { update: CONFIG, fields: { mode: contiuous } }
+    ·                                         ────┬────
+    ·                                             ╰── unknown value
+ 34 │     - { wait_ms: 2 }
+    ╰────
+  help: did you mean `continuous`?

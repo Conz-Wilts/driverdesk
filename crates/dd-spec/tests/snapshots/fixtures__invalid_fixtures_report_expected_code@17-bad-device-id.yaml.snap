@@ -1,0 +1,29 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/17-bad-device-id.yaml
+---
+DD-S005 (https://driverdesk.dev/errors/DD-S005)
+
+  × `LedThermo` is not a valid value for `device.id`
+   ╭─[17-bad-device-id.yaml:5:7]
+ 4 │ device:
+ 5 │   id: LedThermo
+   ·       ────┬────
+   ·           ╰── invalid
+ 6 │   name: LED thermometer
+   ╰────
+  help: device ids are lower-case and dot-separated with the vendor prefix first, e.g.
+        `ti.tmp117`; here: `example.led-thermo`
+DD-L016 (https://driverdesk.dev/errors/DD-L016)
+
+  ⚠ safety block is not signed
+    ╭─[17-bad-device-id.yaml:41:1]
+ 40 │     timeout_ms: 50
+ 41 │ safety:
+    · ───┬──
+    ·    ╰── unsigned
+ 42 │   limits:
+    ╰────
+  help: fine for local development; the registry refuses to publish vendor descriptions with an
+        unsigned safety block (spec §14.6)

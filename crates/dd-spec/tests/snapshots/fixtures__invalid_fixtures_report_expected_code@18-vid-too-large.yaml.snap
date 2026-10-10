@@ -1,0 +1,28 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/18-vid-too-large.yaml
+---
+DD-S006 (https://driverdesk.dev/errors/DD-S006)
+
+  × `match[0].vid` = 73872 is above the maximum (65535)
+    ╭─[18-vid-too-large.yaml:12:10]
+ 11 │   - bus: usb
+ 12 │     vid: 0x12090
+    ·          ───┬───
+    ·             ╰── out of range
+ 13 │     pid: 0x0001
+    ╰────
+  help: the value must fit in 16 bits (0x0000–0xFFFF); check for an extra digit
+DD-L016 (https://driverdesk.dev/errors/DD-L016)
+
+  ⚠ safety block is not signed
+    ╭─[18-vid-too-large.yaml:41:1]
+ 40 │     timeout_ms: 50
+ 41 │ safety:
+    · ───┬──
+    ·    ╰── unsigned
+ 42 │   limits:
+    ╰────
+  help: fine for local development; the registry refuses to publish vendor descriptions with an
+        unsigned safety block (spec §14.6)

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/profiles/camera.video.json",
+  "title": "Class profile camera.video",
+  "x-stability": "provisional",
+  "x-requires": "streams",
+  "type": "object",
+  "required": [
+    "streams"
+  ]
+}

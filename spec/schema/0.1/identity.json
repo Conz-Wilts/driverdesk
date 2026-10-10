@@ -1,0 +1,302 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/identity.json",
+  "title": "Identity, variants, instance (\u00a74)",
+  "$defs": {
+    "device": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*(\\.[a-z0-9][a-z0-9-]*)+$",
+          "maxLength": 128
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "vendor": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "prefix": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]*$"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        "version": {
+          "$ref": "common.json#/$defs/semver"
+        },
+        "classes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z]+(\\.[a-z0-9_]+)+$"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "compatible": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+,[a-z0-9._+-]+$"
+          },
+          "minItems": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "datasheets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "sha256": {
+                "$ref": "common.json#/$defs/sha256"
+              },
+              "title": {
+                "type": "string"
+              },
+              "revision": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "url",
+              "sha256"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "license": {
+          "type": "string"
+        },
+        "maintainers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "datasheet",
+                  "linux",
+                  "capture",
+                  "vendor",
+                  "other"
+                ]
+              },
+              "ref": {
+                "type": "string"
+              },
+              "note": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "ref"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "vendor",
+        "version",
+        "classes"
+      ],
+      "patternProperties": {
+        "^x-": true
+      },
+      "additionalProperties": false
+    },
+    "id_check": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "register": {
+              "$ref": "common.json#/$defs/reg_name"
+            },
+            "equals": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  },
+                  "minItems": 1
+                }
+              ]
+            },
+            "mask": {
+              "$ref": "common.json#/$defs/uint"
+            }
+          },
+          "required": [
+            "register",
+            "equals"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "common.json#/$defs/name"
+            },
+            "output": {
+              "$ref": "common.json#/$defs/name"
+            },
+            "equals": {
+              "oneOf": [
+                {
+                  "$ref": "common.json#/$defs/scalar"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "common.json#/$defs/scalar"
+                  },
+                  "minItems": 1
+                }
+              ]
+            }
+          },
+          "required": [
+            "command",
+            "output",
+            "equals"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "usb_descriptor": {
+              "type": "object",
+              "properties": {
+                "bcd_device": {
+                  "$ref": "common.json#/$defs/range_u16"
+                }
+              },
+              "required": [
+                "bcd_device"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "usb_descriptor"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "variants": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "id_check": {
+            "$ref": "#/$defs/id_check"
+          },
+          "exclude": {
+            "type": "array",
+            "items": {
+              "$ref": "common.json#/$defs/path"
+            }
+          },
+          "params": {
+            "type": "object",
+            "propertyNames": {
+              "$ref": "common.json#/$defs/name"
+            },
+            "additionalProperties": {
+              "$ref": "common.json#/$defs/scalar"
+            }
+          },
+          "default": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "instance": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "common.json#/$defs/scalar_type"
+          },
+          "default": {
+            "$ref": "common.json#/$defs/scalar"
+          },
+          "enum": {
+            "type": "array",
+            "items": {
+              "$ref": "common.json#/$defs/scalar"
+            },
+            "minItems": 1
+          },
+          "min": {
+            "type": "number"
+          },
+          "max": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}

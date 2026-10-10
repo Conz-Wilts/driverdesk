@@ -1,0 +1,47 @@
+# UCUM subset accepted by DriverDesk 0.1 validators (spec §11).
+# Self-authored table of case-sensitive UCUM codes; dimension exponents over
+# L (length), M (mass), T (time), I (current), K (temperature), N (amount), J (luminous intensity).
+# factor: multiply by this to get the coherent SI unit; offset: added after scaling (temperatures).
+prefixes: { Y: 1e24, Z: 1e21, E: 1e18, P: 1e15, T: 1e12, G: 1e9, M: 1e6, k: 1e3, h: 1e2, da: 1e1, d: 1e-1, c: 1e-2, m: 1e-3, u: 1e-6, n: 1e-9, p: 1e-12, f: 1e-15 }
+units:
+  "1":   { dim: {}, factor: 1, prefix: false }
+  "%":   { dim: {}, factor: 0.01, prefix: false }
+  "[ppm]": { dim: {}, factor: 1e-6, prefix: false }
+  "[ppb]": { dim: {}, factor: 1e-9, prefix: false }
+  m:     { dim: { L: 1 }, factor: 1 }
+  g:     { dim: { M: 1 }, factor: 1e-3 }
+  s:     { dim: { T: 1 }, factor: 1 }
+  min:   { dim: { T: 1 }, factor: 60, prefix: false }
+  h:     { dim: { T: 1 }, factor: 3600, prefix: false }
+  A:     { dim: { I: 1 }, factor: 1 }
+  K:     { dim: { K: 1 }, factor: 1 }
+  Cel:   { dim: { K: 1 }, factor: 1, offset: 273.15, prefix: false }
+  "[degF]": { dim: { K: 1 }, factor: 0.5555555555555556, offset: 255.3722222222222, prefix: false }
+  mol:   { dim: { N: 1 }, factor: 1 }
+  cd:    { dim: { J: 1 }, factor: 1 }
+  Hz:    { dim: { T: -1 }, factor: 1 }
+  N:     { dim: { M: 1, L: 1, T: -2 }, factor: 1 }
+  Pa:    { dim: { M: 1, L: -1, T: -2 }, factor: 1 }
+  bar:   { dim: { M: 1, L: -1, T: -2 }, factor: 1e5 }
+  "[psi]": { dim: { M: 1, L: -1, T: -2 }, factor: 6894.757293168, prefix: false }
+  J:     { dim: { M: 1, L: 2, T: -2 }, factor: 1 }
+  W:     { dim: { M: 1, L: 2, T: -3 }, factor: 1 }
+  V:     { dim: { M: 1, L: 2, T: -3, I: -1 }, factor: 1 }
+  Ohm:   { dim: { M: 1, L: 2, T: -3, I: -2 }, factor: 1 }
+  S:     { dim: { M: -1, L: -2, T: 3, I: 2 }, factor: 1 }
+  F:     { dim: { M: -1, L: -2, T: 4, I: 2 }, factor: 1 }
+  C:     { dim: { T: 1, I: 1 }, factor: 1 }
+  T:     { dim: { M: 1, T: -2, I: -1 }, factor: 1 }
+  G:     { dim: { M: 1, T: -2, I: -1 }, factor: 1e-4 }
+  lx:    { dim: { J: 1, L: -2 }, factor: 1 }
+  lm:    { dim: { J: 1 }, factor: 1 }
+  rad:   { dim: {}, factor: 1 }
+  deg:   { dim: {}, factor: 0.017453292519943295, prefix: false }
+  "[g]": { dim: { L: 1, T: -2 }, factor: 9.80665, prefix: false }
+  B:     { dim: {}, factor: 1 }
+  dB:    { dim: {}, factor: 1, prefix: false }
+  By:    { dim: {}, factor: 1 }
+  bit:   { dim: {}, factor: 1 }
+  "[pH]": { dim: {}, factor: 1, prefix: false }
+  L:     { dim: { L: 3 }, factor: 1e-3 }
+  l:     { dim: { L: 3 }, factor: 1e-3 }

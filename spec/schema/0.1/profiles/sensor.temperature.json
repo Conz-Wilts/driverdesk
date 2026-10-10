@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/profiles/sensor.temperature.json",
+  "title": "Class profile sensor.temperature",
+  "x-stability": "stable",
+  "x-requires": "read",
+  "x-unit": "Cel",
+  "type": "object",
+  "required": [
+    "expose"
+  ]
+}

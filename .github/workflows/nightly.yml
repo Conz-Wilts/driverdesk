@@ -1,0 +1,42 @@
+name: nightly
+
+on:
+  schedule:
+    - cron: "17 14 * * *" # 02:17 NZST
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  proptest-100k:
+    name: proptest 100k (release)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install Rust toolchain (rust-toolchain.toml)
+        run: rustup show active-toolchain || rustup toolchain install
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test --release -p dd-spec --test robustness
+        env:
+          PROPTEST_CASES: "100000"
+
+  fuzz-validate:
+    name: cargo fuzz validate (10 min)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: rustup toolchain install nightly --profile minimal
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-fuzz
+      - name: Seed corpus
+        run: mkdir -p fuzz/corpus/validate && cp devices/examples/*.yaml spec/fixtures/invalid/*.yaml fuzz/corpus/validate/
+      - name: Fuzz
+        working-directory: fuzz
+        run: cargo +nightly fuzz run validate -- -max_total_time=600 -timeout=10
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: fuzz-artifacts
+          path: fuzz/artifacts

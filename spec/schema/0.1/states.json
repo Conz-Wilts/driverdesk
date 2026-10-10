@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/states.json",
+  "title": "State machine (\u00a712.1)",
+  "type": "object",
+  "properties": {
+    "initial": {
+      "$ref": "common.json#/$defs/name"
+    },
+    "list": {
+      "type": "array",
+      "items": {
+        "$ref": "common.json#/$defs/name"
+      },
+      "uniqueItems": true
+    },
+    "transitions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/transition"
+      }
+    }
+  },
+  "required": [
+    "initial",
+    "transitions"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "trigger": {
+      "oneOf": [
+        {
+          "enum": [
+            "bind",
+            "unbind",
+            "request",
+            "suspend",
+            "resume",
+            "error",
+            "reset"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "idle_ms": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "idle_ms"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "event": {
+              "$ref": "common.json#/$defs/name"
+            }
+          },
+          "required": [
+            "event"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "call": {
+              "$ref": "common.json#/$defs/name"
+            }
+          },
+          "required": [
+            "call"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "transition": {
+      "type": "object",
+      "properties": {
+        "from": {
+          "oneOf": [
+            {
+              "$ref": "common.json#/$defs/name"
+            },
+            {
+              "const": "*"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "common.json#/$defs/name"
+              },
+              "minItems": 1
+            }
+          ]
+        },
+        "to": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "do": {
+          "oneOf": [
+            {
+              "$ref": "common.json#/$defs/name"
+            },
+            {
+              "$ref": "commands.json#/$defs/steps"
+            }
+          ]
+        },
+        "trigger": {
+          "$ref": "#/$defs/trigger"
+        }
+      },
+      "required": [
+        "from",
+        "to"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

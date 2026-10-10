@@ -1,0 +1,227 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/safety.json",
+  "title": "Safety envelope (\u00a714)",
+  "type": "object",
+  "properties": {
+    "limits": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.json#/$defs/path"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "min": {
+            "type": "number"
+          },
+          "max": {
+            "type": "number"
+          },
+          "enum": {
+            "type": "array",
+            "items": {
+              "$ref": "common.json#/$defs/scalar"
+            },
+            "minItems": 1
+          },
+          "unit": {
+            "$ref": "common.json#/$defs/unit"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "min"
+            ]
+          },
+          {
+            "required": [
+              "max"
+            ]
+          },
+          {
+            "required": [
+              "enum"
+            ]
+          }
+        ]
+      }
+    },
+    "rates": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "string",
+            "pattern": "^[1-9][0-9]*/(s|min|h)$"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "max": {
+                "type": "string",
+                "pattern": "^[1-9][0-9]*/(s|min|h)$"
+              },
+              "burst": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "max"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "registers": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.json#/$defs/path"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "allowed": {
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                },
+                "minItems": 1
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "min": {
+                    "type": "integer"
+                  },
+                  "max": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "min",
+                  "max"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "forbidden": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "minItems": 1
+          },
+          "writable": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "forbidden_sequences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sequence": {
+            "type": "array",
+            "items": {
+              "$ref": "common.json#/$defs/name"
+            },
+            "minItems": 2
+          },
+          "within_ms": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sequence",
+          "within_ms",
+          "reason"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "interlocks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "when": {
+            "$ref": "common.json#/$defs/cel"
+          },
+          "deny": {
+            "type": "array",
+            "items": {
+              "$ref": "common.json#/$defs/name"
+            },
+            "minItems": 1
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "when",
+          "deny",
+          "reason"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "signed_by": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "signature": {
+          "type": "string",
+          "contentEncoding": "base64"
+        },
+        "signed_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "key",
+        "signature",
+        "signed_at"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "minProperties": 1
+}

@@ -1,0 +1,16 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/11-unknown-step-operation.yaml
+---
+DD-S004 (https://driverdesk.dev/errors/DD-S004)
+
+  × unknown field `reed` in `commands.read_temp.steps[0]`
+    ╭─[11-unknown-step-operation.yaml:39:11]
+ 38 │     steps:
+ 39 │       - { reed: TEMP, as: raw }
+    ·           ──┬─
+    ·             ╰── unrecognised
+ 40 │     output:
+    ╰────
+  help: did you mean `read`?

@@ -1,0 +1,28 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/10-unknown-command-field.yaml
+---
+DD-S004 (https://driverdesk.dev/errors/DD-S004)
+
+  × unknown field `timout_ms` in `commands.read_temp`
+    ╭─[10-unknown-command-field.yaml:32:5]
+ 31 │       celsius: { cel: "double(raw) / 100.0", unit: Cel }
+ 32 │     timout_ms: 50
+    ·     ────┬────
+    ·         ╰── not allowed here
+ 33 │     retries: 2
+    ╰────
+  help: did you mean `timeout_ms`?
+DD-L016 (https://driverdesk.dev/errors/DD-L016)
+
+  ⚠ safety block is not signed
+    ╭─[10-unknown-command-field.yaml:41:1]
+ 40 │     timeout_ms: 50
+ 41 │ safety:
+    · ───┬──
+    ·    ╰── unsigned
+ 42 │   limits:
+    ╰────
+  help: fine for local development; the registry refuses to publish vendor descriptions with an
+        unsigned safety block (spec §14.6)

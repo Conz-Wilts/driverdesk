@@ -1,0 +1,29 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/52-L025-retry-non-idempotent.yaml
+---
+DD-L025 (https://driverdesk.dev/errors/DD-L025)
+
+  × `set_led` retries a command that writes to the device
+    ╭─[52-L025-retry-non-idempotent.yaml:41:5]
+ 40 │     timeout_ms: 50
+ 41 │     retries: 3
+    ·     ───┬───
+    ·        ╰── unsafe retry
+ 42 │ safety:
+    ╰────
+  help: if running it twice is harmless, add `idempotent: true` to the command (next to
+        `retries`); otherwise remove `retries` (spec §9.1)
+DD-L016 (https://driverdesk.dev/errors/DD-L016)
+
+  ⚠ safety block is not signed
+    ╭─[52-L025-retry-non-idempotent.yaml:42:1]
+ 41 │     retries: 3
+ 42 │ safety:
+    · ───┬──
+    ·    ╰── unsigned
+ 43 │   limits:
+    ╰────
+  help: fine for local development; the registry refuses to publish vendor descriptions with an
+        unsigned safety block (spec §14.6)

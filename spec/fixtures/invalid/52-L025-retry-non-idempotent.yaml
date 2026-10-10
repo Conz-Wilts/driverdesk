@@ -1,0 +1,56 @@
+# expect: DD-L025
+# a command that writes is retried
+spec: driverdesk/0.1
+device:
+  id: example.led-thermo
+  name: LED thermometer
+  vendor: { name: Example Labs, prefix: example }
+  version: 0.1.0
+  classes: [sensor.temperature, light.indicator]
+match:
+  - bus: usb
+    vid: 0x1209
+    pid: 0x0001
+    interface_class: 0xFF
+transport:
+  usb:
+    interface: 0
+    endpoints:
+      out: { address: 0x01, type: bulk }
+      in:  { address: 0x81, type: bulk }
+  framing:
+    - { name: header,  type: u8 }
+    - { name: length,  type: u8, counts: payload }
+    - { name: payload, type: bytes(length) }
+    - { name: check,   checksum: crc8-smbus, over: [header, length, payload] }
+commands:
+  read_temp:
+    send:   { header: 0x10 }
+    expect: { header: 0x90, payload: [ { raw: i16le } ] }
+    output:
+      celsius: { cel: "double(raw) / 100.0", unit: Cel }
+    timeout_ms: 50
+    retries: 2
+  set_led:
+    args:
+      enabled: { type: bool }
+      level:   { type: u8, unit: "%", min: 0, max: 100 }
+    send:   { header: 0x20, payload: [ { enabled: bool }, { level: u8 } ] }
+    expect: { header: 0xA0 }
+    timeout_ms: 50
+    retries: 3
+safety:
+  limits:
+    set_led.level: { max: 80, unit: "%", reason: "LED rated 20 mA" }
+states:
+  initial: unbound
+  transitions:
+    - { from: unbound, to: idle,   trigger: bind }
+    - { from: idle,    to: active, trigger: request }
+    - { from: active,  to: idle,   trigger: { idle_ms: 5000 } }
+expose:
+  - { class: sensor.temperature, channel: temp0, read: read_temp.celsius }
+  - { class: light.indicator,    channel: led0,  write: set_led }
+tests:
+  - { name: room_temperature, call: read_temp, expect: { celsius: { between: [5, 45] } } }
+  - { name: led_cap, call: set_led, args: { enabled: true, level: 90 }, expect: rejected_by_safety }

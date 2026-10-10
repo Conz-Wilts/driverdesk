@@ -1,0 +1,756 @@
+# DriverDesk P0 benchmark (P0.T10). Datasheets are referenced by URL + SHA-256 only; PDFs live in cache/ (gitignored).
+# Split: heldout = random.Random(20261010).sample(sorted(parts), 15); the other 35 are dev.
+version: 1
+linux_commit: 3857c2fe5449541e24afc5efdb0f81a8a8f9a3a0
+seed: 20261010
+chips:
+  - part: ADS1100
+    vendor: Texas Instruments
+    class: sensor.generic
+    kind: adc
+    bus: i2c
+    compatible: "ti,ads1100"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/ads1100.pdf
+      sha256: 8a11a01923552b728d68c42d7d726bc8f54a68e69bffdbaa43c1c56a2c86721f
+      bytes: 1062875
+    linux:
+      path: drivers/iio/adc/ti-ads1100.c
+      subsystem: iio
+    split: heldout
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: ADS1115
+    vendor: Texas Instruments
+    class: sensor.generic
+    kind: adc
+    bus: i2c
+    compatible: "ti,ads1115"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/ads1115.pdf
+      sha256: eefff4d412ce2dcd7e659f47238edc9b2fa02e5971f2625af730502033701834
+      bytes: 2654255
+    linux:
+      path: drivers/iio/adc/ti-ads1015.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: ADS7828
+    vendor: Texas Instruments
+    class: sensor.generic
+    kind: adc
+    bus: i2c
+    compatible: "ti,ads7828"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/ads7828.pdf
+      sha256: 5d561f2383b6725bfeed3d9ee3623eb61f79a0bed2fd41daddd053fcf15cd99a
+      bytes: 501505
+    linux:
+      path: drivers/hwmon/ads7828.c
+      subsystem: hwmon
+    split: heldout
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: ADS7924
+    vendor: Texas Instruments
+    class: sensor.generic
+    kind: adc
+    bus: i2c
+    compatible: "ti,ads7924"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/ads7924.pdf
+      sha256: f680e98ab6f72d72ea63c14e1031d3b051c70d4f0aef7a4a9738336a35dfbd95
+      bytes: 1482721
+    linux:
+      path: drivers/iio/adc/ti-ads7924.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: BMA253
+    vendor: Bosch Sensortec
+    class: sensor.generic
+    kind: accelerometer
+    bus: i2c
+    compatible: "bosch,bma253"
+    datasheet:
+      url: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bma253-ds000.pdf
+      sha256: f54c3df77bb912949dcb58d9bee7d82f001f206cb6c693791ae42f9dd146827c
+      bytes: 2777465
+    linux:
+      path: drivers/iio/accel/bmc150-accel-i2c.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Bosch Sensortec, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: BMA400
+    vendor: Bosch Sensortec
+    class: sensor.generic
+    kind: accelerometer
+    bus: i2c
+    compatible: "bosch,bma400"
+    datasheet:
+      url: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bma400-ds000.pdf
+      sha256: 8b48f12e94450b86404597c33f2edf1b542940bc1fa9e0a89d4981f25a8b1e8f
+      bytes: 2897021
+    linux:
+      path: drivers/iio/accel/bma400_i2c.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Bosch Sensortec, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: BME280
+    vendor: Bosch Sensortec
+    class: sensor.humidity
+    kind: humidity
+    bus: i2c
+    compatible: "bosch,bme280"
+    datasheet:
+      url: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme280-ds002.pdf
+      sha256: a2ccdb449fec94380742fe8eec851a11d9bd4142252d332b34682b4deecd7d89
+      bytes: 1663806
+    linux:
+      path: drivers/iio/pressure/bmp280-i2c.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Bosch Sensortec, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: BMI088
+    vendor: Bosch Sensortec
+    class: sensor.generic
+    kind: imu
+    bus: i2c
+    compatible: "bosch,bmi088-accel"
+    datasheet:
+      url: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmi088-ds001.pdf
+      sha256: 53ab734dba49ac202fa6182fc2b545df6c6d7459c9fec6e851a1209e6bac417e
+      bytes: 1368590
+    linux:
+      path: drivers/iio/accel/bmi088-accel-i2c.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Bosch Sensortec, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: BMI160
+    vendor: Bosch Sensortec
+    class: sensor.generic
+    kind: imu
+    bus: i2c
+    compatible: "bosch,bmi160"
+    datasheet:
+      url: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmi160-ds000.pdf
+      sha256: 0c3dca28517322bdcfcef9be8b1dd2b872ff9df9464d0088c17ccc4a67472f3b
+      bytes: 2669088
+    linux:
+      path: drivers/iio/imu/bmi160/bmi160_i2c.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Bosch Sensortec, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: BMI270
+    vendor: Bosch Sensortec
+    class: sensor.generic
+    kind: imu
+    bus: i2c
+    compatible: "bosch,bmi270"
+    datasheet:
+      url: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmi270-ds000.pdf
+      sha256: f68ce3c74f011a80bbe4b0279c4abe9609a71a5dcda75a951381d77112e005fb
+      bytes: 2636042
+    linux:
+      path: drivers/iio/imu/bmi270/bmi270_i2c.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Bosch Sensortec, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: BMI323
+    vendor: Bosch Sensortec
+    class: sensor.generic
+    kind: imu
+    bus: i2c
+    compatible: "bosch,bmi323"
+    datasheet:
+      url: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmi323-ds000.pdf
+      sha256: 4df61d6505763ca04bd3e115a9f974ebb89f3844f19509c2b04fbb9bcfca98f2
+      bytes: 2543023
+    linux:
+      path: drivers/iio/imu/bmi323/bmi323_i2c.c
+      subsystem: iio
+    split: heldout
+    licence: "datasheet © Bosch Sensortec, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: BMP280
+    vendor: Bosch Sensortec
+    class: sensor.pressure
+    kind: pressure
+    bus: i2c
+    compatible: "bosch,bmp280"
+    datasheet:
+      url: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmp280-ds001.pdf
+      sha256: 473ff27d9df698b4757e36b36209f83b9f637b592c999d5fabe2a9453a488da6
+      bytes: 1162932
+    linux:
+      path: drivers/iio/pressure/bmp280-i2c.c
+      subsystem: iio
+    split: heldout
+    licence: "datasheet © Bosch Sensortec, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: BMP388
+    vendor: Bosch Sensortec
+    class: sensor.pressure
+    kind: pressure
+    bus: i2c
+    compatible: "bosch,bmp380"
+    datasheet:
+      url: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmp388-ds001.pdf
+      sha256: 1ab21c90aaf15542751be6b970d53dc57893a4ea948f45f9fe96e844789fdec2
+      bytes: 2034693
+    linux:
+      path: drivers/iio/pressure/bmp280-i2c.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Bosch Sensortec, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: BNO055
+    vendor: Bosch Sensortec
+    class: sensor.generic
+    kind: imu
+    bus: i2c
+    compatible: "bosch,bno055"
+    datasheet:
+      url: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf
+      sha256: 5bab02a74fb63c261d6e25a05a44c34855f33fdebfd7a775d68705e41d7552f2
+      bytes: 2052876
+    linux:
+      path: drivers/iio/imu/bno055/bno055_i2c.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Bosch Sensortec, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: BQ32000
+    vendor: Texas Instruments
+    class: sensor.generic
+    kind: rtc
+    bus: i2c
+    compatible: "ti,bq32000"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/bq32000.pdf
+      sha256: 245c32e30aa919ebb099b057f4528ff05770404516846ebbd974f8ba7199232a
+      bytes: 1224948
+    linux:
+      path: drivers/rtc/rtc-bq32k.c
+      subsystem: rtc
+    split: heldout
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: DAC5571
+    vendor: Texas Instruments
+    class: sensor.generic
+    kind: dac
+    bus: i2c
+    compatible: "ti,dac5571"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/dac5571.pdf
+      sha256: c39f19573078d7b88a282673d65a89193f3fb4620b8579a6d8574c5da7c3fd6e
+      bytes: 1230193
+    linux:
+      path: drivers/iio/dac/ti-dac5571.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: DAC7571
+    vendor: Texas Instruments
+    class: sensor.generic
+    kind: dac
+    bus: i2c
+    compatible: "ti,dac7571"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/dac7571.pdf
+      sha256: daa60c532de7c4f81e5957107666144ada4bc681787b8a5e6e2e5c29d5a98ce5
+      bytes: 1439344
+    linux:
+      path: drivers/iio/dac/ti-dac5571.c
+      subsystem: iio
+    split: heldout
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: HDC1080
+    vendor: Texas Instruments
+    class: sensor.humidity
+    kind: humidity
+    bus: i2c
+    compatible: "ti,hdc1080"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/hdc1080.pdf
+      sha256: ff9fed45056ad05762d46f11905f1f14df425b8a8ef2d0d9cbb813c5711735e4
+      bytes: 809053
+    linux:
+      path: drivers/iio/humidity/hdc100x.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: HDC2080
+    vendor: Texas Instruments
+    class: sensor.humidity
+    kind: humidity
+    bus: i2c
+    compatible: "ti,hdc2080"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/hdc2080.pdf
+      sha256: e47d6255a65708424f194179a15321af3aca201a5840a1c9650850f6b084af10
+      bytes: 1488860
+    linux:
+      path: drivers/iio/humidity/hdc2010.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: HDC3020
+    vendor: Texas Instruments
+    class: sensor.humidity
+    kind: humidity
+    bus: i2c
+    compatible: "ti,hdc3020"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/hdc3020.pdf
+      sha256: 733d31c0cfce545c4caa1e2a3b03ed3ca7191dbc165f171a0e2650b679328cc7
+      bytes: 2258738
+    linux:
+      path: drivers/iio/humidity/hdc3020.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: INA219
+    vendor: Texas Instruments
+    class: sensor.generic
+    kind: adc
+    bus: i2c
+    compatible: "ti,ina219"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/ina219.pdf
+      sha256: 58004eda854d07478e6fc6f4398c114f60a3bcf18d4877471c7c1a306d1fa1cb
+      bytes: 892731
+    linux:
+      path: drivers/hwmon/ina2xx.c
+      subsystem: hwmon
+    split: heldout
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: ISL1208
+    vendor: Renesas
+    class: sensor.generic
+    kind: rtc
+    bus: i2c
+    compatible: "isil,isl1208"
+    datasheet:
+      url: https://www.renesas.com/us/en/document/dst/isl1208-datasheet
+      sha256: 73335397f3926212bcb1d64a0aa6b301af400b3adab1f67953751db49772921c
+      bytes: 1116117
+    linux:
+      path: drivers/rtc/rtc-isl1208.c
+      subsystem: rtc
+    split: heldout
+    licence: "datasheet © Renesas, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: KX022A
+    vendor: Rohm
+    class: sensor.generic
+    kind: accelerometer
+    bus: i2c
+    compatible: "kionix,kx022a"
+    datasheet:
+      url: https://fscdn.rohm.com/kionix/en/datasheet/kx022acr-z-e.pdf
+      sha256: 05e93b944cb8f226618699c733d6c45f8c3228b15c4ef66e66901c0ae911fd9b
+      bytes: 1592562
+    linux:
+      path: drivers/iio/accel/kionix-kx022a-i2c.c
+      subsystem: iio
+    split: heldout
+    licence: "datasheet © ROHM (Kionix), referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: LP5024
+    vendor: Texas Instruments
+    class: light.indicator
+    kind: led-driver
+    bus: i2c
+    compatible: "ti,lp5024"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/lp5024.pdf
+      sha256: cd8314d93235724a73604873ea6082a5222e4e8bc579c4d1cfbd321691364200
+      bytes: 2601425
+    linux:
+      path: drivers/leds/leds-lp50xx.c
+      subsystem: leds
+    split: dev
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: LP5523
+    vendor: Texas Instruments
+    class: light.indicator
+    kind: led-driver
+    bus: i2c
+    compatible: "national,lp5523"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/lp5523.pdf
+      sha256: f241cb8e6502fc80dabbd83e72c3ae304c6029c34ca66f9bf40398211db14855
+      bytes: 950165
+    linux:
+      path: drivers/leds/leds-lp5523.c
+      subsystem: leds
+    split: dev
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: LP5562
+    vendor: Texas Instruments
+    class: light.indicator
+    kind: led-driver
+    bus: i2c
+    compatible: "ti,lp5562"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/lp5562.pdf
+      sha256: 1552eed941e48514c9c1ec697a191601d47807b5740371425789568fcd022afb
+      bytes: 865124
+    linux:
+      path: drivers/leds/leds-lp5562.c
+      subsystem: leds
+    split: heldout
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: MCP23017
+    vendor: Microchip
+    class: bridge.gpio
+    kind: gpio-expander
+    bus: i2c
+    compatible: "microchip,mcp23017"
+    datasheet:
+      url: https://ww1.microchip.com/downloads/en/devicedoc/20001952c.pdf
+      sha256: 14159c6f5655e943e93ed1e34947e46844f114ec893f305a889898828e4055cb
+      bytes: 865289
+    linux:
+      path: drivers/pinctrl/pinctrl-mcp23s08_i2c.c
+      subsystem: gpio
+    split: dev
+    licence: "datasheet © Microchip, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: MCP4725
+    vendor: Microchip
+    class: sensor.generic
+    kind: dac
+    bus: i2c
+    compatible: "microchip,mcp4725"
+    datasheet:
+      url: https://ww1.microchip.com/downloads/en/devicedoc/22039d.pdf
+      sha256: 746d95dfdaaf0a9da4698e2c0a201ac2736d8589a752ab0dcd903f4a1603077d
+      bytes: 1530207
+    linux:
+      path: drivers/iio/dac/mcp4725.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Microchip, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: MCP7940N
+    vendor: Microchip
+    class: sensor.generic
+    kind: rtc
+    bus: i2c
+    compatible: "microchip,mcp7940x"
+    datasheet:
+      url: https://ww1.microchip.com/downloads/en/DeviceDoc/20005010F.pdf
+      sha256: 4aafe310fbafe313ab07f3aeaebde186c78581714bcec0d9ae5339f31a76d801
+      bytes: 1383950
+    linux:
+      path: drivers/rtc/rtc-ds1307.c
+      subsystem: rtc
+    split: dev
+    licence: "datasheet © Microchip, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: MCP79410
+    vendor: Microchip
+    class: sensor.generic
+    kind: rtc
+    bus: i2c
+    compatible: "microchip,mcp7941x"
+    datasheet:
+      url: https://ww1.microchip.com/downloads/en/DeviceDoc/22266A.pdf
+      sha256: 66a04a8751faa00dc237938f779af58a014125db1f1f3a56dcaf0dedbb651bde
+      bytes: 427201
+    linux:
+      path: drivers/rtc/rtc-ds1307.c
+      subsystem: rtc
+    split: heldout
+    licence: "datasheet © Microchip, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: MCP9600
+    vendor: Microchip
+    class: sensor.temperature
+    kind: temperature
+    bus: i2c
+    compatible: "microchip,mcp9600"
+    datasheet:
+      url: https://ww1.microchip.com/downloads/en/DeviceDoc/MCP960X-Data-Sheet-20005426.pdf
+      sha256: 39f1fcca8fb1afd6a02d7bfc8a05c6884012db378434e78df416e6c0688e8558
+      bytes: 2374807
+    linux:
+      path: drivers/iio/temperature/mcp9600.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Microchip, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: MLX90614
+    vendor: Melexis
+    class: sensor.temperature
+    kind: temperature
+    bus: i2c
+    compatible: "melexis,mlx90614"
+    datasheet:
+      url: https://www.melexis.com/-/media/files/documents/datasheets/mlx90614-datasheet-melexis.pdf
+      sha256: 5baade0b66aac94e8dc4bd3adebc464aa4d33258da9126a05672bc3390ad7f78
+      bytes: 2743491
+    linux:
+      path: drivers/iio/temperature/mlx90614.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Melexis, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: MLX90632
+    vendor: Melexis
+    class: sensor.temperature
+    kind: temperature
+    bus: i2c
+    compatible: "melexis,mlx90632"
+    datasheet:
+      url: https://www.melexis.com/-/media/files/documents/datasheets/mlx90632-datasheet-melexis.pdf
+      sha256: 1cd7b7b5bd37091756b430b41113727e17a05438c23ca0e943265fde48ff3846
+      bytes: 1123413
+    linux:
+      path: drivers/iio/temperature/mlx90632.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Melexis, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: OPT3001
+    vendor: Texas Instruments
+    class: sensor.generic
+    kind: light
+    bus: i2c
+    compatible: "ti,opt3001"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/opt3001.pdf
+      sha256: f2ab3d4822cbd4e6b702b09c4c22144f6d0583931e0cfc168394de9ab942ca11
+      bytes: 904533
+    linux:
+      path: drivers/iio/light/opt3001.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: OPT4001
+    vendor: Texas Instruments
+    class: sensor.generic
+    kind: light
+    bus: i2c
+    compatible: "ti,opt4001-sot-5x3"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/opt4001.pdf
+      sha256: 6b28bf2cc20228c567966fc801408e7f77d599ad15b6ef6be62281b38aa549c1
+      bytes: 2190586
+    linux:
+      path: drivers/iio/light/opt4001.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: PCF8574
+    vendor: Texas Instruments
+    class: bridge.gpio
+    kind: gpio-expander
+    bus: i2c
+    compatible: "nxp,pcf8574"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/pcf8574.pdf
+      sha256: 96c892fa5caff59c58eb913c1eaf5baf2e3594fedc9c7db6b3955094ad5b0ad5
+      bytes: 2613289
+    linux:
+      path: drivers/gpio/gpio-pcf857x.c
+      subsystem: gpio
+    split: dev
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: SHT30
+    vendor: Sensirion
+    class: sensor.humidity
+    kind: humidity
+    bus: i2c
+    compatible: "sensirion,sht30"
+    datasheet:
+      url: https://sensirion.com/media/documents/213E6A3B/63A5A569/Datasheet_SHT3x_DIS.pdf
+      sha256: 095b1853e7f4328f5897c9ca6c392a7dd8b0202eda66b0a2629f9cb840dd496d
+      bytes: 810136
+    linux:
+      path: drivers/hwmon/sht3x.c
+      subsystem: hwmon
+    split: dev
+    licence: "datasheet © Sensirion, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: SHTC3
+    vendor: Sensirion
+    class: sensor.humidity
+    kind: humidity
+    bus: i2c
+    compatible: "sensirion,shtc3"
+    datasheet:
+      url: https://sensirion.com/media/documents/643F9C8E/63A5A436/Datasheet_SHTC3.pdf
+      sha256: dbe979c975fe520663606b5c278d2b9130f4e402e6d9d943ca06c4e4f38e63d9
+      bytes: 743217
+    linux:
+      path: drivers/hwmon/shtc1.c
+      subsystem: hwmon
+    split: dev
+    licence: "datasheet © Sensirion, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: TCA6408A
+    vendor: Texas Instruments
+    class: bridge.gpio
+    kind: gpio-expander
+    bus: i2c
+    compatible: "ti,tca6408"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/tca6408a.pdf
+      sha256: 1c6030f798ac0c9bf661f7f21f3964ade251212eb97fa3d903c8502a4217ef48
+      bytes: 2113650
+    linux:
+      path: drivers/gpio/gpio-pca953x.c
+      subsystem: gpio
+    split: dev
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: TCA6416A
+    vendor: Texas Instruments
+    class: bridge.gpio
+    kind: gpio-expander
+    bus: i2c
+    compatible: "ti,tca6416"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/tca6416a.pdf
+      sha256: a7deab846f35a9f1377c260b3e517fbac90683416bab1aa28028b45e53fc292b
+      bytes: 2055490
+    linux:
+      path: drivers/gpio/gpio-pca953x.c
+      subsystem: gpio
+    split: dev
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: TCA9535
+    vendor: Texas Instruments
+    class: bridge.gpio
+    kind: gpio-expander
+    bus: i2c
+    compatible: "ti,tca9535"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/tca9535.pdf
+      sha256: cdaa29e68dbf21d55819621aae81544ce85c898a48dbd202b3067d18c87b0ab8
+      bytes: 3496374
+    linux:
+      path: drivers/gpio/gpio-pca953x.c
+      subsystem: gpio
+    split: dev
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: TCA9539
+    vendor: Texas Instruments
+    class: bridge.gpio
+    kind: gpio-expander
+    bus: i2c
+    compatible: "ti,tca9539"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/tca9539.pdf
+      sha256: fec29f61c247a467417a4c35ff616ee16379ac4ce95a6c1c8a6d6fe97ef010b9
+      bytes: 3020912
+    linux:
+      path: drivers/gpio/gpio-pca953x.c
+      subsystem: gpio
+    split: dev
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: TLC59116
+    vendor: Texas Instruments
+    class: light.indicator
+    kind: led-driver
+    bus: i2c
+    compatible: "ti,tlc59116"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/tlc59116.pdf
+      sha256: 76a3b191357c9ea65f33520884abe87080e18cec2456c94824e11830da7dde9d
+      bytes: 1434704
+    linux:
+      path: drivers/leds/leds-tlc591xx.c
+      subsystem: leds
+    split: heldout
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: TMP102
+    vendor: Texas Instruments
+    class: sensor.temperature
+    kind: temperature
+    bus: i2c
+    compatible: "ti,tmp102"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/tmp102.pdf
+      sha256: c9da6620ef95f75ce94372f670a84d168e05922dd32cebfaa6517083f15ebfaf
+      bytes: 1151760
+    linux:
+      path: drivers/hwmon/tmp102.c
+      subsystem: hwmon
+    split: heldout
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: TMP117
+    vendor: Texas Instruments
+    class: sensor.temperature
+    kind: temperature
+    bus: i2c
+    compatible: "ti,tmp117"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/tmp117.pdf
+      sha256: afe974873c80a7a4e1d342e9044e71c6f905caf4f04c1f0ea0df5c6ba35f980e
+      bytes: 1717870
+    linux:
+      path: drivers/iio/temperature/tmp117.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: TMP75
+    vendor: Texas Instruments
+    class: sensor.temperature
+    kind: temperature
+    bus: i2c
+    compatible: "ti,tmp75"
+    datasheet:
+      url: https://www.ti.com/lit/ds/symlink/tmp75.pdf
+      sha256: 30ddeda575764440fc4354326dd4eb17459839ca37eaee3593a0e5fb5c0cbc06
+      bytes: 1308031
+    linux:
+      path: drivers/hwmon/lm75.c
+      subsystem: hwmon
+    split: heldout
+    licence: "datasheet © Texas Instruments, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: VCNL4040
+    vendor: Vishay
+    class: sensor.generic
+    kind: proximity
+    bus: i2c
+    compatible: "vishay,vcnl4040"
+    datasheet:
+      url: https://www.vishay.com/docs/84274/vcnl4040.pdf
+      sha256: bb692575a801725eb389730d28e6aa9ef443b374a17a8036e369778d565c78a1
+      bytes: 403826
+    linux:
+      path: drivers/iio/light/vcnl4000.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Vishay, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: VCNL4200
+    vendor: Vishay
+    class: sensor.generic
+    kind: proximity
+    bus: i2c
+    compatible: "vishay,vcnl4200"
+    datasheet:
+      url: https://www.vishay.com/docs/84430/vcnl4200.pdf
+      sha256: f54757eb68659bf08242bae1558c00c9ec6e0b5e64e284eec2c804476d5d0af1
+      bytes: 239276
+    linux:
+      path: drivers/iio/light/vcnl4000.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Vishay, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: VEML6030
+    vendor: Vishay
+    class: sensor.generic
+    kind: light
+    bus: i2c
+    compatible: "vishay,veml6030"
+    datasheet:
+      url: https://www.vishay.com/docs/84366/veml6030.pdf
+      sha256: 46bc766f22f7e933afba4c3d1e84ca836b6f3e013d1c9b73402fbb3447471b56
+      bytes: 280236
+    linux:
+      path: drivers/iio/light/veml6030.c
+      subsystem: iio
+    split: dev
+    licence: "datasheet © Vishay, referenced by URL+hash only; Linux driver GPL-2.0, facts only"
+  - part: VEML7700
+    vendor: Vishay
+    class: sensor.generic
+    kind: light
+    bus: i2c
+    compatible: "vishay,veml7700"
+    datasheet:
+      url: https://www.vishay.com/docs/84286/veml7700.pdf
+      sha256: f338cf7d5911828a2f2ac8ae8324049380c852e34aa5afa43ac92c98ffe827d1
+      bytes: 295562
+    linux:
+      path: drivers/iio/light/veml6030.c
+      subsystem: iio
+    split: heldout
+    licence: "datasheet © Vishay, referenced by URL+hash only; Linux driver GPL-2.0, facts only"

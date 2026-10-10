@@ -1,0 +1,16 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/02-syntax-tab-indent.yaml
+---
+DD-S001 (https://driverdesk.dev/errors/DD-S001)
+
+  × YAML syntax error: tabs disallowed within this context (block indentation)
+    ╭─[02-syntax-tab-indent.yaml:17:2]
+ 16 │   usb:
+ 17 │     interface: 0
+    ·     ┬
+    ·     ╰── here
+ 18 │     endpoints:
+    ╰────
+  help: check indentation (spaces only, no tabs) and that every `key:` is followed by a space

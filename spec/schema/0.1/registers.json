@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/registers.json",
+  "title": "Registers (\u00a78)",
+  "type": "object",
+  "properties": {
+    "config": {
+      "$ref": "#/$defs/config"
+    },
+    "map": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "$ref": "common.json#/$defs/reg_name"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/register"
+      }
+    },
+    "fieldsets": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/fields"
+      }
+    }
+  },
+  "required": [
+    "map"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "access": {
+      "enum": [
+        "ro",
+        "rw",
+        "wo",
+        "rc",
+        "rw1c",
+        "rw1s",
+        "w1"
+      ]
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "reg_bits": {
+          "enum": [
+            8,
+            16,
+            32
+          ]
+        },
+        "val_bits": {
+          "enum": [
+            8,
+            16,
+            32,
+            64
+          ]
+        },
+        "stride": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "byte_order": {
+          "enum": [
+            "le",
+            "be"
+          ]
+        },
+        "auto_increment": {
+          "type": "boolean"
+        },
+        "read_flag_mask": {
+          "$ref": "common.json#/$defs/uint"
+        },
+        "write_flag_mask": {
+          "$ref": "common.json#/$defs/uint"
+        },
+        "space": {
+          "$ref": "common.json#/$defs/name"
+        }
+      },
+      "additionalProperties": false
+    },
+    "field": {
+      "type": "object",
+      "properties": {
+        "bits": {
+          "type": "string",
+          "pattern": "^([0-9]|[1-5][0-9]|6[0-3])(:([0-9]|[1-5][0-9]|6[0-3]))?$"
+        },
+        "access": {
+          "$ref": "#/$defs/access"
+        },
+        "enum": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "reset": {
+          "type": "integer"
+        },
+        "signed": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "bits"
+      ],
+      "additionalProperties": false
+    },
+    "fields": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "$ref": "common.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/field"
+      }
+    },
+    "register": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "$ref": "common.json#/$defs/uint"
+        },
+        "bits": {
+          "enum": [
+            8,
+            16,
+            24,
+            32,
+            64
+          ]
+        },
+        "access": {
+          "$ref": "#/$defs/access"
+        },
+        "volatile": {
+          "type": "boolean"
+        },
+        "precious": {
+          "type": "boolean"
+        },
+        "noinc": {
+          "type": "boolean"
+        },
+        "overlap": {
+          "type": "boolean"
+        },
+        "reset": {
+          "type": "integer"
+        },
+        "fields": {
+          "$ref": "#/$defs/fields"
+        },
+        "fieldset": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "repeat": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 4096
+            },
+            "stride": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "required": [
+            "count",
+            "stride"
+          ],
+          "additionalProperties": false
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "address",
+        "access"
+      ],
+      "patternProperties": {
+        "^x-": true
+      },
+      "additionalProperties": false,
+      "not": {
+        "required": [
+          "fields",
+          "fieldset"
+        ]
+      }
+    }
+  }
+}

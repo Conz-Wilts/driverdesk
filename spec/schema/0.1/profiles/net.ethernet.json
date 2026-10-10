@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/profiles/net.ethernet.json",
+  "title": "Class profile net.ethernet",
+  "x-stability": "provisional",
+  "x-requires": "streams",
+  "type": "object",
+  "required": [
+    "streams"
+  ]
+}

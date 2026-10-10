@@ -1,0 +1,44 @@
+# A USB boot-protocol keyboard (HID 1.11 Appendix B.1). Demonstrates events (§20.1) and a
+# provisional input class profile. Generic: matches any boot keyboard interface by class.
+spec: driverdesk/0.1
+device:
+  id: example.hid-boot-keyboard
+  name: Generic HID boot keyboard
+  vendor: { name: Example Labs, prefix: example }
+  version: 0.1.0
+  classes: [input.keyboard]
+  license: CC0-1.0
+match:
+  - bus: usb
+    interface_class: 0x03       # HID
+    interface_subclass: 0x01    # boot interface
+    interface_protocol: 0x01    # keyboard
+transport:
+  hid:
+    interface: 0
+    reports:
+      keys: { id: 0, kind: input, size: 8 }
+      leds: { id: 0, kind: output, size: 1 }
+commands:
+  set_leds:
+    args:
+      num_lock:    { type: bool }
+      caps_lock:   { type: bool }
+      scroll_lock: { type: bool }
+    steps:
+      - hid_write: leds
+        data: "bytes_of([bor(bor(num_lock ? 1 : 0, caps_lock ? 2 : 0), scroll_lock ? 4 : 0)])"
+    timeout_ms: 50
+events:
+  key:
+    source: { hid_report: keys }
+    decode: [ { modifiers: u8 }, { reserved: u8 }, { keycodes: bytes(6) } ]
+    output:
+      modifiers: { cel: "modifiers", description: "bitmap: LCtrl LShift LAlt LGUI RCtrl RShift RAlt RGUI" }
+      usages:    { cel: "keycodes", description: "up to six HID usage ids from page 0x07" }
+    rate_hint_hz: 125
+expose:
+  - { class: input.keyboard, channel: keys, event: key }
+  - { class: input.keyboard, channel: leds, write: set_leds }
+tests:
+  - { name: leds_off, call: set_leds, args: { num_lock: false, caps_lock: false, scroll_lock: false }, expect: ok }

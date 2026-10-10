@@ -1,0 +1,28 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/23-L001-unreachable-state.yaml
+---
+DD-L001 (https://driverdesk.dev/errors/DD-L001)
+
+  × state `error` can never be reached from `unbound`
+    ╭─[23-L001-unreachable-state.yaml:50:15]
+ 49 │     - { from: active,  to: idle,   trigger: { idle_ms: 5000 } }
+ 50 │     - { from: error,   to: idle,   trigger: reset }
+    ·               ──┬──
+    ·                 ╰── unreachable
+ 51 │ expose:
+    ╰────
+  help: add a transition into it, or remove it (spec §12.1)
+DD-L016 (https://driverdesk.dev/errors/DD-L016)
+
+  ⚠ safety block is not signed
+    ╭─[23-L001-unreachable-state.yaml:41:1]
+ 40 │     timeout_ms: 50
+ 41 │ safety:
+    · ───┬──
+    ·    ╰── unsigned
+ 42 │   limits:
+    ╰────
+  help: fine for local development; the registry refuses to publish vendor descriptions with an
+        unsigned safety block (spec §14.6)

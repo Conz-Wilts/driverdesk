@@ -1,0 +1,17 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/51-L024-variant-excludes-unknown.yaml
+---
+DD-L024 (https://driverdesk.dev/errors/DD-L024)
+
+  × variant `chip` excludes `set_offset`, which does not exist
+    ╭─[51-L024-variant-excludes-unknown.yaml:11:90]
+ 10 │ variants:
+ 11 │   chip: { name: CHIP, id_check: { register: ID, equals: 0x55 }, default: true, exclude: [set_offset] }
+    ·                                                                                          ─────┬────
+    ·                                                                                               ╰── unknown
+ 12 │ instance:
+    ╰────
+  help: exclude names commands, `command.output`, registers, settings or exposed channels;
+        commands here: read_temp (spec §4.3)

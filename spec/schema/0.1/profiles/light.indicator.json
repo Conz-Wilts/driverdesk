@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/profiles/light.indicator.json",
+  "title": "Class profile light.indicator",
+  "x-stability": "stable",
+  "x-requires": "write",
+  "type": "object",
+  "required": [
+    "expose"
+  ]
+}

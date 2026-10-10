@@ -1,0 +1,423 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/transport.json",
+  "title": "Transports (\u00a76) and framing (\u00a77.3)",
+  "type": "object",
+  "minProperties": 1,
+  "properties": {
+    "usb": {
+      "$ref": "#/$defs/usb"
+    },
+    "serial": {
+      "$ref": "#/$defs/serial"
+    },
+    "i2c": {
+      "$ref": "#/$defs/i2c"
+    },
+    "hid": {
+      "$ref": "#/$defs/hid"
+    },
+    "spi": {
+      "$ref": "#/$defs/spi"
+    },
+    "pci": {
+      "$ref": "#/$defs/pci"
+    },
+    "framing": {
+      "$ref": "#/$defs/framing"
+    }
+  },
+  "additionalProperties": false,
+  "oneOf": [
+    {
+      "required": [
+        "usb"
+      ]
+    },
+    {
+      "required": [
+        "serial"
+      ]
+    },
+    {
+      "required": [
+        "i2c"
+      ]
+    },
+    {
+      "required": [
+        "hid"
+      ]
+    },
+    {
+      "required": [
+        "spi"
+      ]
+    },
+    {
+      "required": [
+        "pci"
+      ]
+    }
+  ],
+  "$defs": {
+    "usb": {
+      "type": "object",
+      "properties": {
+        "interface": {
+          "$ref": "common.json#/$defs/u8"
+        },
+        "alt_setting": {
+          "$ref": "common.json#/$defs/u8"
+        },
+        "configuration": {
+          "$ref": "common.json#/$defs/u8"
+        },
+        "endpoints": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "address": {
+                "$ref": "common.json#/$defs/u8"
+              },
+              "type": {
+                "enum": [
+                  "bulk",
+                  "interrupt",
+                  "isochronous"
+                ]
+              },
+              "max_packet": {
+                "$ref": "common.json#/$defs/u16"
+              }
+            },
+            "required": [
+              "address",
+              "type"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "detach_kernel_driver": {
+          "type": "boolean"
+        },
+        "os_descriptors": {
+          "type": "object",
+          "properties": {
+            "winusb": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "interface"
+      ],
+      "additionalProperties": false
+    },
+    "serial": {
+      "type": "object",
+      "properties": {
+        "baud": {
+          "type": "integer",
+          "minimum": 50,
+          "maximum": 20000000
+        },
+        "data_bits": {
+          "enum": [
+            5,
+            6,
+            7,
+            8
+          ]
+        },
+        "parity": {
+          "enum": [
+            "none",
+            "even",
+            "odd",
+            "mark",
+            "space"
+          ]
+        },
+        "stop_bits": {
+          "enum": [
+            1,
+            1.5,
+            2
+          ]
+        },
+        "flow": {
+          "enum": [
+            "none",
+            "rts_cts",
+            "xon_xoff"
+          ]
+        },
+        "line_ending": {
+          "type": "string"
+        },
+        "dtr": {
+          "type": "boolean"
+        },
+        "rts": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "baud"
+      ],
+      "additionalProperties": false
+    },
+    "i2c": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "$ref": "common.json#/$defs/parametric_int"
+        },
+        "address_bits": {
+          "enum": [
+            7,
+            10
+          ]
+        },
+        "max_speed_hz": {
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 5000000
+        },
+        "smbus": {
+          "type": "boolean"
+        },
+        "pec": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "address"
+      ],
+      "additionalProperties": false
+    },
+    "hid": {
+      "type": "object",
+      "properties": {
+        "interface": {
+          "$ref": "common.json#/$defs/u8"
+        },
+        "reports": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "common.json#/$defs/u8"
+              },
+              "kind": {
+                "enum": [
+                  "input",
+                  "output",
+                  "feature"
+                ]
+              },
+              "size": {
+                "$ref": "common.json#/$defs/u16"
+              }
+            },
+            "required": [
+              "id",
+              "kind"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "spi": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "enum": [
+            0,
+            1,
+            2,
+            3
+          ]
+        },
+        "max_speed_hz": {
+          "type": "integer",
+          "minimum": 1000
+        },
+        "bits_per_word": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "cs": {
+          "$ref": "common.json#/$defs/parametric_int"
+        },
+        "lsb_first": {
+          "type": "boolean"
+        },
+        "three_wire": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "mode",
+        "max_speed_hz"
+      ],
+      "additionalProperties": false
+    },
+    "pci": {
+      "type": "object",
+      "properties": {
+        "bars": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.json#/$defs/name"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "index": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 5
+              },
+              "kind": {
+                "enum": [
+                  "mmio",
+                  "io"
+                ]
+              },
+              "size": {
+                "$ref": "common.json#/$defs/uint"
+              },
+              "prefetchable": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "index",
+              "kind",
+              "size"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "requires_iommu": {
+          "type": "boolean"
+        },
+        "msi": {
+          "$ref": "common.json#/$defs/u16"
+        },
+        "msix": {
+          "$ref": "common.json#/$defs/u16"
+        }
+      },
+      "required": [
+        "bars"
+      ],
+      "additionalProperties": false
+    },
+    "framing": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "$ref": "common.json#/$defs/name"
+              },
+              "type": {
+                "$ref": "common.json#/$defs/field_type"
+              },
+              "counts": {
+                "$ref": "common.json#/$defs/name"
+              },
+              "checksum": {
+                "type": "string"
+              },
+              "over": {
+                "type": "array",
+                "items": {
+                  "$ref": "common.json#/$defs/name"
+                },
+                "minItems": 1
+              },
+              "const": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false,
+            "oneOf": [
+              {
+                "required": [
+                  "type"
+                ],
+                "not": {
+                  "required": [
+                    "checksum"
+                  ]
+                }
+              },
+              {
+                "required": [
+                  "checksum",
+                  "over"
+                ],
+                "not": {
+                  "required": [
+                    "type"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "object",
+              "properties": {
+                "terminator": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "encoding": {
+                  "enum": [
+                    "ascii",
+                    "utf-8"
+                  ]
+                }
+              },
+              "required": [
+                "terminator"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

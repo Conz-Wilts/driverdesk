@@ -1,0 +1,27 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/31-L007-class-not-claimed.yaml
+---
+DD-L007 (https://driverdesk.dev/errors/DD-L007)
+
+  × `expose` uses class `sensor.humidity`, which is not in `device.classes`
+    ╭─[31-L007-class-not-claimed.yaml:49:14]
+ 48 │   - { class: sensor.temperature, channel: temp, read: read_temp.celsius }
+ 49 │   - { class: sensor.humidity, channel: rh, read: read_temp.celsius }
+    ·              ───────┬───────
+    ·                     ╰── not claimed
+ 50 │ tests:
+    ╰────
+  help: add `sensor.humidity` to `device.classes`, or fix the class name
+DD-L006 (https://driverdesk.dev/errors/DD-L006)
+
+  × `sensor.humidity` needs dimensionless (`%`), but the output is in `Cel` (temperature)
+    ╭─[31-L007-class-not-claimed.yaml:49:50]
+ 48 │   - { class: sensor.temperature, channel: temp, read: read_temp.celsius }
+ 49 │   - { class: sensor.humidity, channel: rh, read: read_temp.celsius }
+    ·                                                  ────────┬────────
+    ·                                                          ╰── wrong kind of unit
+ 50 │ tests:
+    ╰────
+  help: expose the output that carries this quantity, or fix the unit (spec §15.1)

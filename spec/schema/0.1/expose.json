@@ -1,0 +1,275 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/expose.json",
+  "title": "Exposure (\u00a715), tests (\u00a716), visibility (\u00a717)",
+  "$defs": {
+    "expose": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "class": {
+            "type": "string",
+            "pattern": "^[a-z]+(\\.[a-z0-9_]+)+$"
+          },
+          "channel": {
+            "$ref": "common.json#/$defs/name"
+          },
+          "read": {
+            "$ref": "common.json#/$defs/path"
+          },
+          "write": {
+            "$ref": "common.json#/$defs/name"
+          },
+          "event": {
+            "$ref": "common.json#/$defs/name"
+          },
+          "unit": {
+            "$ref": "common.json#/$defs/unit"
+          },
+          "scale": {
+            "type": "number"
+          },
+          "offset": {
+            "type": "number"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "class",
+          "channel"
+        ],
+        "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "read"
+            ]
+          },
+          {
+            "required": [
+              "write"
+            ]
+          },
+          {
+            "required": [
+              "event"
+            ]
+          }
+        ]
+      }
+    },
+    "matcher_value": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "equals": {
+              "$ref": "common.json#/$defs/scalar"
+            }
+          },
+          "required": [
+            "equals"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "between": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": [
+            "between"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "approx": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "number"
+                },
+                "tolerance": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              },
+              "required": [
+                "value",
+                "tolerance"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "approx"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "one_of": {
+              "type": "array",
+              "items": {
+                "$ref": "common.json#/$defs/scalar"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "one_of"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "matcher": {
+      "oneOf": [
+        {
+          "enum": [
+            "ok",
+            "rejected_by_safety"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "error": {
+              "type": "object",
+              "properties": {
+                "layer": {
+                  "$ref": "common.json#/$defs/layer"
+                }
+              },
+              "required": [
+                "layer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "error"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "cel": {
+              "$ref": "common.json#/$defs/cel"
+            }
+          },
+          "required": [
+            "cel"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {
+            "allOf": [
+              {
+                "$ref": "common.json#/$defs/name"
+              },
+              {
+                "not": {
+                  "enum": [
+                    "error",
+                    "cel"
+                  ]
+                }
+              }
+            ]
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/matcher_value"
+          }
+        }
+      ]
+    },
+    "tests": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "$ref": "common.json#/$defs/name"
+          },
+          "call": {
+            "$ref": "common.json#/$defs/name"
+          },
+          "args": {
+            "type": "object",
+            "propertyNames": {
+              "$ref": "common.json#/$defs/name"
+            }
+          },
+          "expect": {
+            "$ref": "#/$defs/matcher"
+          },
+          "variant": {
+            "$ref": "common.json#/$defs/name"
+          },
+          "rung": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "sim",
+                "vusb",
+                "hil"
+              ]
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "before": {
+            "$ref": "commands.json#/$defs/steps"
+          }
+        },
+        "required": [
+          "name",
+          "call",
+          "expect"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "visibility": {
+      "type": "object",
+      "properties": {
+        "default": {
+          "enum": [
+            "public",
+            "private"
+          ]
+        },
+        "private": {
+          "type": "array",
+          "items": {
+            "$ref": "common.json#/$defs/path"
+          }
+        }
+      },
+      "required": [
+        "default"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

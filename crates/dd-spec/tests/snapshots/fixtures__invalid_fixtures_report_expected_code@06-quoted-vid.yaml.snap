@@ -1,0 +1,28 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/06-quoted-vid.yaml
+---
+DD-S003 (https://driverdesk.dev/errors/DD-S003)
+
+  × `match[0].vid` must be an integer, found text
+    ╭─[06-quoted-vid.yaml:12:10]
+ 11 │   - bus: usb
+ 12 │     vid: "0x1209"
+    ·          ────┬───
+    ·              ╰── wrong type
+ 13 │     pid: 0x0001
+    ╰────
+  help: write an integer
+DD-L016 (https://driverdesk.dev/errors/DD-L016)
+
+  ⚠ safety block is not signed
+    ╭─[06-quoted-vid.yaml:41:1]
+ 40 │     timeout_ms: 50
+ 41 │ safety:
+    · ───┬──
+    ·    ╰── unsigned
+ 42 │   limits:
+    ╰────
+  help: fine for local development; the registry refuses to publish vendor descriptions with an
+        unsigned safety block (spec §14.6)

@@ -1,0 +1,25 @@
+[package]
+name = "dd-spec"
+description = "Description format: types, parser and validator for DriverDesk device descriptions (P0)."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+cel = "0.15"
+jsonschema = { version = "0.58.6", default-features = false }
+miette = { version = "7.6", features = ["fancy-no-backtrace"] }
+saphyr-parser = "0.1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+
+[dev-dependencies]
+insta = { version = "1.49", features = ["glob"] }
+proptest = "1"

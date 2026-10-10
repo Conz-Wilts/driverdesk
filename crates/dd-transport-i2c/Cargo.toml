@@ -1,0 +1,12 @@
+[package]
+name = "dd-transport-i2c"
+description = "I²C transport through USB bridges (P1)."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+publish = false
+
+[lints]
+workspace = true

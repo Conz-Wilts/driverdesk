@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/profiles/serial.uart.json",
+  "title": "Class profile serial.uart",
+  "x-stability": "provisional",
+  "x-requires": "read",
+  "type": "object",
+  "required": [
+    "expose"
+  ]
+}

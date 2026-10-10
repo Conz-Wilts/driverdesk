@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/profiles/bridge.i2c.json",
+  "title": "Class profile bridge.i2c",
+  "x-stability": "stable",
+  "x-requires": "provides",
+  "type": "object",
+  "required": [
+    "provides"
+  ],
+  "properties": {
+    "provides": {
+      "required": [
+        "i2c"
+      ]
+    }
+  }
+}

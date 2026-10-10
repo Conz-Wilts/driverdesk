@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/profiles/sensor.generic.json",
+  "title": "Class profile sensor.generic",
+  "x-stability": "stable",
+  "x-requires": "read",
+  "type": "object",
+  "required": [
+    "expose"
+  ]
+}

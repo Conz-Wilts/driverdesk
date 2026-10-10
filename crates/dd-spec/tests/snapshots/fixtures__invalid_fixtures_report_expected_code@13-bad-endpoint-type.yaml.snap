@@ -1,0 +1,28 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/13-bad-endpoint-type.yaml
+---
+DD-S005 (https://driverdesk.dev/errors/DD-S005)
+
+  × `bulky` is not an allowed value for `transport.usb.endpoints.in.type`
+    ╭─[13-bad-endpoint-type.yaml:20:35]
+ 19 │       out: { address: 0x01, type: bulk }
+ 20 │       in:  { address: 0x81, type: bulky }
+    ·                                   ──┬──
+    ·                                     ╰── not allowed
+ 21 │   framing:
+    ╰────
+  help: did you mean `bulk`?
+DD-L016 (https://driverdesk.dev/errors/DD-L016)
+
+  ⚠ safety block is not signed
+    ╭─[13-bad-endpoint-type.yaml:41:1]
+ 40 │     timeout_ms: 50
+ 41 │ safety:
+    · ───┬──
+    ·    ╰── unsigned
+ 42 │   limits:
+    ╰────
+  help: fine for local development; the registry refuses to publish vendor descriptions with an
+        unsigned safety block (spec §14.6)

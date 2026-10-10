@@ -1,0 +1,16 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/56-L029-unknown-sequence.yaml
+---
+DD-L029 (https://driverdesk.dev/errors/DD-L029)
+
+  × unknown sequence `setup`
+    ╭─[56-L029-unknown-sequence.yaml:46:54]
+ 45 │   transitions:
+ 46 │     - { from: unbound, to: ready, trigger: bind, do: setup }
+    ·                                                      ──┬──
+    ·                                                        ╰── not declared
+ 47 │ expose:
+    ╰────
+  help: declared: init

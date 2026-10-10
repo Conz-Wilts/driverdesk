@@ -1,0 +1,76 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  GITLEAKS_VERSION: 8.30.1
+
+jobs:
+  xtask-ci:
+    name: xtask ci (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # gitleaks scans full history
+      - name: Install Rust toolchain (rust-toolchain.toml)
+        run: rustup show active-toolchain || rustup toolchain install
+        shell: bash
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-nextest,cargo-deny
+      - uses: astral-sh/setup-uv@v10.3.0
+      - name: Install gitleaks
+        shell: bash
+        run: |
+          set -euo pipefail
+          v="$GITLEAKS_VERSION"; base="https://github.com/gitleaks/gitleaks/releases/download/v$v"
+          mkdir -p "$RUNNER_TEMP/bin"; cd "$RUNNER_TEMP/bin"
+          case "$RUNNER_OS" in
+            Linux)   curl -fsSL "$base/gitleaks_${v}_linux_x64.tar.gz" | tar xz gitleaks ;;
+            macOS)   curl -fsSL "$base/gitleaks_${v}_darwin_arm64.tar.gz" | tar xz gitleaks ;;
+            Windows) curl -fsSLo g.zip "$base/gitleaks_${v}_windows_x64.zip" && unzip -o g.zip gitleaks.exe && rm g.zip ;;
+          esac
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+      - run: cargo xtask ci
+
+  book:
+    name: book (mdBook, error pages up to date)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install Rust toolchain (rust-toolchain.toml)
+        run: rustup show active-toolchain || rustup toolchain install
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: mdbook
+      - run: cargo xtask docs
+      - name: Generated error pages are committed
+        run: git diff --exit-code -- docs/book/src/errors
+
+  ci:
+    # Single required check for branch protection.
+    name: ci
+    needs: [xtask-ci, book]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - run: test "${{ needs.xtask-ci.result }}" = success && test "${{ needs.book.result }}" = success

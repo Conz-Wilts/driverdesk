@@ -1,0 +1,12 @@
+[package]
+name = "dd-harness"
+description = "Test harness: conformance suite and compatibility reports with layer attribution (P2)."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+publish = false
+
+[lints]
+workspace = true

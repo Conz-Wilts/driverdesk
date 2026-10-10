@@ -1,0 +1,31 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/05-empty-expose.yaml
+---
+DD-S002 (https://driverdesk.dev/errors/DD-S002)
+
+  × `expose` must not be empty
+    ╭─[05-empty-expose.yaml:50:1]
+ 49 │     - { from: active,  to: idle,   trigger: { idle_ms: 5000 } }
+ 50 │ expose: []
+    · ───┬──
+    ·    ╰── empty
+ 51 │ tests:
+    ╰────
+  help: add one entry for each class in `device.classes` (`sensor.temperature`, `light.indicator`)
+        (spec §15), for example:
+        expose:
+          - { class: <one of device.classes>, channel: ch0, read: <command>.<output> }
+DD-L016 (https://driverdesk.dev/errors/DD-L016)
+
+  ⚠ safety block is not signed
+    ╭─[05-empty-expose.yaml:41:1]
+ 40 │     timeout_ms: 50
+ 41 │ safety:
+    · ───┬──
+    ·    ╰── unsigned
+ 42 │   limits:
+    ╰────
+  help: fine for local development; the registry refuses to publish vendor descriptions with an
+        unsigned safety block (spec §14.6)

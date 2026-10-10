@@ -1,6 +1,38 @@
+# Rust
+target/
+**/*.rs.bk
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Node
+node_modules/
+dist/
+
+# Secrets — never commit
+.env*
+*.pem
+*.key
+
+# Local caches (datasheets etc. — URL + SHA-256 only in repo)
 cache/
+
+# Throwaway experiments (keep the README)
 spikes/*
 !spikes/README.md
-target/
-.env*
+
+# OS / editors
 .DS_Store
+.idea/
+.vscode/
+
+# cargo-fuzz
+fuzz/target/
+fuzz/corpus/
+fuzz/artifacts/
+fuzz/Cargo.lock

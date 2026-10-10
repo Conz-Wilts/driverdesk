@@ -1,0 +1,28 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/38-L013-unknown-checksum.yaml
+---
+DD-L013 (https://driverdesk.dev/errors/DD-L013)
+
+  × unknown checksum algorithm `crc8-smb`
+    ╭─[38-L013-unknown-checksum.yaml:25:34]
+ 24 │     - { name: payload, type: bytes(length) }
+ 25 │     - { name: check,   checksum: crc8-smb, over: [header, length, payload] }
+    ·                                  ────┬───
+    ·                                      ╰── unknown
+ 26 │ commands:
+    ╰────
+  help: did you mean `crc8-smbus`?
+DD-L016 (https://driverdesk.dev/errors/DD-L016)
+
+  ⚠ safety block is not signed
+    ╭─[38-L013-unknown-checksum.yaml:41:1]
+ 40 │     timeout_ms: 50
+ 41 │ safety:
+    · ───┬──
+    ·    ╰── unsigned
+ 42 │   limits:
+    ╰────
+  help: fine for local development; the registry refuses to publish vendor descriptions with an
+        unsigned safety block (spec §14.6)

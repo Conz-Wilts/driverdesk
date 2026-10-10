@@ -1,0 +1,16 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/16-bad-access.yaml
+---
+DD-S005 (https://driverdesk.dev/errors/DD-S005)
+
+  × `readonly` is not an allowed value for `registers.map.TEMP.access`
+    ╭─[16-bad-access.yaml:23:36]
+ 22 │   map:
+ 23 │     TEMP: { address: 0x00, access: readonly }
+    ·                                    ────┬───
+    ·                                        ╰── not allowed
+ 24 │     CONFIG:
+    ╰────
+  help: expected one of: rc, ro, rw, rw1c, rw1s, w1, wo

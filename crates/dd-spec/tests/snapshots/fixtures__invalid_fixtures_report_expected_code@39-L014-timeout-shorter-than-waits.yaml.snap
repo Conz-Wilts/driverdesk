@@ -1,0 +1,16 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/39-L014-timeout-shorter-than-waits.yaml
+---
+DD-L014 (https://driverdesk.dev/errors/DD-L014)
+
+  × `timeout_ms: 20` is shorter than the 30 ms of waits in `read_temp`
+    ╭─[39-L014-timeout-shorter-than-waits.yaml:43:17]
+ 42 │       celsius: { cel: "double(sign_extend(raw, 16)) * 0.0078125", unit: Cel }
+ 43 │     timeout_ms: 20
+    ·                 ─┬
+    ·                  ╰── too short
+ 44 │ states:
+    ╰────
+  help: raise `timeout_ms` to at least 30

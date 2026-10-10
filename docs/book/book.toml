@@ -1,0 +1,11 @@
+[book]
+title = "DriverDesk"
+authors = ["The DriverDesk Authors"]
+language = "en"
+src = "src"
+
+[build]
+build-dir = "../../target/book"
+
+[output.html]
+git-repository-url = "https://github.com/Conz-Wilts/driverdesk"
