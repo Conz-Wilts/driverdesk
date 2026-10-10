@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cargo *)",
+      "Bash(rustup *)",
+      "Bash(uv *)",
+      "Bash(maturin *)",
+      "Bash(probe-rs *)",
+      "Bash(docker compose *)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git show*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git switch *)",
+      "Bash(git checkout -b *)",
+      "Bash(git branch*)",
+      "Bash(git stash*)",
+      "Bash(git bisect *)",
+      "Bash(git tag *)",
+      "Bash(git push origin stage/*)",
+      "Bash(git push -u origin stage/*)",
+      "Bash(gh run *)",
+      "Bash(gh pr *)",
+      "Bash(gh workflow *)",
+      "Bash(gh repo view*)",
+      "Bash(gh auth status*)",
+      "Bash(shellcheck *)",
+      "Bash(mdbook *)",
+      "WebSearch",
+      "WebFetch"
+    ],
+    "deny": [
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push origin main*)",
+      "Bash(git reset --hard origin*)",
+      "Bash(gh repo delete*)"
+    ]
+  }
+}

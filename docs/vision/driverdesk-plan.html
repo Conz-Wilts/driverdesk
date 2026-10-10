@@ -1,0 +1,588 @@
+<title>DriverDesk Platform Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: datasheet-style document. Sticky contents rail on wide screens, one ~70ch reading column, register-table styling for tables. */
+:root {
+  --paper: #f6f8f7;
+  --sheet: #ffffff;
+  --ink: #18201d;
+  --ink-2: #4a5752;
+  --rule: #d5ddd9;
+  --mask: #17644f;        /* solder-mask green: accent */
+  --mask-soft: #e2efe9;
+  --copper: #a85a22;      /* used only for risks and warnings */
+  --copper-soft: #f6e9de;
+  --code-bg: #eef2f0;
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --s-1: .8125rem; --s0: 1rem; --s1: 1.1875rem; --s2: 1.5rem; --s3: 2.125rem; --s4: 2.75rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0f1513; --sheet: #151d1a; --ink: #e3ebe7; --ink-2: #a3b2ab; --rule: #2a3632;
+    --mask: #5cc3a2; --mask-soft: #1b2e27; --copper: #e09a63; --copper-soft: #2f2219; --code-bg: #1b2522;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0f1513; --sheet: #151d1a; --ink: #e3ebe7; --ink-2: #a3b2ab; --rule: #2a3632;
+  --mask: #5cc3a2; --mask-soft: #1b2e27; --copper: #e09a63; --copper-soft: #2f2219; --code-bg: #1b2522;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: var(--s0); line-height: 1.6; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 96px; display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 56px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0,1fr); gap: 24px; padding-inline: 16px; padding-block: 24px 64px; } nav.toc { position: static !important; } }
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: var(--s-1); }
+nav.toc .lbl { font-family: var(--f-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--ink-2); font-size: .72rem; margin-bottom: 8px; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: t; }
+nav.toc li { counter-increment: t; }
+nav.toc a { display: grid; grid-template-columns: 2.2em 1fr; color: var(--ink-2); text-decoration: none; padding: 3px 6px; border-radius: 4px; }
+nav.toc a::before { content: counter(t, decimal-leading-zero); font-family: var(--f-mono); color: var(--mask); }
+nav.toc a:hover, nav.toc a:focus-visible { background: var(--mask-soft); color: var(--ink); outline: none; }
+main { min-width: 0; max-width: 46rem; }
+header.doc { border-bottom: 2px solid var(--ink); padding-bottom: 20px; margin-bottom: 36px; }
+.docmeta { font-family: var(--f-mono); font-size: .75rem; color: var(--ink-2); letter-spacing: .04em; display: flex; flex-wrap: wrap; gap: 6px 18px; text-transform: uppercase; }
+h1 { font-family: var(--f-display); font-stretch: 85%; font-weight: 800; font-size: var(--s4); line-height: 1.05; margin: 14px 0 12px; text-wrap: balance; letter-spacing: -.01em; }
+.lede { font-size: var(--s1); color: var(--ink-2); max-width: 40rem; margin: 0; }
+section { padding-top: 12px; margin-top: 44px; scroll-margin-top: 16px; }
+h2 { font-family: var(--f-display); font-stretch: 88%; font-weight: 750; font-size: var(--s3); line-height: 1.15; margin: 0 0 14px; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--f-mono); font-size: var(--s-1); font-weight: 500; color: var(--mask); border: 1px solid var(--mask); border-radius: 3px; padding: 0 6px; transform: translateY(-4px); }
+h3 { font-family: var(--f-display); font-stretch: 95%; font-weight: 650; font-size: var(--s1); margin: 28px 0 8px; }
+p, ul, ol { margin: 0 0 14px; }
+ul, ol { padding-left: 1.3em; }
+li + li { margin-top: 4px; }
+a { color: var(--mask); }
+strong { font-weight: 600; }
+code { font-family: var(--f-mono); font-size: .88em; background: var(--code-bg); padding: 1px 5px; border-radius: 3px; }
+pre { background: var(--code-bg); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px; overflow-x: auto; font-family: var(--f-mono); font-size: .8125rem; line-height: 1.55; margin: 0 0 18px; }
+pre code { background: none; padding: 0; font-size: inherit; }
+pre .c { color: var(--ink-2); }
+.figcap { font-family: var(--f-mono); font-size: .72rem; color: var(--ink-2); text-transform: uppercase; letter-spacing: .06em; margin: -8px 0 18px; }
+.tbl { overflow-x: auto; margin: 0 0 20px; border: 1px solid var(--rule); border-radius: 6px; background: var(--sheet); }
+table { border-collapse: collapse; width: 100%; font-size: .875rem; }
+th { font-family: var(--f-mono); font-weight: 500; font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; text-align: left; color: var(--ink-2); background: var(--code-bg); padding: 8px 12px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+td { padding: 9px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 600; }
+.yes { color: var(--mask); font-weight: 600; } .no { color: var(--copper); font-weight: 600; } .part { color: var(--ink-2); font-weight: 600; }
+.callout { border: 1px solid var(--mask); background: var(--mask-soft); border-radius: 6px; padding: 14px 18px; margin: 0 0 18px; }
+.callout.risk { border-color: var(--copper); background: var(--copper-soft); }
+.callout .k { font-family: var(--f-mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--mask); display: block; margin-bottom: 4px; }
+.callout.risk .k { color: var(--copper); }
+.callout p:last-child, .callout ul:last-child { margin-bottom: 0; }
+.formula { font-family: var(--f-display); font-stretch: 80%; font-weight: 700; font-size: var(--s3); text-align: center; padding: 18px 8px; margin: 8px 0 18px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); line-height: 1.2; }
+.formula small { display: block; font-family: var(--f-body); font-stretch: 100%; font-weight: 400; font-size: var(--s-1); color: var(--ink-2); margin-top: 6px; }
+.poc { border: 1px solid var(--rule); background: var(--sheet); border-radius: 6px; padding: 16px 18px; margin: 0 0 14px; }
+.poc h3 { margin-top: 0; display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; }
+.poc h3 .tag { font-family: var(--f-mono); font-size: .72rem; color: var(--ink-2); font-weight: 400; }
+.poc dl { display: grid; grid-template-columns: 7.5em minmax(0,1fr); gap: 6px 14px; margin: 0; font-size: .9rem; }
+.poc dt { font-family: var(--f-mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); padding-top: 3px; }
+.poc dd { margin: 0; min-width: 0; }
+@media (max-width: 520px) { .poc dl { grid-template-columns: minmax(0,1fr); gap: 2px; } .poc dd { margin-bottom: 8px; } }
+.mermaid { background: var(--sheet) !important; }
+.src { font-size: .85rem; } .src li { word-break: break-word; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <div class="lbl">Contents</div>
+  <ol>
+    <li><a href="#thesis">The thesis, sharpened</a></li>
+    <li><a href="#history">What history teaches</a></li>
+    <li><a href="#arch">Architecture</a></li>
+    <li><a href="#linux">Ideas taken from Linux</a></li>
+    <li><a href="#spec">The description spec</a></li>
+    <li><a href="#stack">What we code in</a></li>
+    <li><a href="#ai">AI: vendor owns the driver</a></li>
+    <li><a href="#pocs">Proof-of-concept stages</a></li>
+    <li><a href="#biz">Open source + hosted cloud</a></li>
+    <li><a href="#scale">How it scales</a></li>
+    <li><a href="#security">Security changes</a></li>
+    <li><a href="#risks">Risks and kill criteria</a></li>
+    <li><a href="#next">The next 30 days</a></li>
+    <li><a href="#sources">Sources</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="doc">
+  <div class="docmeta"><span>Working name: DriverDesk</span><span>Plan rev 2</span><span>10 Oct 2026</span><span>Open source · hosted cloud</span></div>
+  <h1>Drivers as data: a hosted platform for portable, AI-authored device drivers</h1>
+  <p class="lede">Your original plan, tightened after research on prior attempts, Linux internals, and current tooling. It keeps your 12 components and 6 proofs of concept, fixes the parts that would have hurt, and adds the pieces that make it scale.</p>
+</header>
+
+<section id="thesis">
+<h2><span class="n">01</span>The thesis, sharpened</h2>
+<p>Linux 7.3-rc1 is close to 41 million lines, and the AMD GPU driver alone is about 16% of it. Most of the kernel is drivers. Any new OS faces the same wall: thousands of devices, each needing code written for that OS. Vendors face the mirror problem: one driver per OS, re-done every time an OS changes its internals.</p>
+<p>The claim to build the company on:</p>
+<div class="callout"><span class="k">Claim</span>
+<p>For the long tail of devices, the device-specific part of a driver can be <strong>data</strong> (a description) plus a small amount of <strong>sandboxed logic</strong>. The OS only needs a few generic, stable "doors" to the bus and a handful of standard device classes. Then a new OS gets thousands of devices by implementing one runtime, and a vendor writes a device once.</p>
+</div>
+<p>What this plan deliberately does not claim, at least until Phase 4:</p>
+<ul>
+  <li><strong>Not GPUs, not high-speed NIC or NVMe data paths, not boot devices.</strong> These need kernel-level performance and early-boot presence. Promising them early would sink credibility.</li>
+  <li><strong>Not "kernels delete their driver code".</strong> The near-term pitch is "kernels stop <em>growing</em> for the long tail", and new OSes skip writing it. Removing existing drivers is a decade-scale outcome, not a pitch.</li>
+  <li><strong>Not a stable in-kernel driver ABI.</strong> Linux maintainers have refused that for 20 years. Everything we do lives above the kernel boundary, using interfaces the kernel already promises to keep stable.</li>
+</ul>
+<p><strong>Beachhead:</strong> USB, serial, HID, I²C/SPI sensors and actuators, lab instruments, robotics and maker hardware. These are the devices whose vendors today ship a Windows-only app or nothing, and whose users are on Linux and macOS.</p>
+</section>
+
+<section id="history">
+<h2><span class="n">02</span>What history teaches</h2>
+<p>This idea has been tried in parts several times. Each attempt proves something and leaves a lesson.</p>
+<div class="tbl"><table>
+<thead><tr><th>Precedent</th><th>What it proved</th><th>Lesson for us</th></tr></thead>
+<tbody>
+<tr><td>UDI, Uniform Driver Interface (1998–2004)</td><td>A portable driver API could work technically across OSes.</td><td>It died on adoption. Microsoft and Apple never joined, the Linux community saw it as a channel for closed binary drivers, and it ended as SCO's private interface. <strong>Never require an OS to adopt us before we deliver value.</strong> Run as an ordinary program first.</td></tr>
+<tr><td>Devil IDL (OSDI 2000)</td><td>A declarative register/device description lets a compiler generate access code and check consistency. Writing a Devil spec was up to 5.9× less error-prone than writing C.</td><td>The "description" half of your plan has research support. Steal its idea of compile-time consistency checks for the validator.</td></tr>
+<tr><td>Termite 1 &amp; 2 (NICTA/UNSW, SOSP 2009, OSDI 2014)</td><td>Drivers can be synthesized from a device spec plus an OS-interface spec, with performance on par with hand-written drivers.</td><td>Termite-1 output was correct but unmaintainable. Termite-2 added user-guided synthesis and spec debugging. <strong>Keep a human in the loop and make the description the thing people maintain, not generated code.</strong></td></tr>
+<tr><td>HID-BPF and udev-hid-bpf (Linux, 2024–2026)</td><td>Linux already accepts small, sandboxed, per-device programs that fix hardware without a new kernel driver. Red Hat maintainers routinely ship tablet and keyboard fixes this way.</td><td>The closest living proof of your model inside Linux. Cite it in every kernel conversation, and support HID-BPF as an output target.</td></tr>
+<tr><td>LVFS + fwupd</td><td>Vendors will upload to a neutral, signed, Linux-friendly hosting service: 179 vendors and 135M+ firmware updates by Oct 2025, now funded by sponsor tiers (Dell, Lenovo, NVIDIA, HP).</td><td>Your hosting business has a real template. It also tells you the public registry should end up under a neutral foundation, as LVFS sits with the Linux Foundation.</td></tr>
+<tr><td>Fuchsia DFv2</td><td>A modern OS designed drivers as isolated components in driver hosts, aiming for "write once, run on many platform versions".</td><td>Google still has not reached a stable driver ABI. Stability is hard even inside one company. Version the spec carefully from day one.</td></tr>
+<tr><td>WASI hardware drivers (arXiv 2410.22919, NOMS 2025)</td><td>USB and I²C drivers running inside WebAssembly, with at most ~8% overhead versus native USB APIs.</td><td>Your Wasm logic sandbox is viable. Watch start-up cost for low-latency devices.</td></tr>
+<tr><td>Rust for Linux (permanent since Dec 2025)</td><td>Memory-safe drivers are now mainstream in Linux.</td><td>Rust for the runtime is the right call and will be familiar to kernel people.</td></tr>
+<tr><td>Kernel AI policy (Linux 7.0, 2026)</td><td>Linux allows AI-assisted patches with human accountability. In Aug 2026 the staging tree began rejecting LLM-generated patches, and the wireless maintainer is filtering hard.</td><td>Phase 3's "generate kernel drivers for upstream" must be human-owned, hardware-tested and disclosed. Otherwise it will damage your reputation with exactly the people you need.</td></tr>
+</tbody></table></div>
+<p>Market scan: no company is shipping a cross-OS, AI-drafted driver platform today. The adjacent work is research (DevGen, ACL 2026, which turns Linux drivers into QEMU device models), datasheet-extraction tooling, and individual developers using LLMs to write one driver. The space is open, which also means you must create the demand.</p>
+</section>
+
+<section id="arch">
+<h2><span class="n">03</span>Architecture</h2>
+<p>The single most important design choice: split the problem into <strong>devices</strong>, <strong>classes</strong> and <strong>OSes</strong>, so the work adds instead of multiplies.</p>
+<div class="formula">N devices × M OSes → N descriptions + C classes × M OS adapters<small>With 10,000 devices, 20 classes and 5 OSes: 50,000 drivers become 10,000 descriptions plus 100 adapters, and the descriptions are mostly AI-drafted.</small></div>
+<p>Your original plan has the runtime "expose the device to the OS through a standard interface" but does not say what that interface is. That is the gap. Without it, apps would have to talk to our API directly, and nothing existing (games, audio apps, terminal programs) would see the device. The fix is a <strong>class surface</strong> layer: each device class maps to the interface each OS already uses.</p>
+
+<pre class="mermaid">
+flowchart TB
+  subgraph Vendor["Vendor or community"]
+    DS["Datasheet / USB capture / old driver"] --> AI["AI drafter"]
+    AI --> D["Description (YAML)"]
+    L["Logic module (Wasm)"]
+  end
+  D --> REG["Registry node (OCI + signatures + transparency log)"]
+  L --> REG
+  REG --> AG["Client agent"]
+  subgraph Host["User machine"]
+    AG --> RT["Driver runtime (Rust, unprivileged process per device)"]
+    RT --> SB["Wasm sandbox"]
+    RT --> TR["Transport: USB / serial / HID / I2C / VFIO"]
+    RT --> CS["Class surface: input, serial, net, audio, sensor..."]
+    TR --> K["Existing stable kernel doors (libusb/WinUSB, hidraw, VFIO, uinput, TUN, CUSE)"]
+    CS --> K
+  end
+  K --> HW["Device"]
+</pre>
+<p class="figcap">Fig. 1 — The runtime sits between two sets of stable doors the OS already has</p>
+
+<h3>Five layers, each with one owner</h3>
+<div class="tbl"><table>
+<thead><tr><th>Layer</th><th>What it is</th><th>Who owns failures</th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Declarative YAML: identity, matching, transport, registers/commands, state machine, timing, safety, tests, class mapping.</td><td>Vendor</td></tr>
+<tr><td>Logic module</td><td>Optional Wasm component for anything a description can't express (filtering, protocol state, LED effects, calibration math).</td><td>Vendor</td></tr>
+<tr><td>Runtime</td><td>Rust process that interprets the description, enforces the safety envelope, hosts the sandbox.</td><td>Us</td></tr>
+<tr><td>Transport</td><td>Generic bus access: USB, serial, HID, I²C/SPI, later PCI via VFIO.</td><td>Us</td></tr>
+<tr><td>Class surface</td><td>Per-OS adapter that makes the device appear as a normal OS device of its class.</td><td>Us, with OS partners</td></tr>
+</tbody></table></div>
+<p>This table is your "blame model" from Part 5 made concrete. Every test report and every error message names one of these five layers.</p>
+
+<h3>OS surface matrix: where userspace already works</h3>
+<p>This is the real feasibility map. Green cells need no kernel code from us. Copper cells need a small signed shim per OS per class, which we write once and maintain (this is the eventual "driver host" module).</p>
+<div class="tbl"><table>
+<thead><tr><th>Class</th><th>Linux</th><th>macOS</th><th>Windows</th></tr></thead>
+<tbody>
+<tr><td>Bus access (USB)</td><td class="yes">libusb / usbfs</td><td class="part">IOKit user client; vendor-class interfaces only, kernel-claimed ones return exclusive-access errors</td><td class="part">WinUSB; device firmware must ship MS OS 2.0 descriptors, otherwise needs an INF</td></tr>
+<tr><td>Input / HID</td><td class="yes">uinput, uhid, HID-BPF</td><td class="part">Virtual HID needs DriverKit entitlement</td><td class="no">VHF needs a kernel/UMDF shim</td></tr>
+<tr><td>Serial port</td><td class="yes">CUSE or pty</td><td class="part">pty (apps see /dev/ttys*)</td><td class="no">Virtual COM needs a shim</td></tr>
+<tr><td>Network</td><td class="yes">TUN/TAP</td><td class="yes">utun</td><td class="yes">Wintun</td></tr>
+<tr><td>Block storage</td><td class="yes">ublk</td><td class="part">FSKit / DriverKit</td><td class="no">Needs a shim</td></tr>
+<tr><td>Audio</td><td class="yes">PipeWire node</td><td class="yes">AudioServerPlugIn</td><td class="no">Virtual audio driver</td></tr>
+<tr><td>Camera</td><td class="yes">PipeWire / libcamera</td><td class="yes">CoreMediaIO camera extension</td><td class="yes">Media Foundation virtual camera (Win 11)</td></tr>
+<tr><td>Sensor / instrument</td><td colspan="3">No good native userspace surface on any OS. Define our own: a local API (D-Bus on Linux, XPC on macOS, named pipe on Windows) plus SCPI/VISA bridging for instruments. This is fine for the beachhead because these users already use vendor apps or Python.</td></tr>
+</tbody></table></div>
+<div class="callout"><span class="k">Consequence</span>
+<p>Linux is by far the easiest target, and macOS and Windows both need code signing, entitlements and a small set of shims. Budget for an Apple Developer account with DriverKit entitlements and a Microsoft EV certificate plus Partner Center attestation signing before Phase 2.</p>
+</div>
+</section>
+
+<section id="linux">
+<h2><span class="n">04</span>Ideas taken from Linux</h2>
+<p>Linux already contains most of the pieces of a standard driver description, scattered across subsystems. Copy the shapes, so kernel people recognise them and so open descriptions can later be turned into kernel drivers.</p>
+<div class="tbl"><table>
+<thead><tr><th>Linux concept</th><th>What it does there</th><th>How we use it</th></tr></thead>
+<tbody>
+<tr><td>Devicetree bindings + dt-schema</td><td>Hardware described in YAML, validated by JSON Schema, with a strict review process.</td><td>The exact model for our spec: YAML authoring, JSON Schema validation, one schema per device class. Reuse their naming conventions.</td></tr>
+<tr><td>modalias, udev, hwdb</td><td>Match a device to a driver by bus IDs (<code>usb:v2E8Ap0005d*</code>) and apply per-device quirks.</td><td>Our <code>match:</code> block and the agent's lookup key. Same format means udev rules can trigger our agent on Linux.</td></tr>
+<tr><td>regmap</td><td>Generic register access with ranges, readable/writable/volatile flags, caching, and bus abstraction (I²C, SPI, MMIO).</td><td>The register section of the spec. It is a ready-made, battle-tested vocabulary for "what registers exist and how to touch them".</td></tr>
+<tr><td>IIO channels</td><td>Sensors expose channels with type, raw value, scale and offset, so userspace gets real units.</td><td>The sensor class schema: channel type, raw, scale, offset, unit. Gives AI drafting a fixed target.</td></tr>
+<tr><td>Driver model (probe / remove / PM ops)</td><td>Every driver has the same lifecycle hooks and power states.</td><td>Our state machine section. Map states to suspend/resume so the generated kernel drivers in Phase 3 are straightforward.</td></tr>
+<tr><td>HID-BPF</td><td>Small verified programs fix devices from userspace-distributed bundles.</td><td>Output target for HID-class quirks, and proof that "drivers as data" is acceptable upstream.</td></tr>
+<tr><td>linux-firmware repo, LVFS</td><td>Central, signed home for vendor blobs, with vendor accounts and a review process.</td><td>Template for the public registry and the vendor portal.</td></tr>
+<tr><td>VFIO, UIO, uinput, CUSE, ublk, TUN</td><td>Stable userspace doors into hardware and into OS device classes.</td><td>The runtime's transport and class surfaces. We ride these instead of asking for new kernel APIs.</td></tr>
+<tr><td>Documentation/process/stable-api-nonsense.rst</td><td>Explains why Linux will never freeze its in-kernel driver API.</td><td>Read before talking to any maintainer. Our pitch respects it: no in-kernel ABI, GPL kernel side stays clean, closed logic only ever runs in userspace.</td></tr>
+</tbody></table></div>
+<p><strong>Bonus: Linux is the AI training and evaluation set.</strong> The kernel contains thousands of drivers for chips with public datasheets (IIO, hwmon, input). For each one we can check an AI-drafted description against the register addresses, scale factors and IDs the kernel driver uses. That gives a measurable benchmark before a single vendor signs up (details in section 07).</p>
+</section>
+
+<section id="spec">
+<h2><span class="n">05</span>The description spec</h2>
+<p>Keep your section list (identity, interfaces, commands, state machine, timing, safety, tests, visibility, spec version). Changes:</p>
+<ul>
+  <li><strong>Author in YAML, validate with JSON Schema 2020-12.</strong> Humans and LLMs both write YAML well, and comments survive. JSON Schema stays the canonical definition, exactly as dt-schema does.</li>
+  <li><strong>Add a <code>match:</code> section</strong> in modalias style, and an <code>expose:</code> section mapping commands to a device class. Without these, the agent can't find drivers and the OS can't see devices.</li>
+  <li><strong>Stack transports.</strong> A BME280 sensor behind a USB-to-I²C bridge is <code>usb → i2c-bridge → i2c device</code>. One bridge description serves every I²C chip, which multiplies coverage.</li>
+  <li><strong>Use CEL (Common Expression Language) for conversions and guards.</strong> It is non-Turing-complete, sandboxed and already used by Kubernetes. Never invent an expression language.</li>
+  <li><strong>Units as UCUM codes</strong> (<code>Cel</code>, <code>Pa</code>, <code>mA</code>), so conversions are checkable.</li>
+  <li><strong>Importers instead of re-typing.</strong> Read CMSIS-SVD and SystemRDL register maps, USB descriptors, HID report descriptors, and SCPI command sets straight into the spec.</li>
+  <li><strong>Profiles per class</strong> (<code>sensor.temperature</code>, <code>input.keyboard</code>, <code>serial.uart</code>) that say which fields are required, so the validator can say "a temperature sensor must expose a channel in Cel".</li>
+  <li><strong>Safety fields need a human signature.</strong> The schema marks them, and the registry refuses to publish if the vendor did not sign them personally.</li>
+</ul>
+
+<h3>Example: POC 1 device description</h3>
+<pre><code><span class="c"># pico-thermo.yaml : Pico acting as a vendor-class USB device with an LED and temperature sensor</span>
+spec: driverdesk/0.1
+device:
+  id: example.pico-thermo
+  name: Pico Thermo LED
+  vendor: { name: Example Labs }
+  version: 1.0.0
+  classes: [sensor.temperature, light.indicator]
+
+match:
+  - bus: usb
+    vid: 0x2E8A
+    pid: 0x4001
+    interface_class: 0xFF          <span class="c"># vendor-specific, so no OS claims it first</span>
+
+transport:
+  usb:
+    interface: 0
+    endpoints:
+      out: { address: 0x01, type: bulk }
+      in:  { address: 0x81, type: bulk }
+  framing: { header: u8, length: u8, payload: bytes(length), check: crc8-smbus }
+
+commands:
+  hello:     { send: { header: 0x01 }, expect: { header: 0x81 }, timeout_ms: 50 }
+  read_temp:
+    send:    { header: 0x10 }
+    expect:  { header: 0x90, payload: { raw: i16le } }
+    output:  { celsius: { cel: "raw / 100.0", unit: Cel } }
+    timeout_ms: 50
+    retries: 2
+  set_led:
+    send:    { header: 0x20, payload: { on: bool, level: u8 } }
+    expect:  { header: 0xA0 }
+
+safety:                            <span class="c"># vendor must sign this block</span>
+  limits:
+    set_led.level: { max: 200, reason: "LED rated 20 mA at 3.3 V" }
+  rate:
+    set_led: 100/s
+
+states:
+  initial: off
+  transitions:
+    - { from: off,    to: idle,   do: [hello, { wait_ms: 10 }] }
+    - { from: idle,   to: active, on: request }
+    - { from: active, to: idle,   on: { idle_ms: 5000 } }
+
+expose:
+  - { class: sensor.temperature, channel: temp0, read: read_temp.celsius }
+  - { class: light.indicator,    channel: led0,  write: set_led }
+
+tests:
+  - { name: room_temperature, call: read_temp, expect: { celsius: { between: [5, 45] } } }
+  - { name: led_on,  call: set_led, args: { on: true,  level: 100 }, expect: ok }
+  - { name: led_cap, call: set_led, args: { on: true,  level: 255 }, expect: rejected_by_safety }
+
+visibility: { default: public }</code></pre>
+
+<h3>Example: logic module interface (WIT, Wasm Component Model)</h3>
+<pre><code>package driverdesk:logic@0.1.0;
+
+interface device {
+  variant value { int(s64), float(f64), boolean(bool), bytes(list&lt;u8&gt;) }
+  record field { name: string, val: value }
+
+  <span class="c">/// Calls a command declared in the description.</span>
+  <span class="c">/// The runtime checks the safety envelope and permissions before anything reaches the bus.</span>
+  call: func(command: string, args: list&lt;field&gt;) -&gt; result&lt;list&lt;field&gt;, string&gt;;
+}
+
+world sensor-filter {
+  import device;
+  export process: func(channel: string, sample: f64) -&gt; f64;
+}</code></pre>
+<p>The logic module never sees raw USB or memory. It can only call commands that the description declares, and only within the declared safety limits. Vendors can write it in Rust, C, Zig, Go (TinyGo) or AssemblyScript.</p>
+
+<h3>Spec governance</h3>
+<ul>
+  <li>Write it as an RFC-style document with MUST/SHOULD (RFC 2119), numbered sections and an example for every field, as you planned.</li>
+  <li>Semantic versioning with a written compatibility promise: a 1.x runtime runs every 1.y description.</li>
+  <li>Changes go through public proposals (like Rust RFCs or Python PEPs). This is what lets you hand it to a foundation later.</li>
+  <li>License the spec text CC-BY-4.0 with a royalty-free patent pledge, so hardware companies' lawyers can say yes.</li>
+</ul>
+</section>
+
+<section id="stack">
+<h2><span class="n">06</span>What we code in</h2>
+<p>One rule: <strong>every piece that touches a device or parses untrusted input is Rust.</strong> One shared crate parses and validates descriptions, and it compiles to a CLI, a library, a Python module and WebAssembly for the browser portal. Everything else uses the most boring tool that fits.</p>
+<div class="tbl"><table>
+<thead><tr><th>Component</th><th>Language</th><th>Key libraries / standards</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>Spec</td><td>YAML + JSON Schema</td><td>JSON Schema 2020-12, CEL, UCUM, WIT</td><td>Every language can read it; LLMs write it well.</td></tr>
+<tr><td>Validator / linter</td><td>Rust</td><td><code>serde</code>, <code>jsonschema</code>, <code>cel-interpreter</code>, <code>miette</code> for compiler-quality error messages</td><td>Same code runs in CLI, runtime, AI loop (via PyO3) and portal (via Wasm).</td></tr>
+<tr><td>Driver runtime</td><td>Rust</td><td><code>tokio</code>; <code>nusb</code> (pure-Rust USB for Linux/macOS/Windows) with <code>rusb</code> as fallback; <code>serialport</code>; <code>hidapi</code>; rust-vmm <code>vfio-ioctls</code> later</td><td>Memory safety, no runtime, small binaries, fits embedded and kernel-adjacent work.</td></tr>
+<tr><td>Logic sandbox</td><td>Rust host, any language guest</td><td><code>wasmtime</code> + Component Model, fuel / epoch interruption for CPU limits</td><td>Proven isolation, capability-based permissions.</td></tr>
+<tr><td>Process sandbox</td><td>Rust</td><td>Linux landlock + seccomp, macOS sandbox profiles, Windows AppContainer</td><td>Second wall if Wasm or our runtime has a bug.</td></tr>
+<tr><td>OS class shims</td><td>C/C++ (Windows KMDF/UMDF), C++ (macOS DriverKit), Rust where allowed</td><td>One shim per class per OS</td><td>Platform requirement; keep them tiny and audited.</td></tr>
+<tr><td>Client agent</td><td>Rust</td><td>udev monitor, IOKit notifications, <code>CM_Register_Notification</code>; local API over D-Bus / XPC / named pipe</td><td>Shares code with the runtime.</td></tr>
+<tr><td>Registry node</td><td>Rust (<code>axum</code>) + Postgres + an OCI registry</td><td>OCI artifacts via ORAS, <code>sigstore-rs</code>/cosign, Rekor, TUF (<code>tough</code>)</td><td>Don't build package storage. OCI registries already exist everywhere (Zot, Harbor, GHCR) and Sigstore signs OCI natively.</td></tr>
+<tr><td>AI drafter</td><td>Python workers</td><td>PyMuPDF / Docling for PDFs and tables, Claude API with structured outputs, the Rust validator via PyO3</td><td>Best document tooling lives in Python.</td></tr>
+<tr><td>Trace toolkit</td><td>Rust + Python</td><td>pcapng parsing (usbmon, USBPcap), Wireshark dissector generated from descriptions</td><td>Pcap in, description draft out; dissector is a free bonus for users.</td></tr>
+<tr><td>Test harness</td><td>Rust</td><td>JUnit XML + JSON reports, in-toto attestations of results</td><td>Signed results let community labs contribute (section 10).</td></tr>
+<tr><td>Portal + billing</td><td>TypeScript (Next.js)</td><td>Postgres, Stripe usage-based billing</td><td>Fast to build; not security-critical path.</td></tr>
+<tr><td>Test device firmware</td><td>Rust (Embassy on RP2040/RP2350) or C (pico-sdk + TinyUSB)</td><td>MS OS 2.0 descriptors so Windows binds WinUSB automatically</td><td>Without these, POC 2 on Windows needs a manual driver install.</td></tr>
+</tbody></table></div>
+
+<h3>Monorepo layout</h3>
+<pre><code>driverdesk/
+  spec/                 <span class="c"># the standard: RFC text, JSON Schemas, class profiles, examples</span>
+  crates/
+    dd-spec/            <span class="c"># parse, validate, lint  → CLI, lib, Python (PyO3), Wasm</span>
+    dd-runtime/         <span class="c"># interpreter, state machine, safety enforcement</span>
+    dd-transport-usb/   dd-transport-serial/   dd-transport-hid/   dd-transport-vfio/
+    dd-surface-linux/   dd-surface-macos/      dd-surface-windows/
+    dd-sandbox/         <span class="c"># wasmtime host + WIT bindings</span>
+    dd-agent/           <span class="c"># hotplug → lookup → verify → run</span>
+    dd-harness/         <span class="c"># test runner + conformance suite + simulator</span>
+    dd-registry/        <span class="c"># index service over OCI storage</span>
+  ai/                   <span class="c"># drafter, trace-to-description, evals (Linux benchmark)</span>
+  shims/                <span class="c"># per-OS class shims (DriverKit, KMDF/UMDF)</span>
+  firmware/pico-thermo/ <span class="c"># POC devices</span>
+  portal/               <span class="c"># hosted dashboard (open source too)</span>
+  devices/              <span class="c"># community descriptions, like linux-firmware</span></code></pre>
+</section>
+
+<section id="ai">
+<h2><span class="n">07</span>AI: the hardware developer owns the driver</h2>
+<p>The goal is that a hardware engineer who has never written a driver can go from datasheet to a signed, cross-OS driver in an afternoon, and stays the owner of it. The AI drafts, tests and explains. <strong>The vendor decides and signs.</strong></p>
+
+<h3>The drafting pipeline</h3>
+<ol>
+  <li><strong>Ingest.</strong> PDF to text and page images. Extract register tables with table tools first, and fall back to vision on the page image when tables are drawn as pictures.</li>
+  <li><strong>Extract per section with structured outputs.</strong> The JSON Schema of the spec is the output schema. Every field comes back as <code>{value, confidence, evidence: {doc, page, quote}}</code>.</li>
+  <li><strong>Cross-check.</strong> Deterministic checks the model can't skip: overlapping register addresses, unit mismatches, timing that contradicts the state machine, IDs that disagree with the USB descriptor.</li>
+  <li><strong>Validate loop.</strong> Run <code>dd-spec</code>; feed errors back; at most N rounds. Nothing reaches a person until it validates.</li>
+  <li><strong>Simulate.</strong> Generate a mock device from the description and run its own tests against it. This catches internal contradictions without hardware.</li>
+  <li><strong>Bench agent (hardware in the loop).</strong> The vendor runs our agent with the real device plugged in at their desk. The AI runs read-only probes and the declared tests, compares results with the draft, and proposes fixes, such as "register 0xD0 returned 0x60, the datasheet chip ID; field confirmed". It may never write outside the declared safety envelope, and the envelope itself must be human-signed first.</li>
+  <li><strong>Review.</strong> The portal sorts fields by risk × uncertainty and shows each one next to the datasheet passage it came from. Safety fields always need explicit human approval.</li>
+  <li><strong>Sign and publish.</strong> The vendor signs with their key. The AI is never a signer.</li>
+</ol>
+
+<h3>Beyond the first draft</h3>
+<ul>
+  <li><strong>Trace mode (POC 5):</strong> pcap plus a short note ("I pressed button A then B") produces a protocol hypothesis, which the bench agent then confirms by replaying safe commands.</li>
+  <li><strong>Driver import:</strong> point it at an existing open driver (Linux, Zephyr, Arduino library) to produce a description. Check licences: facts like register addresses are generally not copyrightable, but get legal advice before importing from GPL code at scale.</li>
+  <li><strong>Maintenance:</strong> when a vendor uploads a new datasheet revision, the AI diffs it against the description and opens a proposed change. When an OS update breaks a class surface, the harness pinpoints the layer and the AI drafts the fix for our adapter.</li>
+  <li><strong>Support:</strong> the first-line support bot reads harness reports, which works because every failure names its layer.</li>
+</ul>
+
+<h3>Measure it: a Linux-grounded benchmark</h3>
+<p>Before POC 3, build an eval set of about 50 chips that have both a public datasheet and a mainline Linux driver (Bosch BME280/BMP280, TI TMP117, ST LIS3DH, Sensirion SHT3x, InvenSense MPU-6050 and so on). Ground truth is the register addresses, chip IDs, scale factors and init sequences in the kernel driver. Score every AI draft per field. Report:</p>
+<ul>
+  <li>Field accuracy on first try, and after the validate loop.</li>
+  <li>Fields the AI marked high confidence that were wrong. This number must trend to zero, because it decides whether humans can trust the confidence scores.</li>
+  <li>Minutes of human editing to reach passing tests.</li>
+</ul>
+<p>Publish the benchmark openly. It becomes a credibility asset, and model providers may even compete on it.</p>
+<div class="callout risk"><span class="k">Guardrail</span>
+<p>Generated Linux kernel drivers (Phase 3) go upstream only with a named human author who tested on real hardware, using the kernel's Assisted-by disclosure. Staging maintainers already reject LLM-generated patches. One sloppy submission could close the door for years.</p>
+</div>
+</section>
+
+<section id="pocs">
+<h2><span class="n">08</span>Proof-of-concept stages, revised</h2>
+<p>Your six stages are in the right order. Changes: add a zero stage for the spec and benchmark, put a real chip behind the Pico so the AI stage uses a real datasheet, add a stage proving the device appears as a native OS device, and add the gotchas each stage will hit.</p>
+
+<div class="poc"><h3>POC 0 · The spec and the yardstick <span class="tag">2 weeks</span></h3><dl>
+<dt>Build</dt><dd>Spec v0.1 text and JSON Schema, 3 hand-written examples, <code>dd-spec validate</code> CLI with miette errors, list of 50 benchmark chips.</dd>
+<dt>Done when</dt><dd>A broken example produces an error message a hardware engineer understands without help (test it on one).</dd>
+</dl></div>
+
+<div class="poc"><h3>POC 1 · A description can drive a device <span class="tag">2–3 weeks · Linux</span></h3><dl>
+<dt>Device</dt><dd>Raspberry Pi Pico running firmware that is a <strong>USB-to-I²C bridge</strong> (reuse the open i2c-tiny-usb protocol) plus an LED, with a BME280 sensor on I²C. Two descriptions: one for the bridge, one for the BME280.</dd>
+<dt>Build</dt><dd><code>dd-runtime</code> on Linux using nusb; CLI <code>dd run pico.yaml</code>, <code>dd read temp0</code>, <code>dd write led0 on</code>.</dd>
+<dt>Done when</dt><dd>Temperature, pressure and humidity read in real units and the LED toggles, with zero device-specific Rust code. Swapping the BME280 for a TMP117 needs only a new YAML file.</dd>
+<dt>Why the change</dt><dd>The stacked bridge proves the "one transport, many chips" multiplier, and the BME280 has a public datasheet and a Linux driver for POC 3 scoring.</dd>
+</dl></div>
+
+<div class="poc"><h3>POC 2 · One description, every OS <span class="tag">3–4 weeks</span></h3><dl>
+<dt>Build</dt><dd>Runtime on macOS and Windows; <code>dd-harness</code> v0.1 with the simulator; GitHub Actions running simulated tests on all three OSes, and a real-hardware run on one machine each.</dd>
+<dt>Done when</dt><dd>Same files pass on all three; harness emits a compatibility report naming the failing layer; a deliberately broken description is caught.</dd>
+<dt>Gotchas</dt><dd>Add MS OS 2.0 descriptors to the Pico firmware or Windows won't bind WinUSB. Keep the interface vendor-class (0xFF) or macOS will claim it. Budget one extra week; this is where solo projects stall.</dd>
+</dl></div>
+
+<div class="poc"><h3>POC 3 · AI writes the description <span class="tag">3–4 weeks</span></h3><dl>
+<dt>Input</dt><dd>BME280 datasheet PDF, then the other 49 benchmark chips.</dd>
+<dt>Done when</dt><dd>The BME280 draft passes validation and the hardware tests with under 15 minutes of human editing; benchmark scores published.</dd>
+<dt>Measure</dt><dd>First-try field accuracy, post-loop accuracy, confident-and-wrong rate, edit minutes.</dd>
+</dl></div>
+
+<div class="poc"><h3>POC 4 · Private, signed and automatic <span class="tag">3–4 weeks</span></h3><dl>
+<dt>Build</dt><dd>Registry node as one <code>docker compose up</code> (index service + Zot OCI registry + Postgres); cosign signing; Rekor log entry; TUF metadata; <code>dd-agent</code> on Linux.</dd>
+<dt>Done when</dt><dd>Plug the Pico into a fresh machine and it works within 5 seconds with no commands typed. A tampered description is rejected, a revoked one stops running at the next metadata refresh, and an offline bundle works with no network.</dd>
+</dl></div>
+
+<div class="poc"><h3>POC 5 · Native OS device <span class="tag">2–3 weeks · new</span></h3><dl>
+<dt>Build</dt><dd>Class surfaces for input and serial on Linux (uinput, CUSE) and one on macOS.</dd>
+<dt>Device</dt><dd>A cheap macro pad or USB foot pedal that only ships a Windows configuration app.</dd>
+<dt>Done when</dt><dd>An unmodified app (a text editor, a game, <code>screen</code>) sees the device as a normal keyboard or serial port. This is the demo that makes OS people pay attention.</dd>
+</dl></div>
+
+<div class="poc"><h3>POC 6 · Works without the vendor <span class="tag">3–4 weeks</span></h3><dl>
+<dt>Build</dt><dd>Trace toolkit: capture with usbmon or USBPcap, AI protocol inference, bench-agent confirmation.</dd>
+<dt>Device</dt><dd>An RGB keyboard, LED controller or USB relay board with no Linux support.</dd>
+<dt>Done when</dt><dd>From captures alone, the device works on Linux. Get legal advice first: interoperability reverse engineering is protected in the US (DMCA §1201(f)) and EU (Software Directive Art. 6), but check terms of service.</dd>
+</dl></div>
+
+<div class="poc"><h3>POC 7 · Logic can be private and portable <span class="tag">3 weeks</span></h3><dl>
+<dt>Build</dt><dd><code>dd-sandbox</code> with Wasmtime and the WIT interface above.</dd>
+<dt>Done when</dt><dd>A smoothing filter or LED-effect module runs identically on three OSes, fails cleanly when it tries a command it wasn't granted, and is stopped by fuel limits when it loops forever.</dd>
+</dl></div>
+<p><strong>Total:</strong> about 6–7 months solo, 4–5 months with two people. That is longer than your 4–6 months because of POC 0, the native-surface stage and realistic time for Windows and macOS. Record every demo on video; the videos are your fundraising deck.</p>
+</section>
+
+<section id="biz">
+<h2><span class="n">09</span>Open source + hosted cloud</h2>
+<p>Follow Supabase's model closely: <strong>everything is open source and self-hostable; the cloud sells convenience, scale and trust.</strong> Do not hold back core features, because the community will fork or ignore an open core that feels crippled.</p>
+
+<h3>Licences</h3>
+<ul>
+  <li><strong>Code: Apache-2.0</strong> for everything, including registry and portal. It includes a patent grant, which hardware companies' lawyers require. Use the DCO (Signed-off-by) instead of a CLA, the same as Linux.</li>
+  <li><strong>Spec: CC-BY-4.0</strong> plus a patent pledge.</li>
+  <li><strong>Trademark</strong> on the name and the "Verified" badge. This is how you keep quality control while the code is open.</li>
+  <li>Descriptions belong to whoever publishes them. Open community descriptions: recommend CC0 or Apache-2.0.</li>
+</ul>
+
+<h3>What people pay for</h3>
+<div class="tbl"><table>
+<thead><tr><th>Tier</th><th>For</th><th>Includes</th><th>Illustrative price</th></tr></thead>
+<tbody>
+<tr><td>Free</td><td>Makers, community, open hardware</td><td>Unlimited public descriptions, simulated tests on all OSes, small AI drafting allowance</td><td>$0</td></tr>
+<tr><td>Pro</td><td>Small hardware vendors</td><td>Private descriptions and logic, more AI drafts, real-hardware lab minutes, release channels, download analytics</td><td>~$79 / month</td></tr>
+<tr><td>Scale</td><td>Product lines, fleets</td><td>Bring-your-own-key, staged rollouts, multiple products, priority lab queue, verified badge program</td><td>from ~$599 / month + usage</td></tr>
+<tr><td>Enterprise</td><td>Large vendors, OEMs, regulated industry</td><td>Dedicated or on-prem node, SSO, audit log, SOC 2 report, SLA, OS-partner pre-release testing</td><td>Contract</td></tr>
+<tr><td>Certification</td><td>Anyone shipping a product</td><td>Per device, per OS: lab-tested, signed attestation, "Verified on Linux / macOS / Windows" badge</td><td>Per-device fee</td></tr>
+</tbody></table></div>
+<p>Prices are placeholders to test with design partners. The likely order of revenue is certification and lab testing first, then private hosting, then AI usage. Certification is the moat: like Microsoft's driver certification, it is the part no one can fork, because it is physical hardware, history and trust.</p>
+<p><strong>Other money:</strong> sponsorship from OS vendors and distributions (the LVFS model), and grants from sovereign-tech and open-hardware funds, since this reduces dependence on any single OS vendor.</p>
+<div class="callout"><span class="k">Neutrality</span>
+<p>Run the <em>public</em> registry as a neutral service and plan to move it and the spec to a foundation (Linux Foundation or similar) in Phase 3. Vendors and OS projects will not depend on a single startup's registry. Your business is the hosted nodes, the lab and the AI, not ownership of the standard.</p>
+</div>
+</section>
+
+<section id="scale">
+<h2><span class="n">10</span>How it scales</h2>
+<h3>Engineering: build less than you think</h3>
+<ul>
+  <li><strong>Storage and delivery:</strong> descriptions and logic modules are OCI artifacts, content-addressed and cached by any CDN. A self-hosted node is an OCI registry plus our small index. No custom package infrastructure.</li>
+  <li><strong>Trust:</strong> Sigstore for signatures and the transparency log, TUF for freshness and revocation. Both are what PyPI, npm and Kubernetes use.</li>
+  <li><strong>Coverage:</strong> grows by descriptions, not code. Our code grows only by classes × OSes, about 100 adapters total for the beachhead.</li>
+  <li><strong>Runtime footprint:</strong> one process per device keeps failures isolated. Idle devices cost almost nothing.</li>
+</ul>
+
+<h3>Device lab: three tiers</h3>
+<ol>
+  <li><strong>Simulated devices</strong> generated from descriptions and from recorded traces. They run in CI on every change, for free, on every OS. This should catch about 80% of breakage.</li>
+  <li><strong>Distributed labs.</strong> Vendors and contributors run our lab runner on their own hardware, the way GitHub Actions supports self-hosted runners. Results are signed in-toto attestations, so they can be trusted and shown on a device's page.</li>
+  <li><strong>Our own racks</strong> for certification only: per-port power switching (uhubctl-compatible hubs or Acroname), USB switches, and Linux, macOS and Windows machines plus OS beta builds. Start with one desk; grow to racks when certification revenue pays for them.</li>
+</ol>
+
+<h3>Team by phase</h3>
+<div class="tbl"><table>
+<thead><tr><th>Phase</th><th>People</th><th>Focus</th></tr></thead>
+<tbody>
+<tr><td>0 (months 0–7)</td><td>1–2</td><td>Runtime and spec (Rust), AI drafter</td></tr>
+<tr><td>1 (7–13)</td><td>4–5</td><td>+ platform engineer (macOS/Windows shims), + cloud engineer, + vendor partnerships</td></tr>
+<tr><td>2 (13–20)</td><td>8–10</td><td>+ security engineer, + lab ops, + developer relations, + second AI engineer</td></tr>
+<tr><td>3 (20–36)</td><td>15–25</td><td>+ kernel liaison, + certification program, + enterprise sales</td></tr>
+</tbody></table></div>
+<p>Your phase gates stay as written. Add one to Phase 1: <strong>at least one vendor has published a description without our engineers touching it</strong>. That is the real test of "the vendor owns the driver".</p>
+</section>
+
+<section id="security">
+<h2><span class="n">11</span>Security changes</h2>
+<p>Your threat list and defences are good. Five corrections:</p>
+<ol>
+  <li><strong>"Private" means access-controlled, not secret.</strong> A description or Wasm module that runs on a customer's machine must be decrypted there and can be read or decompiled. Vendor-held keys protect it at rest and in transit and limit who can download it. Say this plainly to vendors. Truly secret logic belongs in device firmware.</li>
+  <li><strong>Matching by USB IDs can be spoofed.</strong> A malicious device can claim to be anything. The rule that makes this safe: a driver may only touch the device it matched, through its own bus handle, and never host resources. A spoofed device then only gets a driver for something it isn't, which is harmless.</li>
+  <li><strong>Two sandboxes, not one.</strong> Wasm for logic, and an OS process sandbox (landlock + seccomp, macOS sandbox, AppContainer) around the whole runtime. Run each device in its own process.</li>
+  <li><strong>Revocation through TUF metadata expiry.</strong> Agents refuse to start drivers whose metadata is older than a set window when online, and offline bundles have explicit expiry dates. Test revocation monthly, as you planned.</li>
+  <li><strong>Safety envelope signed by a person.</strong> No AI process, ours or the vendor's, can approve or loosen safety limits.</li>
+</ol>
+<p>Keep the rest: reproducible builds, signed releases, audits before Phase 2, bug bounty, SOC 2 when enterprise customers arrive, no user tracking on lookups.</p>
+</section>
+
+<section id="risks">
+<h2><span class="n">12</span>Risks and kill criteria</h2>
+<div class="tbl"><table>
+<thead><tr><th>Risk</th><th>Mitigation</th><th>Kill or pivot signal</th></tr></thead>
+<tbody>
+<tr><td>OS adoption (how UDI died)</td><td>Need zero OS changes until Phase 3; ship as a normal app and package.</td><td>No distribution willing to ship the agent by month 20.</td></tr>
+<tr><td>Vendors don't care about non-Windows users</td><td>Target segments where Linux/macOS users already complain: lab, robotics, maker, industrial, audio.</td><td>Fewer than 3 design partners by month 9.</td></tr>
+<tr><td>AI accuracy too low to save vendors time</td><td>Benchmark early; trace + bench agent fill gaps; class profiles narrow the problem.</td><td>Under 60% first-try field accuracy on the benchmark after two iterations: refocus on trace mode and import tools.</td></tr>
+<tr><td>Kernel community hostility</td><td>No in-kernel ABI, closed code only in userspace, HID-BPF as precedent, careful upstream etiquette.</td><td>A public NAK from key maintainers on the Phase 3 driver host: keep it out-of-tree and lean on userspace doors.</td></tr>
+<tr><td>Signing and entitlement costs on macOS/Windows</td><td>Small set of shims, budgeted in Phase 1.</td><td>Apple refuses DriverKit entitlements: macOS stays limited to classes with userspace surfaces.</td></tr>
+<tr><td>Performance-sensitive classes don't fit</td><td>Don't promise them; Phase 4 only; generate kernel drivers instead of running in userspace.</td><td>n/a; scope rule</td></tr>
+<tr><td>Legal exposure from reverse engineering</td><td>Counsel before POC 6; interoperability exemptions; takedown process in the registry.</td><td>Credible legal threat from a major vendor: restrict trace mode to vendor-authorised use.</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="next">
+<h2><span class="n">13</span>The next 30 days</h2>
+<ol>
+  <li>Buy hardware: 3 × Raspberry Pi Pico 2, BME280 and TMP117 breakout boards, a powered USB hub with per-port power switching, one cheap macro pad.</li>
+  <li>Create the GitHub org, Apache-2.0 licence, DCO bot, and the monorepo skeleton above.</li>
+  <li>Write spec v0.1: identity, match, transport (USB + I²C bridge), commands, safety, states, expose, tests. JSON Schema plus three examples.</li>
+  <li>Build <code>dd-spec validate</code> with excellent error messages. Show it to two hardware engineers and fix what confuses them.</li>
+  <li>Write the Pico bridge firmware with MS OS 2.0 descriptors from the start.</li>
+  <li>Get <code>dd-runtime</code> reading the BME280 on Linux.</li>
+  <li>Assemble the 50-chip benchmark list (datasheet URL + kernel driver path for each).</li>
+  <li>Start conversations with 10 small hardware vendors to find 3 design partners. Ask what they spend today on Linux/macOS support and what they'd pay to stop.</li>
+</ol>
+</section>
+
+<section id="sources">
+<h2><span class="n">14</span>Sources</h2>
+<ul class="src">
+  <li><a href="https://en.wikipedia.org/wiki/Uniform_Driver_Interface">Uniform Driver Interface — Wikipedia</a></li>
+  <li><a href="https://techmonitor.ai/?p=81068">UDI and Microsoft/Apple holdouts — Tech Monitor</a></li>
+  <li><a href="https://static.usenix.org/event/osdi00/full_papers/merillon/merillon_html/index.html">Devil: An IDL for Hardware Programming — OSDI 2000</a></li>
+  <li><a href="https://cgi.cse.unsw.edu.au/~ikuz/publications/sosp.09.pdf">Automatic Device Driver Synthesis with Termite — SOSP 2009</a></li>
+  <li><a href="https://www.eecg.utoronto.ca/~stumm/Papers/Ryzhyk-OSDI-14.pdf">User-Guided Device Driver Synthesis (Termite-2) — OSDI 2014</a></li>
+  <li><a href="https://libevdev.pages.freedesktop.org/udev-hid-bpf/">udev-hid-bpf documentation</a></li>
+  <li><a href="https://lkml.iu.edu/2511.2/10554.html">HID-BPF sync with udev-hid-bpf, Nov 2025 — LKML</a></li>
+  <li><a href="https://phoronix.com/news/LVFS-Fwupd-135-Million-Download">LVFS passes 135 million downloads — Phoronix</a></li>
+  <li><a href="https://blogs.gnome.org/hughsie/">LVFS sponsorship announcements — Richard Hughes</a></li>
+  <li><a href="https://fuchsia.dev/docs/concepts/drivers/driver_framework">Fuchsia Driver Framework (DFv2)</a></li>
+  <li><a href="https://arxiv.org/abs/2410.22919v2">Cyber-physical WebAssembly: Secure Hardware Interfaces and Pluggable Drivers</a></li>
+  <li><a href="https://www.phoronix.com/news/Rust-To-Stay-Linux-Kernel">Rust experiment concluded in Linux — Phoronix</a></li>
+  <li><a href="https://phoronix.com/news/Linux-Staging-Reject-LLMs">Linux staging rejects LLM-generated patches — Phoronix</a></li>
+  <li><a href="https://phoronix.com/news/Linux-WiFi-Strict-AI-Slop-Patch">Wireless maintainer on AI patches — Phoronix</a></li>
+  <li><a href="https://phoronix.com/news/Linux-7.3-rc1-Code-Stats">Linux 7.3-rc1 code statistics — Phoronix</a></li>
+  <li><a href="https://aclanthology.org/2026.acl-demo.24/">DevGen: Bridging Kernel Drivers and Virtual Device Models with LLMs — ACL 2026</a></li>
+  <li><a href="https://resources.altium.com/p/building-local-llm-datasheet-extractor-ic-driver-development">Local-LLM datasheet extractor for IC drivers — Altium</a></li>
+  <li><a href="https://learn.microsoft.com/windows-hardware/drivers/usbcon/automatic-installation-of-winusb">Automatic installation of WinUSB — Microsoft Learn</a></li>
+  <li><a href="https://developer.apple.com/forums/thread/124700">IOKit or DriverKit for userspace device access — Apple Developer Forums</a></li>
+  <li><a href="https://lwn.net/Articles/903855">ublk: userspace block devices — LWN</a></li>
+</ul>
+</section>
+</main>
+</div>
