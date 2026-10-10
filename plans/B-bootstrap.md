@@ -39,10 +39,10 @@ If hardware has not arrived, criteria 1–4 and 6 are enough to **start P0**. Cr
 - [>] **B.T2 Hardware shopping list** (deps: —) — *do this first in practice: shipping takes the longest*
   - Do: resolve R-B-3, R-B-4. Produce H-001 in `progress/HUMAN-ACTIONS.md`: exact products, links from a retailer that ships to the owner, quantities, prices, total. Baseline list: 3× Raspberry Pi Pico 2 with headers; 2× Raspberry Pi Debug Probe; 1× Raspberry Pi 5 (8 GB) + official PSU + 64 GB microSD or NVMe; 1× x86 mini PC with Windows 11 (N100-class); 3× uhubctl-compatible per-port-power hubs; BME280 and TMP117 breakouts (STEMMA QT/Qwiic) ×2 each; Qwiic-to-header cables; breadboards, jumper wires; 5× 3 mm LEDs + 330 Ω resistors; 4× good USB-C/micro-USB data cables. Leave P5/P6 devices for those stages.
   - Accept: H-001 written; budget total stated; each item has a reason.
-- [ ] **B.T3 Toolchain on the Mac** (deps: —)
+- [x] **B.T3 Toolchain on the Mac** (deps: —)
   - Do: install rustup (stable), targets `thumbv8m.main-none-eabihf` (RP2350), `thumbv6m-none-eabi` (RP2040 fallback), `wasm32-wasip2`, `wasm32-unknown-unknown`; cargo tools `cargo-nextest cargo-deny cargo-insta probe-rs-tools flip-link cargo-component`; `uv`; `gitleaks`. Use Homebrew where the tool has an official formula. Write `rust-toolchain.toml`, `docs/toolchain.md`.
   - Accept: `cargo xtask doctor` (written in B.T4) reports all present with versions.
-- [ ] **B.T4 Workspace + xtask** (deps: B.T1, B.T3)
+- [x] **B.T4 Workspace + xtask** (deps: B.T1, B.T3)
   - Do: Cargo workspace per ADR-0007 with stub crates (`dd-spec`, `dd-runtime`, `dd-transport-usb`, `dd-transport-serial`, `dd-transport-hid`, `dd-transport-i2c`, `dd-surface-linux`, `dd-surface-macos`, `dd-surface-windows`, `dd-sandbox`, `dd-agent`, `dd-harness`, `dd-registry`, `dd-sim`, `dd-cli` (binary `dd`)) and `xtask` with subcommands: `doctor`, `ci` (fmt --check, clippy -D warnings, nextest, deny check, gitleaks), `gate <ID>` (runs the stage's scripted checks; stub), `vlab` (stub). `deny.toml` with the licence allowlist from CLAUDE.md. `ai/` as a uv project with ruff + pytest and one passing test.
   - Accept: `cargo xtask ci` green; `cd ai && uv run pytest` green.
 - [ ] **B.T5 GitHub repo + CI** (deps: B.T4, H-002)

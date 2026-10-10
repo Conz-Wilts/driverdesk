@@ -1,0 +1,15 @@
+[package]
+name = "xtask"
+description = "Project commands: `cargo xtask <doctor|ci|gate|vlab>` (ADR-0007)."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+anyhow.workspace = true
+
+[lints]
+workspace = true
