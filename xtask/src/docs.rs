@@ -176,7 +176,7 @@ pub const GUIDE: &[(&str, &str, &str)] = &[
     ),
     (
         "DD-L025",
-        "A command that writes is retried; a retry could apply the write twice.",
+        "A command that writes is retried; a retry could apply the write twice. A command is *idempotent* when running it twice leaves the device exactly as running it once (setting an LED to 50 % is; toggling it is not).",
         "Set `idempotent: true` if a repeat is harmless, otherwise remove `retries`.",
     ),
     (

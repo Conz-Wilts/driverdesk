@@ -13,7 +13,8 @@ DD-S002 (https://driverdesk.dev/errors/DD-S002)
     ·    ╰── empty
  51 │ tests:
     ╰────
-  help: add at least one entry (spec §15), for example:
+  help: add one entry for each class in `device.classes` (`sensor.temperature`, `light.indicator`)
+        (spec §15), for example:
         expose:
           - { class: <one of device.classes>, channel: ch0, read: <command>.<output> }
 DD-L016 (https://driverdesk.dev/errors/DD-L016)

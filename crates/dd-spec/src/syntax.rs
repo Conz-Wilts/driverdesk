@@ -219,7 +219,15 @@ fn unclosed_flow(src: &str, upto: usize) -> Option<(usize, char)> {
             (None, '#') => comment = true,
             (None, '[' | '{') => stack.push((i, c)),
             (None, ']' | '}') => {
-                stack.pop();
+                let opener = if c == ']' { '[' } else { '{' };
+                match stack.last() {
+                    Some(&(_, top)) if top == opener => {
+                        stack.pop();
+                    }
+                    // `{ a: [1, 2 }`: the `[` on top is the one never closed.
+                    Some(&top) => return Some(top),
+                    None => {}
+                }
             }
             _ => {}
         }
@@ -668,6 +676,16 @@ mod tests {
         let e = parse("a: [1, 2\nb: 3\n", &mut d).unwrap_err();
         assert_eq!(e[0].code, "DD-S001");
         assert!(e[0].span.is_some());
+    }
+
+    #[test]
+    fn unclosed_bracket_inside_braces_is_the_bracket() {
+        let src = "a: { b: [1, 2 }\nc: 3\n";
+        let mut d = Vec::new();
+        let e = parse(src, &mut d).unwrap_err();
+        let (span, label) = &e[0].related[0];
+        assert_eq!(&src[span.start..span.end], "[", "{label}");
+        assert!(e[0].help.as_deref().unwrap().contains("`]`"));
     }
 
     #[test]

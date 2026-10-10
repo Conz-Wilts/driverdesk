@@ -488,7 +488,25 @@ fn convert(e: &ValidationError<'_>, doc: &Document, c: &Compiled, out: &mut Vec<
                 )
                 .at_opt(spans.key_or_value(&ptr), "empty")
                 .with_help(with_example(
-                    format!("add at least one entry (spec {sec})"),
+                    if ptr == "/expose" {
+                        let classes: Vec<String> = doc
+                            .json
+                            .pointer("/device/classes")
+                            .and_then(Value::as_array)
+                            .map(|a| {
+                                a.iter()
+                                    .filter_map(Value::as_str)
+                                    .map(|c| format!("`{c}`"))
+                                    .collect()
+                            })
+                            .unwrap_or_default();
+                        format!(
+                            "add one entry for each class in `device.classes` ({}) (spec {sec})",
+                            classes.join(", ")
+                        )
+                    } else {
+                        format!("add at least one entry (spec {sec})")
+                    },
                     ptr.rsplit('/').next().unwrap_or(""),
                 ))
                 .with_pointer(ptr),
