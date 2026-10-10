@@ -93,6 +93,7 @@ td:first-child { font-weight: 600; }
   <div class="lbl">Contents</div>
   <ol>
     <li><a href="#thesis">The thesis, sharpened</a></li>
+    <li><a href="#users">Who it serves</a></li>
     <li><a href="#history">What history teaches</a></li>
     <li><a href="#arch">Architecture</a></li>
     <li><a href="#linux">Ideas taken from Linux</a></li>
@@ -100,6 +101,7 @@ td:first-child { font-weight: 600; }
     <li><a href="#stack">What we code in</a></li>
     <li><a href="#ai">AI: vendor owns the driver</a></li>
     <li><a href="#pocs">Proof-of-concept stages</a></li>
+    <li><a href="#build">How it gets built: AI-run</a></li>
     <li><a href="#biz">Open source + hosted cloud</a></li>
     <li><a href="#scale">How it scales</a></li>
     <li><a href="#security">Security changes</a></li>
@@ -111,9 +113,9 @@ td:first-child { font-weight: 600; }
 
 <main>
 <header class="doc">
-  <div class="docmeta"><span>Working name: DriverDesk</span><span>Plan rev 2</span><span>10 Oct 2026</span><span>Open source · hosted cloud</span></div>
+  <div class="docmeta"><span>Working name: DriverDesk</span><span>Plan rev 3</span><span>10 Oct 2026</span><span>Open source · hosted cloud</span></div>
   <h1>Drivers as data: a hosted platform for portable, AI-authored device drivers</h1>
-  <p class="lede">Your original plan, tightened after research on prior attempts, Linux internals, and current tooling. It keeps your 12 components and 6 proofs of concept, fixes the parts that would have hurt, and adds the pieces that make it scale.</p>
+  <p class="lede">One place where hardware drivers live, get tested against every operating system, and connect to any OS. Hardware makers upload once; OS writers port one runtime and get the whole catalogue; every OS fetches signed drivers through one open protocol. Built end to end by AI, with people doing only what legally or physically needs a person.</p>
 </header>
 
 <section id="thesis">
@@ -132,8 +134,21 @@ td:first-child { font-weight: 600; }
 <p><strong>Beachhead:</strong> USB, serial, HID, I²C/SPI sensors and actuators, lab instruments, robotics and maker hardware. These are the devices whose vendors today ship a Windows-only app or nothing, and whose users are on Linux and macOS.</p>
 </section>
 
+<section id="users">
+<h2><span class="n">02</span>Who it serves</h2>
+<p>The platform makes three promises to three groups. Every stage of the build traces back to one of them.</p>
+<div class="tbl"><table>
+<thead><tr><th>Who</th><th>Promise</th><th>What they get</th></tr></thead>
+<tbody>
+<tr><td>Hardware makers</td><td>Upload once, works everywhere, proven</td><td>Upload a datasheet, USB capture or existing driver; AI drafts the description with evidence for every field; review, sign, publish public or private. Automatic tests on Linux, macOS and Windows with a report naming the failing layer. Later a "Verified on &lt;OS&gt;" badge.</td></tr>
+<tr><td>OS writers</td><td>Port one runtime, get every driver</td><td>A small, documented <strong>Host Interface</strong> (device detection, raw USB/HID/serial/I²C access, process isolation, optional standard device types). A conformance suite for their OS. A <strong>catalogue run</strong> that tests every driver in the registry on their OS and ranks which missing piece would unlock the most devices.</td></tr>
+<tr><td>Every OS and its users</td><td>Plug in, it works, it's genuine</td><td>Signed, transparency-logged driver storage (self-hosted or ours) and an <strong>open client protocol</strong>, so any OS can write its own client. Our reference agent detects the device, fetches, verifies and runs the driver in a sandbox, with offline bundles and no user tracking.</td></tr>
+</tbody></table></div>
+<p><strong>Out of scope until year 3+:</strong> GPUs, high-speed network and storage data paths, boot devices, and firmware updating (LVFS and fwupd already do that well; integrate with them instead).</p>
+</section>
+
 <section id="history">
-<h2><span class="n">02</span>What history teaches</h2>
+<h2><span class="n">03</span>What history teaches</h2>
 <p>This idea has been tried in parts several times. Each attempt proves something and leaves a lesson.</p>
 <div class="tbl"><table>
 <thead><tr><th>Precedent</th><th>What it proved</th><th>Lesson for us</th></tr></thead>
@@ -152,7 +167,7 @@ td:first-child { font-weight: 600; }
 </section>
 
 <section id="arch">
-<h2><span class="n">03</span>Architecture</h2>
+<h2><span class="n">04</span>Architecture</h2>
 <p>The single most important design choice: split the problem into <strong>devices</strong>, <strong>classes</strong> and <strong>OSes</strong>, so the work adds instead of multiplies.</p>
 <div class="formula">N devices × M OSes → N descriptions + C classes × M OS adapters<small>With 10,000 devices, 20 classes and 5 OSes: 50,000 drivers become 10,000 descriptions plus 100 adapters, and the descriptions are mostly AI-drafted.</small></div>
 <p>Your original plan has the runtime "expose the device to the OS through a standard interface" but does not say what that interface is. That is the gap. Without it, apps would have to talk to our API directly, and nothing existing (games, audio apps, terminal programs) would see the device. The fix is a <strong>class surface</strong> layer: each device class maps to the interface each OS already uses.</p>
@@ -191,6 +206,12 @@ flowchart TB
 </tbody></table></div>
 <p>This table is your "blame model" from Part 5 made concrete. Every test report and every error message names one of these five layers.</p>
 
+<h3>Two open contracts that let any OS join</h3>
+<ul>
+  <li><strong>Host Interface</strong> (below the runtime): the complete list of what an OS must provide, with exact semantics, as a prose spec, a Rust trait (<code>dd-host</code>) and a C ABI (<code>dd_host.h</code>). Linux, macOS and Windows are the first three implementations; FreeBSD is the proof that a fourth OS can port from the docs alone.</li>
+  <li><strong>Client protocol</strong> (between any OS and the storage): match-key lookup, OCI pulls, TUF freshness and revocation, Sigstore verification, private-content decryption, offline bundles, privacy rules. Our agent is one implementation; an independent Python client proves the spec is complete.</li>
+</ul>
+
 <h3>OS surface matrix: where userspace already works</h3>
 <p>This is the real feasibility map. Green cells need no kernel code from us. Copper cells need a small signed shim per OS per class, which we write once and maintain (this is the eventual "driver host" module).</p>
 <div class="tbl"><table>
@@ -211,7 +232,7 @@ flowchart TB
 </section>
 
 <section id="linux">
-<h2><span class="n">04</span>Ideas taken from Linux</h2>
+<h2><span class="n">05</span>Ideas taken from Linux</h2>
 <p>Linux already contains most of the pieces of a standard driver description, scattered across subsystems. Copy the shapes, so kernel people recognise them and so open descriptions can later be turned into kernel drivers.</p>
 <div class="tbl"><table>
 <thead><tr><th>Linux concept</th><th>What it does there</th><th>How we use it</th></tr></thead>
@@ -226,11 +247,11 @@ flowchart TB
 <tr><td>VFIO, UIO, uinput, CUSE, ublk, TUN</td><td>Stable userspace doors into hardware and into OS device classes.</td><td>The runtime's transport and class surfaces. We ride these instead of asking for new kernel APIs.</td></tr>
 <tr><td>Documentation/process/stable-api-nonsense.rst</td><td>Explains why Linux will never freeze its in-kernel driver API.</td><td>Read before talking to any maintainer. Our pitch respects it: no in-kernel ABI, GPL kernel side stays clean, closed logic only ever runs in userspace.</td></tr>
 </tbody></table></div>
-<p><strong>Bonus: Linux is the AI training and evaluation set.</strong> The kernel contains thousands of drivers for chips with public datasheets (IIO, hwmon, input). For each one we can check an AI-drafted description against the register addresses, scale factors and IDs the kernel driver uses. That gives a measurable benchmark before a single vendor signs up (details in section 07).</p>
+<p><strong>Bonus: Linux is the AI training and evaluation set.</strong> The kernel contains thousands of drivers for chips with public datasheets (IIO, hwmon, input). For each one we can check an AI-drafted description against the register addresses, scale factors and IDs the kernel driver uses. That gives a measurable benchmark before a single vendor signs up (details in section 08).</p>
 </section>
 
 <section id="spec">
-<h2><span class="n">05</span>The description spec</h2>
+<h2><span class="n">06</span>The description spec</h2>
 <p>Keep your section list (identity, interfaces, commands, state machine, timing, safety, tests, visibility, spec version). Changes:</p>
 <ul>
   <li><strong>Author in YAML, validate with JSON Schema 2020-12.</strong> Humans and LLMs both write YAML well, and comments survive. JSON Schema stays the canonical definition, exactly as dt-schema does.</li>
@@ -244,7 +265,7 @@ flowchart TB
 </ul>
 
 <h3>Example: POC 1 device description</h3>
-<pre><code><span class="c"># pico-thermo.yaml : Pico acting as a vendor-class USB device with an LED and temperature sensor</span>
+<pre><code><span class="c"># pico-thermo.yaml : Pico acting as a vendor-class USB device with an LED and its built-in temperature sensor</span>
 spec: driverdesk/0.1
 device:
   id: example.pico-thermo
@@ -255,8 +276,8 @@ device:
 
 match:
   - bus: usb
-    vid: 0x2E8A
-    pid: 0x4001
+    vid: 0x1209                    <span class="c"># pid.codes test IDs for our own fixtures</span>
+    pid: 0x0001
     interface_class: 0xFF          <span class="c"># vendor-specific, so no OS claims it first</span>
 
 transport:
@@ -272,7 +293,7 @@ commands:
   read_temp:
     send:    { header: 0x10 }
     expect:  { header: 0x90, payload: { raw: i16le } }
-    output:  { celsius: { cel: "raw / 100.0", unit: Cel } }
+    output:  { celsius: { cel: "double(raw) / 100.0", unit: Cel } }
     timeout_ms: 50
     retries: 2
   set_led:
@@ -331,7 +352,7 @@ world sensor-filter {
 </section>
 
 <section id="stack">
-<h2><span class="n">06</span>What we code in</h2>
+<h2><span class="n">07</span>What we code in</h2>
 <p>One rule: <strong>every piece that touches a device or parses untrusted input is Rust.</strong> One shared crate parses and validates descriptions, and it compiles to a CLI, a library, a Python module and WebAssembly for the browser portal. Everything else uses the most boring tool that fits.</p>
 <div class="tbl"><table>
 <thead><tr><th>Component</th><th>Language</th><th>Key libraries / standards</th><th>Why</th></tr></thead>
@@ -342,20 +363,24 @@ world sensor-filter {
 <tr><td>Logic sandbox</td><td>Rust host, any language guest</td><td><code>wasmtime</code> + Component Model, fuel / epoch interruption for CPU limits</td><td>Proven isolation, capability-based permissions.</td></tr>
 <tr><td>Process sandbox</td><td>Rust</td><td>Linux landlock + seccomp, macOS sandbox profiles, Windows AppContainer</td><td>Second wall if Wasm or our runtime has a bug.</td></tr>
 <tr><td>OS class shims</td><td>C/C++ (Windows KMDF/UMDF), C++ (macOS DriverKit), Rust where allowed</td><td>One shim per class per OS</td><td>Platform requirement; keep them tiny and audited.</td></tr>
+<tr><td>Host Interface (porting kit)</td><td>Rust trait + C ABI</td><td><code>dd-host</code>, <code>dd-host-capi</code> with cbindgen header</td><td>Any OS can port in Rust or C.</td></tr>
 <tr><td>Client agent</td><td>Rust</td><td>udev monitor, IOKit notifications, <code>CM_Register_Notification</code>; local API over D-Bus / XPC / named pipe</td><td>Shares code with the runtime.</td></tr>
 <tr><td>Registry node</td><td>Rust (<code>axum</code>) + Postgres + an OCI registry</td><td>OCI artifacts via ORAS, <code>sigstore-rs</code>/cosign, Rekor, TUF (<code>tough</code>)</td><td>Don't build package storage. OCI registries already exist everywhere (Zot, Harbor, GHCR) and Sigstore signs OCI natively.</td></tr>
 <tr><td>AI drafter</td><td>Python workers</td><td>PyMuPDF / Docling for PDFs and tables, Claude API with structured outputs, the Rust validator via PyO3</td><td>Best document tooling lives in Python.</td></tr>
 <tr><td>Trace toolkit</td><td>Rust + Python</td><td>pcapng parsing (usbmon, USBPcap), Wireshark dissector generated from descriptions</td><td>Pcap in, description draft out; dissector is a free bonus for users.</td></tr>
-<tr><td>Test harness</td><td>Rust</td><td>JUnit XML + JSON reports, in-toto attestations of results</td><td>Signed results let community labs contribute (section 10).</td></tr>
+<tr><td>Test harness</td><td>Rust</td><td>JUnit XML + JSON reports, in-toto attestations of results</td><td>Signed results let community labs contribute (section 12).</td></tr>
 <tr><td>Portal + billing</td><td>TypeScript (Next.js)</td><td>Postgres, Stripe usage-based billing</td><td>Fast to build; not security-critical path.</td></tr>
 <tr><td>Test device firmware</td><td>Rust (Embassy on RP2040/RP2350) or C (pico-sdk + TinyUSB)</td><td>MS OS 2.0 descriptors so Windows binds WinUSB automatically</td><td>Without these, POC 2 on Windows needs a manual driver install.</td></tr>
 </tbody></table></div>
 
 <h3>Monorepo layout</h3>
 <pre><code>driverdesk/
-  spec/                 <span class="c"># the standard: RFC text, JSON Schemas, class profiles, examples</span>
+  spec/                 <span class="c"># the standard, host interface, client protocol, WIT, schemas, examples</span>
+  xtask/                <span class="c"># project commands: doctor, ci, gate, vlab, spec-check</span>
   crates/
     dd-spec/            <span class="c"># parse, validate, lint  → CLI, lib, Python (PyO3), Wasm</span>
+    dd-host/            <span class="c"># Host Interface trait (+ dd-host-capi for C)</span>
+    dd-sim/             <span class="c"># software twins of lab devices, fault injection, raw-gadget mode</span>
     dd-runtime/         <span class="c"># interpreter, state machine, safety enforcement</span>
     dd-transport-usb/   dd-transport-serial/   dd-transport-hid/   dd-transport-vfio/
     dd-surface-linux/   dd-surface-macos/      dd-surface-windows/
@@ -371,7 +396,7 @@ world sensor-filter {
 </section>
 
 <section id="ai">
-<h2><span class="n">07</span>AI: the hardware developer owns the driver</h2>
+<h2><span class="n">08</span>AI: the hardware developer owns the driver</h2>
 <p>The goal is that a hardware engineer who has never written a driver can go from datasheet to a signed, cross-OS driver in an afternoon, and stays the owner of it. The AI drafts, tests and explains. <strong>The vendor decides and signs.</strong></p>
 
 <h3>The drafting pipeline</h3>
@@ -408,16 +433,21 @@ world sensor-filter {
 </section>
 
 <section id="pocs">
-<h2><span class="n">08</span>Proof-of-concept stages, revised</h2>
-<p>Your six stages are in the right order. Changes: add a zero stage for the spec and benchmark, put a real chip behind the Pico so the AI stage uses a real datasheet, add a stage proving the device appears as a native OS device, and add the gotchas each stage will hit.</p>
+<h2><span class="n">09</span>Proof-of-concept stages, revised</h2>
+<p>Your six stages are in the right order. Changes: a bootstrap stage so an AI can build and test unattended, a zero stage for the spec and benchmark, a real chip behind the Pico so the AI stage uses a real datasheet, a stage proving the device appears as a native OS device, and a final stage for OS writers. Each stage has a detailed plan in the repo (<code>plans/</code>) with pass criteria, tasks, open questions with default answers, and known traps.</p>
+
+<div class="poc"><h3>Stage B · Bootstrap <span class="tag">1–2 weeks + hardware shipping</span></h3><dl>
+<dt>Build</dt><dd>Repo, licences, CI on three OSes, Rust workspace, a <strong>virtual USB lab</strong> (fake USB devices inside a Linux VM in CI), and the <strong>hardware lab</strong>: Raspberry Pi 5, the Mac and a Windows mini PC as CI runners, each with a Pico, a debug probe for flashing and a hub that can switch USB ports off and on.</dd>
+<dt>Done when</dt><dd>CI flashes the Pico, power-cycles it and reads its log with no person present.</dd>
+</dl></div>
 
 <div class="poc"><h3>POC 0 · The spec and the yardstick <span class="tag">2 weeks</span></h3><dl>
-<dt>Build</dt><dd>Spec v0.1 text and JSON Schema, 3 hand-written examples, <code>dd-spec validate</code> CLI with miette errors, list of 50 benchmark chips.</dd>
-<dt>Done when</dt><dd>A broken example produces an error message a hardware engineer understands without help (test it on one).</dd>
+<dt>Build</dt><dd>Spec v0.1 text and JSON Schema, 5 examples, <code>dd validate</code> with 16 rule checks beyond the schema, 40+ broken fixtures, list of 50 benchmark chips with public datasheets and Linux drivers.</dd>
+<dt>Done when</dt><dd>An AI reviewer playing "embedded C engineer who has never seen DriverDesk" fixes ≥ 90% of broken fixtures from the error message alone, and the validator never crashes on 100,000 random inputs.</dd>
 </dl></div>
 
 <div class="poc"><h3>POC 1 · A description can drive a device <span class="tag">2–3 weeks · Linux</span></h3><dl>
-<dt>Device</dt><dd>Raspberry Pi Pico running firmware that is a <strong>USB-to-I²C bridge</strong> (reuse the open i2c-tiny-usb protocol) plus an LED, with a BME280 sensor on I²C. Two descriptions: one for the bridge, one for the BME280.</dd>
+<dt>Device</dt><dd>Raspberry Pi Pico 2 with Rust (Embassy) firmware exposing two USB interfaces: the Pico's built-in temperature sensor + an LED, and a <strong>USB-to-I²C bridge</strong> modelled on the open i2c-tiny-usb protocol, with BME280 and TMP117 sensors on I²C. Uses test USB IDs (<code>1209:0001</code>) so no existing OS driver grabs it.</dd>
 <dt>Build</dt><dd><code>dd-runtime</code> on Linux using nusb; CLI <code>dd run pico.yaml</code>, <code>dd read temp0</code>, <code>dd write led0 on</code>.</dd>
 <dt>Done when</dt><dd>Temperature, pressure and humidity read in real units and the LED toggles, with zero device-specific Rust code. Swapping the BME280 for a TMP117 needs only a new YAML file.</dd>
 <dt>Why the change</dt><dd>The stacked bridge proves the "one transport, many chips" multiplier, and the BME280 has a public datasheet and a Linux driver for POC 3 scoring.</dd>
@@ -425,19 +455,19 @@ world sensor-filter {
 
 <div class="poc"><h3>POC 2 · One description, every OS <span class="tag">3–4 weeks</span></h3><dl>
 <dt>Build</dt><dd>Runtime on macOS and Windows; <code>dd-harness</code> v0.1 with the simulator; GitHub Actions running simulated tests on all three OSes, and a real-hardware run on one machine each.</dd>
-<dt>Done when</dt><dd>Same files pass on all three; harness emits a compatibility report naming the failing layer; a deliberately broken description is caught.</dd>
+<dt>Done when</dt><dd>Same files pass on all three real lab machines; Windows attaches its USB driver automatically on first plug-in; the harness catches ≥ 90% of 200 automatically broken descriptions and names the right layer for ≥ 95% of injected faults.</dd>
 <dt>Gotchas</dt><dd>Add MS OS 2.0 descriptors to the Pico firmware or Windows won't bind WinUSB. Keep the interface vendor-class (0xFF) or macOS will claim it. Budget one extra week; this is where solo projects stall.</dd>
 </dl></div>
 
 <div class="poc"><h3>POC 3 · AI writes the description <span class="tag">3–4 weeks</span></h3><dl>
 <dt>Input</dt><dd>BME280 datasheet PDF, then the other 49 benchmark chips.</dd>
-<dt>Done when</dt><dd>The BME280 draft passes validation and the hardware tests with under 15 minutes of human editing; benchmark scores published.</dd>
-<dt>Measure</dt><dd>First-try field accuracy, post-loop accuracy, confident-and-wrong rate, edit minutes.</dd>
+<dt>Done when</dt><dd>The BME280 and TMP117 drafts pass the hardware tests with <strong>zero human edits</strong>, after automatic repair and bench-agent rounds. Held-out benchmark: ≥ 85% field accuracy, ≤ 3% confident-and-wrong, ≤ US$3 per chip.</dd>
+<dt>Measure</dt><dd>First-try and post-loop accuracy, confident-and-wrong rate, calibration, cost. If first-try accuracy stays under 60%, the plan pivots toward trace and import tools.</dd>
 </dl></div>
 
 <div class="poc"><h3>POC 4 · Private, signed and automatic <span class="tag">3–4 weeks</span></h3><dl>
 <dt>Build</dt><dd>Registry node as one <code>docker compose up</code> (index service + Zot OCI registry + Postgres); cosign signing; Rekor log entry; TUF metadata; <code>dd-agent</code> on Linux.</dd>
-<dt>Done when</dt><dd>Plug the Pico into a fresh machine and it works within 5 seconds with no commands typed. A tampered description is rejected, a revoked one stops running at the next metadata refresh, and an offline bundle works with no network.</dd>
+<dt>Done when</dt><dd>Plug the Pico into a fresh machine and it works within 5 seconds with no commands typed. Twelve attack tests (tampering, unknown keys, rollback, expired or revoked metadata, unauthorised private access) are all rejected; offline bundles work; lookups carry no user identifiers; the client protocol is written up completely enough for someone else to build a client.</dd>
 </dl></div>
 
 <div class="poc"><h3>POC 5 · Native OS device <span class="tag">2–3 weeks · new</span></h3><dl>
@@ -454,13 +484,40 @@ world sensor-filter {
 
 <div class="poc"><h3>POC 7 · Logic can be private and portable <span class="tag">3 weeks</span></h3><dl>
 <dt>Build</dt><dd><code>dd-sandbox</code> with Wasmtime and the WIT interface above.</dd>
-<dt>Done when</dt><dd>A smoothing filter or LED-effect module runs identically on three OSes, fails cleanly when it tries a command it wasn't granted, and is stopped by fuel limits when it loops forever.</dd>
+<dt>Done when</dt><dd>Example modules (Rust and C) give bit-identical results on three OSes; 12 malicious modules (infinite loops, memory bombs, ungranted commands and more) are all contained; each driver process is also locked down by the OS's own sandbox.</dd>
 </dl></div>
-<p><strong>Total:</strong> about 6–7 months solo, 4–5 months with two people. That is longer than your 4–6 months because of POC 0, the native-surface stage and realistic time for Windows and macOS. Record every demo on video; the videos are your fundraising deck.</p>
+
+<div class="poc"><h3>POC 8 · OS writers can port and test <span class="tag">3–4 weeks · new</span></h3><dl>
+<dt>Build</dt><dd>Host Interface spec, <code>dd-host</code> trait and C ABI, an OS conformance suite (<code>dd oscheck</code>), catalogue runs, and a porting guide. Port the runtime to <strong>FreeBSD</strong> as the fourth OS, and write an independent Python client from the protocol spec.</dd>
+<dt>Done when</dt><dd>FreeBSD passes the conformance suite and drives the lab sensors; a catalogue run reports, for each OS, which drivers work and which missing device types would unlock the most devices.</dd>
+</dl></div>
+<p><strong>Total:</strong> about 7–8 months of AI-driven build time, plus hardware shipping. That is longer than your 4–6 months because of the bootstrap and spec stages, the native-surface and OS-writer stages, and realistic time for Windows and macOS. Every stage ends with a recorded demo; together they form the partner and fundraising pack.</p>
+</section>
+
+<section id="build">
+<h2><span class="n">10</span>How it gets built: AI-run</h2>
+<p>Claude builds the project end to end and makes every technical, product and design decision. The owner is the project's <strong>hands, not its brain</strong>: they only do what legally or physically needs a person. The repo carries the operating system for this.</p>
+<div class="tbl"><table>
+<thead><tr><th>Piece</th><th>Where</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td>Operating manual</td><td><code>CLAUDE.md</code></td><td>Mission, autonomy contract, definition of done, git and shipping rules, hard guardrails.</td></tr>
+<tr><td>Work loop</td><td><code>/next</code> (or <code>/loop /next</code>)</td><td>Read state → pick next unblocked task → research → build → test → debug → decide → verify → record → commit.</td></tr>
+<tr><td>Researching</td><td><code>docs/autonomy/RESEARCHING.md</code></td><td>Mandatory before any first use of a library, OS behaviour, legal question or published number. Every open question has a default answer, so research never stalls work.</td></tr>
+<tr><td>Testing</td><td><code>docs/autonomy/TESTING.md</code></td><td>Seven levels from unit tests to real hardware. Every failure names its layer. Tests may never be weakened to pass.</td></tr>
+<tr><td>Debugging</td><td><code>docs/autonomy/DEBUGGING.md</code></td><td>Reproduce, find the layer, one change at a time. After 3 failed guesses, research; after 5 or 2 hours, write up and switch task.</td></tr>
+<tr><td>Deciding</td><td><code>docs/autonomy/DECIDING.md</code></td><td>Check what's already decided, then a fixed rubric with safety first. Two-way decisions in 15 minutes; one-way decisions get a written record.</td></tr>
+<tr><td>Stage gates</td><td><code>/gate</code></td><td>Every pass criterion needs evidence. Then a report, merge to <code>main</code> and a tag.</td></tr>
+<tr><td>Human action queue</td><td><code>progress/HUMAN-ACTIONS.md</code></td><td>Buying and plugging in hardware, accounts, payments, contacting people, legal sign-off, kernel <code>Signed-off-by</code>. Claude picks what and writes exact steps, batched, and keeps working meanwhile.</td></tr>
+</tbody></table></div>
+<h3>How an AI tests real hardware</h3>
+<p>Three lab machines (a Raspberry Pi 5 running Linux, the Mac, a Windows mini PC) are GitHub Actions runners. Each has a Pico under test, a debug probe that flashes it, and a USB hub that can cut and restore power to each port. CI flashes firmware, power-cycles, runs tests and uploads logs and USB captures, with nobody present. Before hardware, a <strong>virtual USB lab</strong> runs software twins of every lab device as real USB devices inside a Linux VM, so most bugs are caught without any hardware.</p>
+<div class="callout"><span class="k">Safety rule</span>
+<p>Claude may sign safety limits only for the project's own low-power test boards, at ≤ 80% of datasheet maximums. For vendors' products on the platform, a person must sign. No mains-powered or high-current hardware is ever used in the lab.</p>
+</div>
 </section>
 
 <section id="biz">
-<h2><span class="n">09</span>Open source + hosted cloud</h2>
+<h2><span class="n">11</span>Open source + hosted cloud</h2>
 <p>Follow Supabase's model closely: <strong>everything is open source and self-hostable; the cloud sells convenience, scale and trust.</strong> Do not hold back core features, because the community will fork or ignore an open core that feels crippled.</p>
 
 <h3>Licences</h3>
@@ -479,6 +536,7 @@ world sensor-filter {
 <tr><td>Pro</td><td>Small hardware vendors</td><td>Private descriptions and logic, more AI drafts, real-hardware lab minutes, release channels, download analytics</td><td>~$79 / month</td></tr>
 <tr><td>Scale</td><td>Product lines, fleets</td><td>Bring-your-own-key, staged rollouts, multiple products, priority lab queue, verified badge program</td><td>from ~$599 / month + usage</td></tr>
 <tr><td>Enterprise</td><td>Large vendors, OEMs, regulated industry</td><td>Dedicated or on-prem node, SSO, audit log, SOC 2 report, SLA, OS-partner pre-release testing</td><td>Contract</td></tr>
+<tr><td>OS developer</td><td>OS projects and OS vendors</td><td>Free conformance suite and simulated catalogue runs; paid hosted-lab catalogue runs on real hardware, pre-release testing of OS updates against the catalogue</td><td>Free for open-source OSes; contract for commercial OS vendors</td></tr>
 <tr><td>Certification</td><td>Anyone shipping a product</td><td>Per device, per OS: lab-tested, signed attestation, "Verified on Linux / macOS / Windows" badge</td><td>Per-device fee</td></tr>
 </tbody></table></div>
 <p>Prices are placeholders to test with design partners. The likely order of revenue is certification and lab testing first, then private hosting, then AI usage. Certification is the moat: like Microsoft's driver certification, it is the part no one can fork, because it is physical hardware, history and trust.</p>
@@ -489,7 +547,7 @@ world sensor-filter {
 </section>
 
 <section id="scale">
-<h2><span class="n">10</span>How it scales</h2>
+<h2><span class="n">12</span>How it scales</h2>
 <h3>Engineering: build less than you think</h3>
 <ul>
   <li><strong>Storage and delivery:</strong> descriptions and logic modules are OCI artifacts, content-addressed and cached by any CDN. A self-hosted node is an OCI registry plus our small index. No custom package infrastructure.</li>
@@ -505,20 +563,21 @@ world sensor-filter {
   <li><strong>Our own racks</strong> for certification only: per-port power switching (uhubctl-compatible hubs or Acroname), USB switches, and Linux, macOS and Windows machines plus OS beta builds. Start with one desk; grow to racks when certification revenue pays for them.</li>
 </ol>
 
-<h3>Team by phase</h3>
+<h3>Team by phase (AI-first)</h3>
+<p>Engineering is done by Claude. People are added only where a person is required: relationships, legal identity, physical lab work, and human authorship where external rules demand it.</p>
 <div class="tbl"><table>
-<thead><tr><th>Phase</th><th>People</th><th>Focus</th></tr></thead>
+<thead><tr><th>Phase</th><th>People</th><th>Human roles</th></tr></thead>
 <tbody>
-<tr><td>0 (months 0–7)</td><td>1–2</td><td>Runtime and spec (Rust), AI drafter</td></tr>
-<tr><td>1 (7–13)</td><td>4–5</td><td>+ platform engineer (macOS/Windows shims), + cloud engineer, + vendor partnerships</td></tr>
-<tr><td>2 (13–20)</td><td>8–10</td><td>+ security engineer, + lab ops, + developer relations, + second AI engineer</td></tr>
-<tr><td>3 (20–36)</td><td>15–25</td><td>+ kernel liaison, + certification program, + enterprise sales</td></tr>
+<tr><td>0 (months 0–8)</td><td>1</td><td>Owner: buys and plugs in hardware, accounts, payments</td></tr>
+<tr><td>1 (8–14)</td><td>1–2</td><td>+ partnerships (sends Claude-drafted outreach, joins calls); lawyer on retainer</td></tr>
+<tr><td>2 (14–21)</td><td>2–4</td><td>+ lab technician (racks, cabling), external security auditors (contract)</td></tr>
+<tr><td>3 (21–36)</td><td>4–8</td><td>+ kernel-community liaison who authors upstream patches, + enterprise sales, + foundation relations</td></tr>
 </tbody></table></div>
 <p>Your phase gates stay as written. Add one to Phase 1: <strong>at least one vendor has published a description without our engineers touching it</strong>. That is the real test of "the vendor owns the driver".</p>
 </section>
 
 <section id="security">
-<h2><span class="n">11</span>Security changes</h2>
+<h2><span class="n">13</span>Security changes</h2>
 <p>Your threat list and defences are good. Five corrections:</p>
 <ol>
   <li><strong>"Private" means access-controlled, not secret.</strong> A description or Wasm module that runs on a customer's machine must be decrypted there and can be read or decompiled. Vendor-held keys protect it at rest and in transit and limit who can download it. Say this plainly to vendors. Truly secret logic belongs in device firmware.</li>
@@ -531,7 +590,7 @@ world sensor-filter {
 </section>
 
 <section id="risks">
-<h2><span class="n">12</span>Risks and kill criteria</h2>
+<h2><span class="n">14</span>Risks and kill criteria</h2>
 <div class="tbl"><table>
 <thead><tr><th>Risk</th><th>Mitigation</th><th>Kill or pivot signal</th></tr></thead>
 <tbody>
@@ -541,26 +600,28 @@ world sensor-filter {
 <tr><td>Kernel community hostility</td><td>No in-kernel ABI, closed code only in userspace, HID-BPF as precedent, careful upstream etiquette.</td><td>A public NAK from key maintainers on the Phase 3 driver host: keep it out-of-tree and lean on userspace doors.</td></tr>
 <tr><td>Signing and entitlement costs on macOS/Windows</td><td>Small set of shims, budgeted in Phase 1.</td><td>Apple refuses DriverKit entitlements: macOS stays limited to classes with userspace surfaces.</td></tr>
 <tr><td>Performance-sensitive classes don't fit</td><td>Don't promise them; Phase 4 only; generate kernel drivers instead of running in userspace.</td><td>n/a; scope rule</td></tr>
+<tr><td>AI-built code drifts in quality or makes a bad one-way decision</td><td>Fixed decision rubric and written records; tests can't be weakened; security review on sensitive code; every stage gate needs evidence; external audit before public beta.</td><td>Two stage gates in a row fail on regressions: add a human code reviewer for that area.</td></tr>
 <tr><td>Legal exposure from reverse engineering</td><td>Counsel before POC 6; interoperability exemptions; takedown process in the registry.</td><td>Credible legal threat from a major vendor: restrict trace mode to vendor-authorised use.</td></tr>
 </tbody></table></div>
 </section>
 
 <section id="next">
-<h2><span class="n">13</span>The next 30 days</h2>
+<h2><span class="n">15</span>The next 30 days</h2>
+<p>Claude runs these through <code>/next</code>; items marked <em>owner</em> are the only human steps.</p>
 <ol>
-  <li>Buy hardware: 3 × Raspberry Pi Pico 2, BME280 and TMP117 breakout boards, a powered USB hub with per-port power switching, one cheap macro pad.</li>
-  <li>Create the GitHub org, Apache-2.0 licence, DCO bot, and the monorepo skeleton above.</li>
-  <li>Write spec v0.1: identity, match, transport (USB + I²C bridge), commands, safety, states, expose, tests. JSON Schema plus three examples.</li>
-  <li>Build <code>dd-spec validate</code> with excellent error messages. Show it to two hardware engineers and fix what confuses them.</li>
-  <li>Write the Pico bridge firmware with MS OS 2.0 descriptors from the start.</li>
-  <li>Get <code>dd-runtime</code> reading the BME280 on Linux.</li>
-  <li>Assemble the 50-chip benchmark list (datasheet URL + kernel driver path for each).</li>
-  <li>Start conversations with 10 small hardware vendors to find 3 design partners. Ask what they spend today on Linux/macOS support and what they'd pay to stop.</li>
+  <li><em>Owner:</em> create the <code>driverdesk</code> GitHub organisation and grant <code>gh</code> access (H-002).</li>
+  <li>Claude writes the exact hardware shopping list; <em>owner</em> orders it (H-001): Pico 2 boards, debug probes, Raspberry Pi 5, Windows mini PC, switchable USB hubs, BME280 and TMP117 sensors, LEDs and cables.</li>
+  <li>Repo skeleton, toolchains, Rust workspace, CI on three OSes.</li>
+  <li>Virtual USB lab running in CI.</li>
+  <li>Spec v0.1, JSON Schema, five examples, validator with 16 rule checks and AI-reviewed error messages.</li>
+  <li>50-chip benchmark list (datasheet URL, hash and Linux driver for each).</li>
+  <li>When hardware arrives, <em>owner</em> runs one setup command per lab machine (H-003 to H-005); Claude takes it from there.</li>
+  <li>Begin P1: Pico firmware, software twins, runtime core.</li>
 </ol>
 </section>
 
 <section id="sources">
-<h2><span class="n">14</span>Sources</h2>
+<h2><span class="n">16</span>Sources</h2>
 <ul class="src">
   <li><a href="https://en.wikipedia.org/wiki/Uniform_Driver_Interface">Uniform Driver Interface — Wikipedia</a></li>
   <li><a href="https://techmonitor.ai/?p=81068">UDI and Microsoft/Apple holdouts — Tech Monitor</a></li>
@@ -582,6 +643,8 @@ world sensor-filter {
   <li><a href="https://learn.microsoft.com/windows-hardware/drivers/usbcon/automatic-installation-of-winusb">Automatic installation of WinUSB — Microsoft Learn</a></li>
   <li><a href="https://developer.apple.com/forums/thread/124700">IOKit or DriverKit for userspace device access — Apple Developer Forums</a></li>
   <li><a href="https://lwn.net/Articles/903855">ublk: userspace block devices — LWN</a></li>
+  <li><a href="https://github.com/crackercat/raw-gadget">Raw Gadget: emulating USB devices in software</a></li>
+  <li><a href="https://docs.rs/crate/nusb/latest">nusb: pure-Rust USB library</a></li>
 </ul>
 </section>
 </main>

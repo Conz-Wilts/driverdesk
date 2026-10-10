@@ -23,7 +23,7 @@ Claim: real vendors describe real products on our platform, mostly without us, a
 - **OS developer portal**: OS writers register an OS, upload an OS image or connect their own lab runner, run `dd oscheck` and catalogue runs in our hosted lab, and see which class surfaces would unlock the most devices (builds on P8).
 - **Hosted registry**: multi-tenant index service, per-tenant OCI namespaces, usage metering (for later billing).
 - **AI in the portal**: async drafting jobs (queue), review UI sorted by risk × uncertainty, bench agent via partner's own machine ("bring your own lab runner").
-- **Partner-run lab runners** with signed in-toto attestations of results (north star §10).
+- **Partner-run lab runners** with signed in-toto attestations of results (north star §12).
 - **Spec v0.5** proposals process (`spec/proposals/`), compatibility tests for 0.1 descriptions.
 - **Security**: key ceremony, threat model update, booking external audit (human signs contract: H-0xx).
 - **Legal/business basics** (human actions, Claude drafts): company registration if not done, trademark search + filing for the name, terms of service + privacy policy drafts for counsel review.

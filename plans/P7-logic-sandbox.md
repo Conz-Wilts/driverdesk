@@ -46,7 +46,7 @@ Claim: vendor algorithms compiled to WebAssembly run identically on all three OS
 
 ## Risks and debugging hints
 
-- **"Private logic" expectations**: Wasm can be decompiled; the docs must say plainly that private means access-controlled distribution, not secrecy (north star §11).
+- **"Private logic" expectations**: Wasm can be decompiled; the docs must say plainly that private means access-controlled distribution, not secrecy (north star §13).
 - **Sandbox breaks USB** on some OS: fd/handle passing design (R-P7-3/4) must be validated in a spike before building the full suite.
 
 ## Human actions

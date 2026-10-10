@@ -21,7 +21,7 @@ Claim: a precise, versioned device-description standard exists, a validator enfo
 
 - YAML authoring, JSON Schema 2020-12 canonical (ADR-0002). CEL for expressions, UCUM for units (ADR-0003).
 - Spec text CC-BY-4.0 (ADR-0004). Spec identifier: `spec: driverdesk/0.1`.
-- Shape of the spec follows the north-star example (identity, match, transport, commands, safety, states, expose, tests, visibility). Borrow vocabulary from Linux regmap, IIO, devicetree bindings (see north star §04).
+- Shape of the spec follows the north-star example (identity, match, transport, commands, safety, states, expose, tests, visibility). Borrow vocabulary from Linux regmap, IIO, devicetree bindings (see north star §05).
 - Transports in 0.1: `usb` (control, bulk, interrupt), `i2c` (as a child of a bridge), `i2c-bridge` (USB-to-I²C, protocol described in the bridge's own description), `serial`. HID arrives in P5, PCI in R2.
 
 ## Research questions
@@ -35,7 +35,7 @@ Claim: a precise, versioned device-description standard exists, a validator enfo
 
 ## Tasks
 
-- [ ] **P0.T0 Re-validate this plan** (deps: B gate or B.T1–T5) — read north star §05, ADRs, any new research; adjust tasks. Commit as `docs(plan): ...`.
+- [ ] **P0.T0 Re-validate this plan** (deps: B gate or B.T1–T5) — read north star §06, ADRs, any new research; adjust tasks. Commit as `docs(plan): ...`.
 - [ ] **P0.T1 Prior-art survey** (deps: —) — answer R-P0-1 as `docs/research/R-xxx-prior-art.md` with a table: format → what it describes well → what we borrow → importer priority. Use a research subagent for breadth.
 - [ ] **P0.T2 Spec text v0.1** (deps: P0.T1)
   - Do: `spec/driverdesk-0.1.md` sections: 1 Scope & goals · 2 Conformance language · 3 Document structure & versioning · 4 Identity · 5 Matching (modalias-style keys; precedence; specificity rules) · 6 Transports (usb, serial, i2c-bridge, i2c; stacking) · 7 Data types, byte order, framing, checksums (named CRC catalogue) · 8 Registers (regmap-style map, access flags, reset values, fields/bitfields) · 9 Commands (send/expect/output, timeouts, retries, idempotency flag) · 10 Expressions (CEL profile: allowed functions, int/double semantics, `compute` steps) · 11 Units (UCUM subset) · 12 State machine (states, transitions, triggers, actions; suspend/resume mapping) · 13 Timing · 14 Safety envelope (limits, rates, forbidden sequences, `signed_by`; enforcement semantics: runtime MUST reject) · 15 Exposure & class profiles · 16 Built-in tests (call, expect matchers, tolerance, `rejected_by_safety`) · 17 Visibility · 18 Compatibility promise · 19 Security considerations · Appendices: full examples, error code registry.

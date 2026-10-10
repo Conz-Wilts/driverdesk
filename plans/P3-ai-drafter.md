@@ -15,7 +15,7 @@ Claim: from a datasheet PDF alone, the AI drafter produces a description that va
    - field accuracy first pass and after repair loop (overall and per section: identity, registers, conversions, timing),
    - **confident-and-wrong rate** (fields with confidence ≥ 0.9 that are wrong),
    - validation pass rate, repair iterations, cost (USD) and latency per chip.
-   Targets: post-loop field accuracy ≥ 85%, confident-and-wrong ≤ 3%, cost ≤ US$3 per chip. **Kill signal**: first-pass accuracy < 60% after two prompt/pipeline iterations → run DECIDING on pivoting the drafter toward trace + import tools (north star §12).
+   Targets: post-loop field accuracy ≥ 85%, confident-and-wrong ≤ 3%, cost ≤ US$3 per chip. **Kill signal**: first-pass accuracy < 60% after two prompt/pipeline iterations → run DECIDING on pivoting the drafter toward trace + import tools (north star §14).
 4. Calibration: a reliability plot (confidence bucket vs. actual accuracy) in the report; ECE ≤ 0.1.
 5. Safety rule enforced in code: drafts never contain a signed safety block; `safety.signed_by` is always null and `dd validate --publish` rejects unsigned safety.
 6. Every eval run is reproducible: model id, prompt hashes, dataset version, seed recorded.
@@ -25,7 +25,7 @@ Claim: from a datasheet PDF alone, the AI drafter produces a description that va
 - Python package `ai/driverdesk_ai` (uv, pydantic). Calls the Claude API; load the `claude-api` skill before writing API code. Drafting model `claude-opus-5-5`, cheap passes (classification, table detection) `claude-haiku-5-5`. Use structured outputs with the JSON Schema of each spec section.
 - The Rust validator is used from Python through a PyO3 binding (`crates/dd-spec-py`, built with maturin) — one validator everywhere (ADR-0001/0009).
 - Datasheets are never committed: `benchmark/chips.yaml` has URLs + hashes; `cache/datasheets/` is gitignored.
-- Pipeline stages (north star §07): ingest → section extraction with evidence → deterministic cross-checks → validate/repair loop (≤ 4 rounds) → sim self-consistency → bench agent (HIL) → report. Each stage is a pure function over files so stages are cacheable and testable.
+- Pipeline stages (north star §08): ingest → section extraction with evidence → deterministic cross-checks → validate/repair loop (≤ 4 rounds) → sim self-consistency → bench agent (HIL) → report. Each stage is a pure function over files so stages are cacheable and testable.
 - Ground truth for the benchmark comes from Linux drivers (register addresses, chip IDs, scale factors, init sequences), extracted by AI then **verified by a second independent pass and spot checks against the datasheet**; disagreements are resolved by reading the source code, recorded per field.
 
 ## Research questions
