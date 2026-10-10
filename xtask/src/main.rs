@@ -1,6 +1,7 @@
 //! Project commands: `cargo xtask <doctor|ci|gate|vlab>` (ADR-0007).
 
 mod gate;
+mod spec_check;
 
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitCode};
@@ -14,6 +15,7 @@ commands:
   doctor        check that every pinned tool is installed and print versions
   ci            fmt --check, clippy -D warnings, nextest, cargo-deny, gitleaks, ai tests
   gate <ID>     list the exit criteria of stage <ID> (scripted checks arrive per stage)
+  spec-check    cross-check spec text, schemas, examples and fixtures (P0)
   vlab -- <cmd> run <cmd> inside the virtual USB lab (B.T6)";
 
 fn main() -> ExitCode {
@@ -36,6 +38,7 @@ fn run() -> Result<()> {
             let id = args.get(1).context("usage: cargo xtask gate <ID>")?;
             gate::print_exit_criteria(&root, id)
         }
+        Some("spec-check") => spec_check::run(&root),
         Some("vlab") => bail!("vlab is not implemented yet (B.T6)"),
         Some("-h" | "--help" | "help") | None => {
             println!("{USAGE}");
@@ -209,6 +212,8 @@ fn ci(root: &Path) -> Result<()> {
     for (name, cmd) in steps {
         step(root, name, cmd)?;
     }
+    println!("==> spec-check");
+    spec_check::run(root)?;
     let ai = root.join("ai");
     if ai.join("pyproject.toml").exists() {
         step(&ai, "ai-ruff", &["uv", "run", "ruff", "check", "."])?;

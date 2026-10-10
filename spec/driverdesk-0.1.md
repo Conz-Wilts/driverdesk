@@ -319,7 +319,7 @@ provides:
     speeds_hz: [100000, 400000]
 ```
 
-Each primitive names a command of the bridge with the signature shown. A runtime MUST use the primitive commands, and their safety envelope applies in addition to the child's. Bridges MAY provide `spi`, `uart`, `gpio` (`{ set: cmd, get: cmd, lines: u8 }`).
+Each primitive names a command of the bridge with the signature shown. A runtime MUST use the primitive commands, and their safety envelope applies in addition to the child's. Bridges MAY also provide `spi` (`{ transfer: cmd, max_transfer: int, modes: [0..3] }`), `uart` (`{ write: cmd, read: cmd, set_baud: cmd }`) and `gpio` (`{ set: cmd, get: cmd, lines: u8 }`).
 
 ---
 
@@ -345,9 +345,11 @@ In expressions, all integer types are CEL `int` (64-bit signed) except `u64`, wh
 A payload is an ordered list of fields: `[{ name: type }, ...]` or, as a shorthand when order is obvious from a single field, a map with one key. Bit-packed structs use `bits(N)` fields, LSB first, and MUST sum to a whole number of bytes.
 
 ```yaml
-payload:
-  - raw: i16le
-  - status: u8
+commands:
+  read_status:
+    send:   { header: 0x11 }
+    expect: { header: 0x91, payload: [ { raw: i16le }, { status: u8 } ] }
+    timeout_ms: 20
 ```
 
 ### 7.3 Framing
@@ -535,6 +537,7 @@ commands:
 `output` maps names to `{ cel: expression (req), unit: UCUM, type: scalar type, description }`. Outputs are what tests (§16) and class profiles (§15) consume.
 
 ```yaml
+commands:
   read_temp:
     reads_only: true
     steps:
@@ -822,6 +825,7 @@ Asynchronous device→host notifications (key presses, data-ready, link changes)
 - `source`: one of `{ usb_interrupt: endpoint }`, `{ hid_report: report }`, `{ interrupt: name }` (§20.2), `{ poll: { command: name, every_ms: int } }`, `{ frame: { header: int } }` (unsolicited framed messages).
 - `decode`: payload struct (§7.2) or HID report layout reference.
 - `output`: like command outputs.
+- `rate_hint_hz`: expected event rate, used by hosts to size buffers; not a limit.
 
 ```yaml
 events:

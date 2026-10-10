@@ -1741,6 +1741,8 @@ name = "xtask"
 version = "0.0.0"
 dependencies = [
  "anyhow",
+ "dd-spec",
+ "serde_json",
 ]
 
 [[package]]
