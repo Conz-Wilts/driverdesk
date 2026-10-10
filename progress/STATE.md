@@ -5,7 +5,7 @@
 ## Now
 
 - **Current stage:** B (bootstrap) — `plans/B-bootstrap.md`
-- **Current task:** none. Done: B.T1–B.T4. Next: B.T6 (virtual USB lab; can be written now, verified once CI exists) and B.T9. B.T5 unblocked (repo created). B.T7/B.T8 wait on H-001.
+- **Current task:** none. Done: B.T1–B.T5. Next: B.T6 (virtual USB lab), then B.T9. B.T7/B.T8 wait on H-001.
 - **Branch:** `stage/b`, remote https://github.com/Conz-Wilts/driverdesk
 
 ## Current task notes
@@ -21,6 +21,7 @@
 (none yet — see each plan's Research questions)
 
 ## Session log (newest first)
+- **2026-10-10** — B.T5: public repo https://github.com/Conz-Wilts/driverdesk (owner's choice, H-002 done). `ci.yml` green on ubuntu/macos/windows (run 38089187304, draft PR #1). `main` protected (required check `ci`, admins included). Private vuln reporting on; fork-PR workflows need approval for all external contributors (self-hosted runner safety).
 - **2026-10-10** — Stage B started on `stage/b`. B.T1 skeleton (licences, README, CONTRIBUTING, SECURITY, CoC); B.T2 H-001 shopping list (R-002 hubs, R-003 RP2350); B.T3 toolchain pinned (Rust 1.99.0, docs/toolchain.md, `cargo xtask doctor` green); B.T4 workspace with 15 stub crates + xtask + ai/ (`cargo xtask ci` green locally).
 - **2026-10-10** — Added docs/vision/SCOPE.md (three users: hardware makers, OS writers, every OS) and stage P8 (OS porting kit, OS conformance, catalogue runs, second client). P4 gains a client protocol spec; R1 gains an OS developer portal.
 

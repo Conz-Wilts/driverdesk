@@ -45,7 +45,7 @@ If hardware has not arrived, criteria 1–4 and 6 are enough to **start P0**. Cr
 - [x] **B.T4 Workspace + xtask** (deps: B.T1, B.T3)
   - Do: Cargo workspace per ADR-0007 with stub crates (`dd-spec`, `dd-runtime`, `dd-transport-usb`, `dd-transport-serial`, `dd-transport-hid`, `dd-transport-i2c`, `dd-surface-linux`, `dd-surface-macos`, `dd-surface-windows`, `dd-sandbox`, `dd-agent`, `dd-harness`, `dd-registry`, `dd-sim`, `dd-cli` (binary `dd`)) and `xtask` with subcommands: `doctor`, `ci` (fmt --check, clippy -D warnings, nextest, deny check, gitleaks), `gate <ID>` (runs the stage's scripted checks; stub), `vlab` (stub). `deny.toml` with the licence allowlist from CLAUDE.md. `ai/` as a uv project with ruff + pytest and one passing test.
   - Accept: `cargo xtask ci` green; `cd ai && uv run pytest` green.
-- [ ] **B.T5 GitHub repo + CI** (deps: B.T4, H-002)
+- [x] **B.T5 GitHub repo + CI** (deps: B.T4, H-002)
   - Do: create repo (public, `Conz-Wilts/driverdesk` per H-002), push, workflow `ci.yml` (matrix ubuntu-latest, macos-latest, windows-latest; cache cargo; run `cargo xtask ci`; ai tests on ubuntu), branch protection on `main` requiring `ci`. Dependabot for cargo, pip, actions. Enable private vulnerability reporting.
   - Accept: a PR from `stage/b` shows green CI on three OSes.
 - [ ] **B.T6 Virtual USB lab** (deps: B.T4; research R-B-1, R-B-2)
