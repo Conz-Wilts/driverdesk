@@ -78,11 +78,26 @@ pub fn run(root: &Path, online: bool) -> Result<()> {
                 ));
             }
         }
+        let safe_part = !part.is_empty()
+            && !part.starts_with('.')
+            && part
+                .chars()
+                .all(|ch| ch.is_ascii_alphanumeric() || "._-".contains(ch));
+        if !safe_part {
+            failures.push(format!(
+                "{part:?}: part names may only use letters, digits, `.`, `_`, `-`"
+            ));
+            continue;
+        }
         if online {
             let url = c
                 .pointer("/datasheet/url")
                 .and_then(Value::as_str)
                 .unwrap_or("");
+            if !url.starts_with("https://") {
+                failures.push(format!("{part}: datasheet url must start with https://"));
+                continue;
+            }
             let tmp = std::env::temp_dir().join(format!("dd-bench-{part}.pdf"));
             let status = Command::new("curl")
                 .args(["-sSL", "-A", "Mozilla/5.0", "--max-time", "90", "-o"])

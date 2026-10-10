@@ -342,7 +342,21 @@ impl<'input> SpannedEventReceiver<'input> for Builder<'_> {
                 }
                 self.push_node(node);
             }
-            Event::SequenceStart(anchor, _) | Event::MappingStart(anchor, _) => {
+            Event::SequenceStart(anchor, ref tag) | Event::MappingStart(anchor, ref tag) => {
+                if let Some(tag) = tag {
+                    self.errors.push(
+                        Diagnostic::error(
+                            "DD-S009",
+                            format!(
+                                "YAML tags are not supported (`{}{}`)",
+                                tag.handle, tag.suffix
+                            ),
+                        )
+                        .at(sp, "remove the tag")
+                        .with_help("write the list or map without a tag"),
+                    );
+                    return;
+                }
                 if self.stack.len() >= MAX_DEPTH {
                     self.errors.push(
                         Diagnostic::error(
@@ -712,6 +726,14 @@ mod tests {
         let mut d = Vec::new();
         assert_eq!(
             parse("a: !!binary aGk=\n", &mut d).unwrap_err()[0].code,
+            "DD-S009"
+        );
+        assert_eq!(
+            parse("a: !!set { x: 1 }\n", &mut d).unwrap_err()[0].code,
+            "DD-S009"
+        );
+        assert_eq!(
+            parse("a: !custom [1]\n", &mut d).unwrap_err()[0].code,
             "DD-S009"
         );
     }

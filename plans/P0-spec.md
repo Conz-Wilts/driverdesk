@@ -37,28 +37,28 @@ Claim: a precise, versioned device-description standard exists, a validator enfo
 
 - [x] **P0.T0 Re-validate this plan** (deps: B gate or B.T1–T5) — read north star §06, ADRs, any new research; adjust tasks. Commit as `docs(plan): ...`.
 - [x] **P0.T1 Prior-art survey** (deps: —) — answer R-P0-1 as `docs/research/R-xxx-prior-art.md` with a table: format → what it describes well → what we borrow → importer priority. Use a research subagent for breadth.
-- [>] **P0.T2 Spec text v0.1** (deps: P0.T1)
+- [x] **P0.T2 Spec text v0.1** (deps: P0.T1)
   - Do: `spec/driverdesk-0.1.md` sections: 1 Scope & goals · 2 Conformance language · 3 Document structure & versioning · 4 Identity & variants (id-register detection, per-variant overrides — R-005) · 4a Instance parameters (bus address options, straps, supplies; separate from chip facts) · 5 Matching (modalias-style keys; precedence; specificity rules) · 6 Transports (usb, serial, i2c-bridge, i2c; stacking) · 7 Data types, byte order, framing, checksums (named CRC catalogue) · 8 Registers (regmap-style map; `access` enum ro/rw/wo/rw1c/rw1s/rc/w1 + volatile/precious/noinc; reset values; fields/bitfields; reusable fieldsets; repeat count/stride — R-005) · 9 Commands (send/expect/output, timeouts, retries, idempotency flag) · 10 Expressions (CEL profile: allowed functions, int/double semantics, `compute` steps) · 11 Units (UCUM subset) · 12 State machine (states, transitions, triggers, actions; suspend/resume mapping) · 13 Timing · 14 Safety envelope (limits, rates, forbidden sequences, `signed_by`; enforcement semantics: runtime MUST reject) · 15 Exposure & class profiles · 16 Built-in tests (call, expect matchers, tolerance, `rejected_by_safety`) · 17 Visibility · 18 Compatibility promise · 19 Security considerations · Appendices: full examples, error code registry.
   - Accept: exit criterion 1 (after P0.T3/T7 exist).
-- [>] **P0.T3 JSON Schemas + class profiles** (deps: P0.T2 draft, R-P0-2)
+- [x] **P0.T3 JSON Schemas + class profiles** (deps: P0.T2 draft, R-P0-2)
   - Do: `spec/schema/0.1/description.json` + one file per section, `$id` under `https://driverdesk.dev/schema/0.1/` (domain is provisional; ids are just URIs). Class profiles: `sensor.temperature`, `sensor.humidity`, `sensor.pressure`, `light.indicator`, `bridge.i2c`. Examples: `devices/examples/pico-thermo.yaml`, `pico-bridge.yaml`, `bme280.yaml`, `tmp117.yaml`, `minimal.yaml`, plus provisional complex examples `hid-keyboard.yaml`, `nvme-controller.yaml` (owner asked to cover complex devices; ADR-0013).
   - Accept: exit criterion 2.
-- [ ] **P0.T4 Invalid fixtures** (deps: P0.T3) — ≥ 40 files in `spec/fixtures/invalid/`, each one mistake, each with a header comment naming the expected error code. Cover: schema errors (missing field, wrong type, unknown key with "did you mean"), every lint rule, YAML syntax errors, wrong spec version.
-- [ ] **P0.T5 `dd-spec` parse + schema validation** (deps: P0.T3; R-P0-3, R-P0-4)
+- [x] **P0.T4 Invalid fixtures** (deps: P0.T3) — ≥ 40 files in `spec/fixtures/invalid/`, each one mistake, each with a header comment naming the expected error code. Cover: schema errors (missing field, wrong type, unknown key with "did you mean"), every lint rule, YAML syntax errors, wrong spec version.
+- [x] **P0.T5 `dd-spec` parse + schema validation** (deps: P0.T3; R-P0-3, R-P0-4)
   - Do: parse YAML with spans → JSON value + span map; validate with schema; map instance paths to spans; `miette` diagnostics; `dd validate` in `dd-cli` with `--format human|json`. Exit codes: 0 ok, 1 invalid, 2 usage/IO.
   - Accept: snapshot tests for schema-class fixtures; JSON output schema documented.
-- [ ] **P0.T6 Semantic lint rules** (deps: P0.T5; R-P0-5, R-P0-6) — implement at least:
+- [x] **P0.T6 Semantic lint rules** (deps: P0.T5; R-P0-5, R-P0-6) — implement at least:
   `DD-L001` unreachable state · `L002` transition to undefined state · `L003` command without timeout · `L004` numeric write argument without safety limit · `L005` overlapping register ranges · `L006` unit/type mismatch in expression · `L007` `expose` references unknown command/field · `L008` test references unknown command · `L009` actuator class without safety block · `L010` unknown spec version (with upgrade hint) · `L011` match too broad (VID only) · `L012` CEL does not compile · `L013` unknown checksum algorithm · `L014` timeout shorter than the sum of declared waits · `L015` write to read-only register · `L016` safety block not signed (warning in 0.1).
   - Accept: one fixture + snapshot per rule; codes listed in the spec appendix.
-- [ ] **P0.T7 `cargo xtask spec-check`** (deps: P0.T3, P0.T5) — cross-checks text ↔ schema ↔ examples (exit criterion 1 & 2).
-- [ ] **P0.T8 Robustness** (deps: P0.T6) — proptest/arbitrary fuzzing; `cargo fuzz` target for the parser (run 10 min in a nightly workflow). Exit criterion 5.
-- [ ] **P0.T9 Persona usability loop** (deps: P0.T6)
+- [x] **P0.T7 `cargo xtask spec-check`** (deps: P0.T3, P0.T5) — cross-checks text ↔ schema ↔ examples (exit criterion 1 & 2).
+- [>] **P0.T8 Robustness** (deps: P0.T6) — proptest/arbitrary fuzzing; `cargo fuzz` target for the parser (run 10 min in a nightly workflow). Exit criterion 5.
+- [x] **P0.T9 Persona usability loop** (deps: P0.T6)
   - Do: for each invalid fixture, give a fresh subagent (persona: "embedded C engineer, knows the device, has never seen DriverDesk or Rust") only the `dd validate` output and the fixture; ask for the corrected YAML; check by re-validating. Iterate on messages until ≥ 90%. Record scores per iteration in `docs/reports/P0-persona.md`.
   - Accept: exit criterion 4.
-- [ ] **P0.T10 Benchmark list** (deps: —)
+- [x] **P0.T10 Benchmark list** (deps: —)
   - Do: 50 chips with a public datasheet AND a mainline Linux driver, spread across: temperature/humidity/pressure (IIO, hwmon), accelerometers/gyros (IIO), ADCs/DACs, light sensors, GPIO expanders, RTCs, LED drivers. Prefer I²C (works with our bridge). For each: datasheet URL + SHA-256 (download to `cache/`, gitignored), Linux driver path + commit. `cargo xtask bench-check` verifies URLs and hashes. Random 35/15 split with recorded seed.
   - Accept: exit criterion 6.
-- [ ] **P0.T11 Docs site** (deps: P0.T3) — mdBook in `docs/book/`: intro, tutorial, spec rendered, error code pages (each lint rule = one page, linked from diagnostics). Exit criterion 7.
+- [x] **P0.T11 Docs site** (deps: P0.T3) — mdBook in `docs/book/`: intro, tutorial, spec rendered, error code pages (each lint rule = one page, linked from diagnostics). Exit criterion 7.
 - [ ] **P0.T12 Gate** — `/gate P0`.
 
 ## Risks and debugging hints

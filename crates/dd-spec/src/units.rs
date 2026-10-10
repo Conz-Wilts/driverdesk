@@ -7,6 +7,8 @@ use serde_json::Value;
 
 const TABLE: &str = include_str!("../../../spec/units/ucum-subset.yaml");
 const DIMS: [&str; 7] = ["L", "M", "T", "I", "K", "N", "J"];
+/// Largest exponent accepted in a unit term (`m3`, `s-2`); real units never need more.
+const MAX_EXPONENT: i32 = 64;
 
 /// A dimension vector (exponents of L, M, T, I, K, N, J).
 pub type Dim = [i32; 7];
@@ -102,10 +104,13 @@ pub fn parse(code: &str) -> Option<Unit> {
         let end = rest.find(['.', '/']).unwrap_or(rest.len());
         let (term, after) = rest.split_at(end);
         let (atom, exp) = split_exponent(term)?;
+        if exp.abs() > MAX_EXPONENT {
+            return None;
+        }
         let (dim, factor, offset) = resolve_atom(t, atom)?;
         let e = exp * sign;
         for (i, d) in dim.iter().enumerate() {
-            total.dim[i] += d * e;
+            total.dim[i] = total.dim[i].checked_add(d.checked_mul(e)?)?;
         }
         total.factor *= factor.powi(e);
         total.offset |= offset;
@@ -216,6 +221,13 @@ mod tests {
         for c in ["degC", "C°", "", "m/", "m s", "kCel", "Cel/s"] {
             assert!(parse(c).is_none(), "{c}");
         }
+    }
+
+    #[test]
+    fn huge_exponents_are_rejected_not_overflowed() {
+        assert!(parse("m2147483647").is_none());
+        assert!(parse("m3.m2147483647").is_none());
+        assert!(parse("m-2147483647").is_none());
     }
 
     #[test]

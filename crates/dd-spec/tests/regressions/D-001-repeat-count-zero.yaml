@@ -1,0 +1,190 @@
+# Bosch BME280 combined humidity, pressure and temperature sensor (I2C).
+# Compensation formulas: BME280 datasheet (BST-BME280-DS002) §4.2.3 / §8, integer versions,
+# cross-checked against Linux drivers/iio/pressure/bmp280-core.c. Bit operations use the
+# DriverDesk CEL library (§10.3) because standard CEL has none.
+spec: driverdesk/0.1
+device:
+  id: bosch.bme280
+  name: BME280 humidity, pressure and temperature sensor
+  vendor: { name: Bosch Sensortec, prefix: bosch, url: "https://www.bosch-sensortec.com" }
+  version: 0.1.0
+  classes: [sensor.temperature, sensor.pressure, sensor.humidity]
+  compatible: ["bosch,bme280"]
+  license: CC0-1.0
+  sources:
+    - { kind: datasheet, ref: "https://www.bosch-sensortec.com/products/environmental-sensors/humidity-sensors-bme280/" }
+    - { kind: linux, ref: "drivers/iio/pressure/bmp280-core.c@3857c2fe5449", note: "register map, chip id 0x60, reset 0xB6, start-up 2 ms" }
+instance:
+  address: { type: u8, enum: [0x76, 0x77], default: 0x77, description: "SDO pin low = 0x76, high = 0x77" }
+match:
+  - bus: i2c
+    compatible: bosch,bme280
+  - bus: i2c
+    probe: { addresses: [0x76, 0x77] }
+variants:
+  bme280: { name: BME280, id_check: { register: ID, equals: 0x60 }, default: true }
+transport:
+  i2c:
+    address: { cel: "instance.address" }
+    max_speed_hz: 400000
+registers:
+  config: { reg_bits: 8, val_bits: 8, byte_order: le, auto_increment: true }
+  map:
+    CALIB00:   { address: 0x88, access: ro, volatile: false, repeat: { count: 26, stride: 1 }, description: "dig_T1..dig_H1" }
+    ID:        { address: 0xD0, access: ro, volatile: false, reset: 0x60 }
+    RESET:     { address: 0xE0, access: wo }
+    CALIB26:   { address: 0xE1, access: ro, volatile: false, repeat: { count: 0, stride: 1 }, description: "dig_H2..dig_H6" }
+    CTRL_HUM:  { address: 0xF2, access: rw, fields: { osrs_h: { bits: "2:0" } } }
+    STATUS:
+      address: 0xF3
+      access: ro
+      fields:
+        measuring: { bits: "3" }
+        im_update: { bits: "0" }
+    CTRL_MEAS:
+      address: 0xF4
+      access: rw
+      fields:
+        osrs_t: { bits: "7:5" }
+        osrs_p: { bits: "4:2" }
+        mode:   { bits: "1:0", enum: { sleep: 0, forced: 1, normal: 3 } }
+    CONFIG:
+      address: 0xF5
+      access: rw
+      fields:
+        t_sb:   { bits: "7:5" }
+        filter: { bits: "4:2", enum: { none: 0, x2: 1, x4: 2, x8: 3, x16: 4 } }
+        spi3w_en: { bits: "0" }
+    PRESS_MSB: { address: 0xF7, access: ro }
+    PRESS_LSB: { address: 0xF8, access: ro }
+    PRESS_XLSB: { address: 0xF9, access: ro }
+    TEMP_MSB:  { address: 0xFA, access: ro }
+    TEMP_LSB:  { address: 0xFB, access: ro }
+    TEMP_XLSB: { address: 0xFC, access: ro }
+    HUM_MSB:   { address: 0xFD, access: ro }
+    HUM_LSB:   { address: 0xFE, access: ro }
+timing:
+  startup_us: 2000
+  reset_us: 2000
+  # Datasheet appendix B: t_measure,max = 1.25 + 2.3*osrs_t + (2.3*osrs_p + 0.575) + (2.3*osrs_h + 0.575) ms
+  conversion_us: { cel: "1250 + 2300 * settings.oversampling + 2875 * 2 * settings.oversampling" }
+settings:
+  oversampling:
+    type: u8
+    enum: [1, 2, 4, 8, 16]
+    default: 1
+    description: Oversampling for all three channels (datasheet "weather monitoring" uses 1).
+vars:
+  t1: { type: u16 }
+  t2: { type: i16 }
+  t3: { type: i16 }
+  p1: { type: u16 }
+  p2: { type: i16 }
+  p3: { type: i16 }
+  p4: { type: i16 }
+  p5: { type: i16 }
+  p6: { type: i16 }
+  p7: { type: i16 }
+  p8: { type: i16 }
+  p9: { type: i16 }
+  h1: { type: u8 }
+  h2: { type: i16 }
+  h3: { type: u8 }
+  h4: { type: i16 }
+  h5: { type: i16 }
+  h6: { type: i8 }
+sequences:
+  init:
+    - { read: ID, as: id }
+    - { check: "id == 0x60", error: "not a BME280 (chip id mismatch)", layer: description }
+    - { write: RESET, value: 0xB6 }
+    - { wait_us: 2000 }
+    - { poll: STATUS.im_update, until: "value == 0", interral_us: 500, timeout_ms: 10 }
+    - { read_block: CALIB00, length: 26, as: a }
+    - { read_block: CALIB26, length: 7, as: b }
+    - { store: t1, cel: "le16(a, 0)" }
+    - { store: t2, cel: "le16s(a, 2)" }
+    - { store: t3, cel: "le16s(a, 4)" }
+    - { store: p1, cel: "le16(a, 6)" }
+    - { store: p2, cel: "le16s(a, 8)" }
+    - { store: p3, cel: "le16s(a, 10)" }
+    - { store: p4, cel: "le16s(a, 12)" }
+    - { store: p5, cel: "le16s(a, 14)" }
+    - { store: p6, cel: "le16s(a, 16)" }
+    - { store: p7, cel: "le16s(a, 18)" }
+    - { store: p8, cel: "le16s(a, 20)" }
+    - { store: p9, cel: "le16s(a, 22)" }
+    - { store: h1, cel: "int(a[25])" }
+    - { store: h2, cel: "le16s(b, 0)" }
+    - { store: h3, cel: "int(b[2])" }
+    - { store: h4, cel: "sign_extend(bor(shl(int(b[3]), 4), band(int(b[4]), 0x0F)), 12)" }
+    - { store: h5, cel: "sign_extend(bor(shl(int(b[5]), 4), shr(int(b[4]), 4)), 12)" }
+    - { store: h6, cel: "sign_extend(int(b[6]), 8)" }
+  configure:
+    - { write: CONFIG, value: 0x00 }
+  suspend:
+    - { update: CTRL_MEAS, fields: { mode: sleep } }
+  resume:
+    - { update: CTRL_MEAS, fields: { mode: sleep } }
+commands:
+  measure:
+    description: One forced-mode measurement of all three channels.
+    steps:
+      - { let: osr, cel: "settings.oversampling == 1 ? 1 : settings.oversampling == 2 ? 2 : settings.oversampling == 4 ? 3 : settings.oversampling == 8 ? 4 : 5" }
+      - { update: CTRL_HUM, fields: { osrs_h: { cel: "osr" } } }
+      - { update: CTRL_MEAS, fields: { osrs_t: { cel: "osr" }, osrs_p: { cel: "osr" }, mode: forced } }
+      - { wait_us: 1250 }
+      - { poll: STATUS.measuring, until: "value == 0", interval_us: 1000, timeout_ms: 120 }
+      - { read_block: PRESS_MSB, length: 8, as: d }
+      - { let: adc_p, cel: "bor(bor(shl(int(d[0]), 12), shl(int(d[1]), 4)), shr(int(d[2]), 4))" }
+      - { let: adc_t, cel: "bor(bor(shl(int(d[3]), 12), shl(int(d[4]), 4)), shr(int(d[5]), 4))" }
+      - { let: adc_h, cel: "bor(shl(int(d[6]), 8), int(d[7]))" }
+      - { check: "adc_t != 0x80000", error: "temperature measurement skipped", layer: description }
+      # Temperature (datasheet 4.2.3, int32 version)
+      - { let: tv1, cel: "shr((shr(adc_t, 3) - shl(vars.t1, 1)) * vars.t2, 11)" }
+      - { let: tv2, cel: "shr(shr((shr(adc_t, 4) - vars.t1) * (shr(adc_t, 4) - vars.t1), 12) * vars.t3, 14)" }
+      - { let: t_fine, cel: "tv1 + tv2" }
+      # Pressure (int64 version, result Q24.8 Pa)
+      - { let: pv1a, cel: "t_fine - 128000" }
+      - { let: pv2a, cel: "pv1a * pv1a * vars.p6 + shl(pv1a * vars.p5, 17) + shl(vars.p4, 35)" }
+      - { let: pv1b, cel: "shr(pv1a * pv1a * vars.p3, 8) + shl(pv1a * vars.p2, 12)" }
+      - { let: pv1c, cel: "shr((shl(1, 47) + pv1b) * vars.p1, 33)" }
+      - { check: "pv1c != 0", error: "pressure compensation division by zero (bad calibration)", layer: description }
+      - { let: pa, cel: "1048576 - adc_p" }
+      - { let: pb, cel: "(shl(pa, 31) - pv2a) * 3125 / pv1c" }
+      - { let: pv1d, cel: "shr(vars.p9 * shr(pb, 13) * shr(pb, 13), 25)" }
+      - { let: pv2d, cel: "shr(vars.p8 * pb, 19)" }
+      - { let: p_q24_8, cel: "shr(pb + pv1d + pv2d, 8) + shl(vars.p7, 4)" }
+      # Humidity (int32 version, result Q22.10 %RH)
+      - { let: hv, cel: "t_fine - 76800" }
+      - { let: hx, cel: "shr(shl(adc_h, 14) - shl(vars.h4, 20) - vars.h5 * hv + 16384, 15)" }
+      - { let: hy, cel: "shr((shr(shr(hv * vars.h6, 10) * (shr(hv * vars.h3, 11) + 32768), 10) + 2097152) * vars.h2 + 8192, 14)" }
+      - { let: hz, cel: "hx * hy" }
+      - { let: hw, cel: "clamp(hz - shr(shr(shr(hz, 15) * shr(hz, 15), 7) * vars.h1, 4), 0, 419430400)" }
+    output:
+      celsius:  { cel: "double(shr(t_fine * 5 + 128, 8)) / 100.0", unit: Cel }
+      pascal:   { cel: "double(p_q24_8) / 256.0", unit: Pa }
+      humidity: { cel: "double(shr(hw, 12)) / 1024.0", unit: "%" }
+    timeout_ms: 150
+states:
+  initial: unbound
+  transitions:
+    - { from: unbound,       to: ready,     trigger: bind,    do: init }
+    - { from: ready,     to: suspended, trigger: suspend, do: suspend }
+    - { from: suspended, to: ready,     trigger: resume,  do: resume }
+    - { from: "*",       to: unbound,       trigger: unbind }
+safety:
+  registers:
+    CTRL_MEAS.mode: { forbidden: [2], reason: "mode value 2 is not defined by the datasheet" }
+    CONFIG.spi3w_en: { allowed: [0], reason: "3-wire SPI mode must stay off on an I2C bus" }
+expose:
+  - { class: sensor.temperature, channel: temp,             read: measure.celsius }
+  - { class: sensor.pressure,    channel: pressure,         read: measure.pascal }
+  - { class: sensor.humidity,    channel: humidityrelative, read: measure.humidity }
+tests:
+  - name: indoor_conditions
+    call: measure
+    expect:
+      celsius:  { between: [5, 45] }
+      pascal:   { between: [80000, 110000] }
+      humidity: { between: [5, 95] }

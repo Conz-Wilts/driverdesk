@@ -174,7 +174,8 @@
           "properties": {
             "count": {
               "type": "integer",
-              "minimum": 2
+              "minimum": 2,
+              "maximum": 4096
             },
             "stride": {
               "type": "integer",

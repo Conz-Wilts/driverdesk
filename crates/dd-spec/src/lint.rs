@@ -15,6 +15,9 @@ use crate::units;
 /// The spec version this validator implements.
 pub const SPEC: &str = "driverdesk/0.1";
 
+/// Largest `repeat.count` (spec §8.2; schema `registers.json`).
+pub const MAX_REPEAT: u64 = 4096;
+
 /// Top-level sections marked provisional (spec §3).
 const PROVISIONAL_SECTIONS: &[&str] = &[
     "memory",
@@ -366,7 +369,8 @@ impl<'a> Linter<'a> {
             }
             let entry = Reg { access, fields };
             if let Some(count) = reg.pointer("/repeat/count").and_then(Value::as_u64) {
-                for i in 0..count {
+                // The schema caps `repeat.count` at MAX_REPEAT; never expand more (D-001).
+                for i in 0..count.min(MAX_REPEAT) {
                     self.regs.insert(format!("{name}{i}"), entry.clone());
                 }
             }
@@ -631,13 +635,16 @@ impl<'a> Linter<'a> {
         let Some(r) = self.j.get("registers") else {
             return;
         };
+        // Saturating arithmetic throughout: lints also run on schema-invalid input (D-001).
         let val_bits = r
             .pointer("/config/val_bits")
             .and_then(Value::as_u64)
+            .filter(|v| *v > 0)
             .unwrap_or(8);
         let stride = r
             .pointer("/config/stride")
             .and_then(Value::as_u64)
+            .filter(|v| *v > 0)
             .unwrap_or(1);
         let Some(map) = r.get("map").and_then(obj) else {
             return;
@@ -648,15 +655,17 @@ impl<'a> Linter<'a> {
                 continue;
             };
             let bits = reg.get("bits").and_then(Value::as_u64).unwrap_or(val_bits);
-            let width = (bits.div_ceil(val_bits)).max(1) * stride;
+            let width = bits.div_ceil(val_bits).max(1).saturating_mul(stride);
             let (count, rstride) = match (
                 reg.pointer("/repeat/count").and_then(Value::as_u64),
                 reg.pointer("/repeat/stride").and_then(Value::as_u64),
             ) {
-                (Some(c), Some(s)) => (c, s),
+                (Some(c), Some(s)) => (c.max(1), s),
                 _ => (1, width),
             };
-            let end = addr + (count - 1) * rstride + width;
+            let end = addr
+                .saturating_add((count - 1).saturating_mul(rstride))
+                .saturating_add(width);
             ranges.push((
                 addr,
                 end,
@@ -741,7 +750,7 @@ impl<'a> Linter<'a> {
                     );
                     continue;
                 }
-                if h >= width {
+                if width > 0 && h >= width {
                     self.push(
                         Diagnostic::error(
                             "DD-L021",
@@ -2511,6 +2520,20 @@ mod tests {
 
     fn codes(src: &str) -> Vec<&'static str> {
         lint(src).into_iter().map(|d| d.code).collect()
+    }
+
+    #[test]
+    fn hostile_register_numbers_do_not_panic() {
+        // Found by cargo fuzz (D-001): lints run on schema-invalid documents too.
+        for regs in [
+            "registers: { map: { A: { address: 0, access: ro, repeat: { count: 0, stride: 1 } } } }\n",
+            "registers: { config: { val_bits: 0 }, map: { A: { address: 0, access: ro } } }\n",
+            "registers: { config: { stride: 18446744073709551615 }, map: { A: { address: 18446744073709551615, access: ro, bits: 64 } } }\n",
+            "registers: { map: { A: { address: 0, access: ro, repeat: { count: 18446744073709551615, stride: 18446744073709551615 } } } }\n",
+            "registers: { map: { A: { address: 0, access: ro, bits: 0, fields: { f: { bits: \"3\" } } } } }\n",
+        ] {
+            let _ = lint(regs);
+        }
     }
 
     #[test]

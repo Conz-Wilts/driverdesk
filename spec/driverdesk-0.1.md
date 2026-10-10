@@ -417,7 +417,7 @@ A map from register name to:
 | `reset` | int | no | Value after reset |
 | `fields` | map name → field | no | Bit fields (§8.3) |
 | `fieldset` | name | no | Use a shared fieldset (§8.4) instead of `fields` |
-| `repeat` | `{ count: int, stride: int }` | no | This entry describes `count` registers `NAME0..NAMEn-1` |
+| `repeat` | `{ count: int, stride: int }` | no | This entry describes `count` registers `NAME0..NAMEn-1` (2 ≤ count ≤ 4096) |
 | `description` | string | no | |
 
 Ranges of two registers MUST NOT overlap (`DD-L005`) unless both set `overlap: true`.

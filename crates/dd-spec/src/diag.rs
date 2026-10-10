@@ -127,30 +127,68 @@ impl fmt::Display for Diagnostic {
 
 /// A diagnostic bound to its source, renderable by miette.
 #[derive(Debug)]
-pub struct Rendered<'a> {
-    diag: &'a Diagnostic,
+pub struct Rendered {
+    diag: Diagnostic,
     src: miette::NamedSource<String>,
 }
 
-impl<'a> Rendered<'a> {
-    /// Bind `diag` to the file `name` with contents `src`.
-    pub fn new(diag: &'a Diagnostic, name: &str, src: &str) -> Self {
+impl Rendered {
+    /// Bind `diag` to the file `name` with contents `src`. Control characters from the
+    /// (untrusted) file are neutralised so they cannot drive the terminal.
+    pub fn new(diag: &Diagnostic, name: &str, src: &str) -> Self {
+        let mut diag = diag.clone();
+        diag.message = clean_text(&diag.message);
+        diag.label = diag.label.as_deref().map(clean_text);
+        diag.help = diag.help.as_deref().map(clean_text);
+        for (_, l) in &mut diag.related {
+            *l = clean_text(l);
+        }
         Self {
             diag,
-            src: miette::NamedSource::new(name, src.to_string()),
+            src: miette::NamedSource::new(clean_text(name), clean_source(src)),
         }
     }
 }
 
-impl fmt::Display for Rendered<'_> {
+fn is_dangerous(c: char) -> bool {
+    c.is_control() && c != '\n' && c != '\t'
+}
+
+/// Escape control characters (ESC, BEL, C1 …) as `\u{..}`; keep newlines and tabs.
+pub fn clean_text(s: &str) -> String {
+    s.chars()
+        .map(|c| {
+            if is_dangerous(c) && c != '\r' {
+                c.escape_unicode().to_string()
+            } else {
+                c.to_string()
+            }
+        })
+        .collect()
+}
+
+/// Replace control characters with `?` of the same UTF-8 length, so byte spans stay valid.
+pub fn clean_source(s: &str) -> String {
+    s.chars()
+        .map(|c| {
+            if is_dangerous(c) && c != '\r' {
+                "?".repeat(c.len_utf8())
+            } else {
+                c.to_string()
+            }
+        })
+        .collect()
+}
+
+impl fmt::Display for Rendered {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt::Display::fmt(self.diag, f)
+        fmt::Display::fmt(&self.diag, f)
     }
 }
 
-impl std::error::Error for Rendered<'_> {}
+impl std::error::Error for Rendered {}
 
-impl miette::Diagnostic for Rendered<'_> {
+impl miette::Diagnostic for Rendered {
     fn code<'b>(&'b self) -> Option<Box<dyn fmt::Display + 'b>> {
         Some(Box::new(self.diag.code))
     }
@@ -230,6 +268,20 @@ pub fn suggest<'a>(word: &str, candidates: impl IntoIterator<Item = &'a str>) ->
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn control_characters_cannot_reach_the_terminal() {
+        let src = "\u{1b}]0;x\u{7}: 1\n";
+        let d = Diagnostic::error("DD-S004", "unknown field `\u{1b}]0;x\u{7}`")
+            .at(Span::new(0, 7), "here")
+            .with_help("\u{1b}[2K");
+        let out = render_plain(&[d], "f\u{1b}.yaml", src);
+        assert!(!out.contains('\u{1b}') && !out.contains('\u{7}'), "{out:?}");
+        assert_eq!(
+            clean_source("a\u{1b}b\u{85}c").len(),
+            "a\u{1b}b\u{85}c".len()
+        );
+    }
 
     #[test]
     fn suggests_close_names() {

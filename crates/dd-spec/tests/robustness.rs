@@ -185,3 +185,16 @@ proptest! {
         let _ = dd_spec::validate(&s);
     }
 }
+
+/// Inputs that once crashed the validator (see docs/debug/). They must keep validating.
+#[test]
+fn past_crashes_stay_fixed() {
+    let dir = std::path::Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/regressions"));
+    let mut n = 0;
+    for e in std::fs::read_dir(dir).expect("regressions dir") {
+        let src = std::fs::read(e.expect("entry").path()).expect("readable");
+        let _ = dd_spec::validate(&String::from_utf8_lossy(&src));
+        n += 1;
+    }
+    assert!(n >= 1);
+}
