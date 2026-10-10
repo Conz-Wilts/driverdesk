@@ -130,6 +130,8 @@ pub struct Document {
     pub json: serde_json::Value,
     /// Pointer → span index.
     pub spans: SpanMap,
+    /// The source text.
+    pub source: String,
 }
 
 /// Parse `src` into a [`Document`]. Fatal problems (syntax, limits) return `Err` with
@@ -153,11 +155,19 @@ pub fn parse(src: &str, diags: &mut Vec<Diagnostic>) -> Result<Document, Vec<Dia
     let mut parser = Parser::new_from_str(src);
     if let Err(e) = parser.load(&mut b, true) {
         let at = offsets.byte(e.marker().index());
-        return Err(vec![
-            Diagnostic::error("DD-S001", format!("YAML syntax error: {}", e.info()))
-                .at(Span::new(at, (at + 1).min(src.len())), "here")
-                .with_help("check indentation (spaces only, no tabs) and that every `key:` is followed by a space"),
-        ]);
+        let d = Diagnostic::error("DD-S001", format!("YAML syntax error: {}", e.info()))
+            .at(Span::new(at, (at + 1).min(src.len())), "here");
+        let d = match unclosed_flow(src, at) {
+            Some((open, ch)) => {
+                let close = if ch == '[' { ']' } else { '}' };
+                d.with_related(Span::new(open, open + 1), format!("this `{ch}` is never closed"))
+                    .with_help(format!("add the missing `{close}` to close the `{ch}` opened earlier"))
+            }
+            None => d.with_help(
+                "check indentation (spaces only, no tabs) and that every `key:` is followed by a space",
+            ),
+        };
+        return Err(vec![d]);
     }
     if !b.errors.is_empty() {
         return Err(b.errors);
@@ -184,7 +194,37 @@ pub fn parse(src: &str, diags: &mut Vec<Diagnostic>) -> Result<Document, Vec<Dia
     };
     let mut spans = SpanMap::default();
     let json = to_json(&root, String::new(), None, &mut spans, diags);
-    Ok(Document { root, json, spans })
+    Ok(Document {
+        root,
+        json,
+        spans,
+        source: src.to_string(),
+    })
+}
+
+/// The last `[` or `{` before `upto` that is still open (ignoring quotes and comments).
+fn unclosed_flow(src: &str, upto: usize) -> Option<(usize, char)> {
+    let mut stack: Vec<(usize, char)> = Vec::new();
+    let mut quote: Option<char> = None;
+    let mut comment = false;
+    for (i, c) in src[..upto.min(src.len())].char_indices() {
+        if comment {
+            comment = c != '\n';
+            continue;
+        }
+        match (quote, c) {
+            (Some(q), c) if c == q => quote = None,
+            (Some(_), _) => {}
+            (None, '"' | '\'') => quote = Some(c),
+            (None, '#') => comment = true,
+            (None, '[' | '{') => stack.push((i, c)),
+            (None, ']' | '}') => {
+                stack.pop();
+            }
+            _ => {}
+        }
+    }
+    stack.pop()
 }
 
 /// Convert char indices (from saphyr) to byte offsets (for miette).
@@ -301,7 +341,8 @@ impl<'input> SpannedEventReceiver<'input> for Builder<'_> {
                             "DD-S008",
                             format!("nesting deeper than {MAX_DEPTH} levels"),
                         )
-                        .at(sp, "too deep"),
+                        .at(sp, "too deep")
+                        .with_help("descriptions never need this much nesting; flatten or remove the value that starts here"),
                     );
                     return;
                 }
@@ -524,7 +565,7 @@ fn to_json(
                             .at(k.span, "duplicate")
                             .with_related(*prev, "first defined here")
                             .with_help(
-                                "YAML keeps only one of the values; remove or rename one of them",
+                                "the validator uses the first value and ignores this one (some YAML tools keep the last instead); delete the one you do not want",
                             ),
                     );
                     continue;

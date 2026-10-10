@@ -16,7 +16,8 @@ DD-S007 (https://driverdesk.dev/errors/DD-S007)
     ·          ╰── duplicate
  34 │     retries: 2
     ╰────
-  help: YAML keeps only one of the values; remove or rename one of them
+  help: the validator uses the first value and ignores this one (some YAML tools keep the last
+        instead); delete the one you do not want
 DD-L016 (https://driverdesk.dev/errors/DD-L016)
 
   ⚠ safety block is not signed

@@ -13,7 +13,9 @@ DD-S002 (https://driverdesk.dev/errors/DD-S002)
     ·    ╰── empty
  51 │ tests:
     ╰────
-  help: add at least one entry (spec §15)
+  help: add at least one entry (spec §15), for example:
+        expose:
+          - { class: <one of device.classes>, channel: ch0, read: <command>.<output> }
 DD-L016 (https://driverdesk.dev/errors/DD-L016)
 
   ⚠ safety block is not signed

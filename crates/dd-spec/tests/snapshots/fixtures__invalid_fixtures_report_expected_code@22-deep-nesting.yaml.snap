@@ -12,3 +12,4 @@ DD-S008 (https://driverdesk.dev/errors/DD-S008)
     ·                                                                        ┬
     ·                                                                        ╰── too deep
     ╰────
+  help: descriptions never need this much nesting; flatten or remove the value that starts here

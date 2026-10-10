@@ -24,7 +24,7 @@ DD-L007 (https://driverdesk.dev/errors/DD-L007)
     ·                                                                ╰── not declared
  52 │   - { class: light.indicator,    channel: led0,  write: set_led }
     ╰────
-  help: did you mean `ReadTemp`?
+  help: declared: set_led
 DD-L008 (https://driverdesk.dev/errors/DD-L008)
 
   × unknown command `read_temp`
@@ -35,7 +35,7 @@ DD-L008 (https://driverdesk.dev/errors/DD-L008)
     ·                                         ╰── not declared
  55 │   - { name: led_cap, call: set_led, args: { enabled: true, level: 90 }, expect: rejected_by_safety }
     ╰────
-  help: did you mean `ReadTemp`?
+  help: declared: set_led
 DD-L016 (https://driverdesk.dev/errors/DD-L016)
 
   ⚠ safety block is not signed

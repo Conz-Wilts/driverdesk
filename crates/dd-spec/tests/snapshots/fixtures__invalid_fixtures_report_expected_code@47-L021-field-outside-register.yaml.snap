@@ -13,4 +13,5 @@ DD-L021 (https://driverdesk.dev/errors/DD-L021)
     ·                          ╰── outside the register
  30 │     ID: { address: 0x0F, access: ro, volatile: false }
     ╰────
-  help: bits run 0..15; set the register's `bits` if it is wider (spec §8.3)
+  help: bits run 0..15; if the register is really wider, add `bits: 32` (or 24/64) to that
+        register (spec §8.2, §8.3)

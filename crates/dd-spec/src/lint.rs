@@ -295,6 +295,25 @@ impl<'a> Linter<'a> {
         self.doc.spans.value_or_ancestor(p)
     }
 
+    /// Span of `needle` (as a whole word) inside the value at `p`, else the whole value.
+    fn narrow(&self, p: &str, needle: &str) -> Option<Span> {
+        let span = self.span(p)?;
+        let text = self.doc.source.get(span.start..span.end)?;
+        let bytes = text.as_bytes();
+        let word = |b: u8| b.is_ascii_alphanumeric() || b == b'_';
+        let mut from = 0;
+        while let Some(i) = text[from..].find(needle).map(|i| i + from) {
+            let before = i == 0 || !word(bytes[i - 1]);
+            let end = i + needle.len();
+            let after = end >= bytes.len() || !word(bytes[end]) || !needle.bytes().all(word);
+            if before && after {
+                return Some(Span::new(span.start + i, span.start + end));
+            }
+            from = i + 1;
+        }
+        Some(span)
+    }
+
     fn key(&self, p: &str) -> Option<Span> {
         self.doc.spans.key_or_value(p)
     }
@@ -524,8 +543,17 @@ impl<'a> Linter<'a> {
         });
         for (p, s) in found {
             if let Err(e) = expr::check(&s) {
+                let mut at = self.span(&p);
                 let (msg, help) = match e {
-                    ExprError::Syntax(m) => ("expression does not compile".to_string(), m),
+                    ExprError::Syntax(m) => {
+                        if let Some(op) = ["<<", ">>", "|", "&", "^", "~"]
+                            .into_iter()
+                            .find(|op| m.contains(&format!("`{op}`")))
+                        {
+                            at = self.narrow(&p, op);
+                        }
+                        ("expression does not compile".to_string(), m)
+                    }
                     ExprError::UnknownFunction(f) => {
                         let all: Vec<&str> = expr::LIBRARY
                             .iter()
@@ -536,12 +564,13 @@ impl<'a> Linter<'a> {
                             || "available functions are listed in spec §10.3".to_string(),
                             |s| format!("did you mean `{s}`? (spec §10.3)"),
                         );
+                        at = self.narrow(&p, &f);
                         (format!("unknown function `{f}` in expression"), h)
                     }
                 };
                 self.push(
                     Diagnostic::error("DD-L012", msg)
-                        .at_opt(self.span(&p), "CEL")
+                        .at_opt(at, "here")
                         .with_help(help)
                         .with_pointer(p),
                 );
@@ -722,7 +751,7 @@ impl<'a> Linter<'a> {
                         )
                         .at_opt(self.span(&p), "outside the register")
                         .with_help(format!(
-                            "bits run 0..{}; set the register's `bits` if it is wider (spec §8.3)",
+                            "bits run 0..{}; if the register is really wider, add `bits: 32` (or 24/64) to that register (spec §8.2, §8.3)",
                             width - 1
                         ))
                         .with_pointer(p.clone()),
@@ -1028,6 +1057,16 @@ impl<'a> Linter<'a> {
     }
 
     fn unknown_ref(&mut self, what: &str, name: &str, p: &str, candidates: BTreeSet<String>) {
+        // Never suggest a name that is itself invalid (it gets its own DD-S005).
+        let candidates: BTreeSet<String> = candidates
+            .into_iter()
+            .filter(|c| c.chars().next().is_some_and(|ch| ch.is_ascii_alphabetic()))
+            .filter(|c| {
+                !what.contains("command")
+                    || c.chars()
+                        .all(|ch| ch.is_ascii_lowercase() || ch.is_ascii_digit() || ch == '_')
+            })
+            .collect();
         let help = suggest(name, candidates.iter().map(String::as_str)).map_or_else(
             || {
                 if candidates.is_empty() {
@@ -1098,7 +1137,7 @@ impl<'a> Linter<'a> {
                 );
                 self.push(
                     Diagnostic::error("DD-L022", format!("unknown name `{root}` in expression"))
-                        .at_opt(self.span(p), "not defined here")
+                        .at_opt(self.narrow(p, root), "not defined here")
                         .with_help(help)
                         .with_pointer(p.to_string()),
                 );
@@ -1264,7 +1303,7 @@ impl<'a> Linter<'a> {
                 self.push(
                     Diagnostic::error("DD-L025", format!("`{name}` retries a command that writes to the device"))
                         .at_opt(self.key(&p), "unsafe retry")
-                        .with_help("set `idempotent: true` if running it twice is harmless, or remove `retries` (spec §9.1)")
+                        .with_help("if running it twice is harmless, add `idempotent: true` to the command (next to `retries`); otherwise remove `retries` (spec §9.1)")
                         .with_pointer(p),
                 );
             }
@@ -2022,7 +2061,7 @@ impl<'a> Linter<'a> {
                     self.push(
                         Diagnostic::warning("DD-L011", "USB match uses only the vendor id; it would claim every product of that vendor")
                             .at_opt(self.key(&format!("{p}/vid")), "too broad")
-                            .with_help("add `pid` (and `interface_class` for vendor-specific interfaces) (spec §5.2)")
+                            .with_help("add `pid` (the product id from the device descriptor, e.g. from `lsusb`), and `interface_class` for vendor-specific interfaces (spec §5.2)")
                             .with_pointer(format!("{p}/vid")),
                     );
                 }
@@ -2129,7 +2168,7 @@ impl<'a> Linter<'a> {
                     self.push(
                         Diagnostic::error("DD-L024", format!("variant `{name}` excludes `{path}`, which does not exist"))
                             .at_opt(self.span(&format!("{p}/exclude/{i}")), "unknown")
-                            .with_help("exclude names commands, `command.output`, registers, settings or exposed channels (spec §4.3)")
+                            .with_help(format!("exclude names commands, `command.output`, registers, settings or exposed channels; commands here: {} (spec §4.3)", self.commands.keys().cloned().collect::<Vec<_>>().join(", ")))
                             .with_pointer(format!("{p}/exclude/{i}")),
                     );
                 }

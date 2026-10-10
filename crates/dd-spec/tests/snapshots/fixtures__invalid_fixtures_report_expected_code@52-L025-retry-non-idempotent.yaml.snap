@@ -13,7 +13,8 @@ DD-L025 (https://driverdesk.dev/errors/DD-L025)
     ·        ╰── unsafe retry
  42 │ safety:
     ╰────
-  help: set `idempotent: true` if running it twice is harmless, or remove `retries` (spec §9.1)
+  help: if running it twice is harmless, add `idempotent: true` to the command (next to
+        `retries`); otherwise remove `retries` (spec §9.1)
 DD-L016 (https://driverdesk.dev/errors/DD-L016)
 
   ⚠ safety block is not signed

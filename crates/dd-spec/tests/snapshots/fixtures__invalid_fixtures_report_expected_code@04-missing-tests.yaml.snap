@@ -13,7 +13,9 @@ DD-S002 (https://driverdesk.dev/errors/DD-S002)
    ·   ╰── add `tests:` to the document
  4 │ device:
    ╰────
-  help: `tests` is required (spec §16)
+  help: `tests` is required (spec §16), for example:
+        tests:
+          - { name: reads_ok, call: <command>, expect: ok }
 DD-L016 (https://driverdesk.dev/errors/DD-L016)
 
   ⚠ safety block is not signed

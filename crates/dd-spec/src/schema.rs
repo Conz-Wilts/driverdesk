@@ -245,6 +245,34 @@ fn pattern_help(pattern: &str) -> &'static str {
     }
 }
 
+/// A minimal example for a required section or field, shown in help text.
+fn example_for(field: &str) -> Option<&'static str> {
+    Some(match field {
+        "tests" => "tests:\n  - { name: reads_ok, call: <command>, expect: ok }",
+        "expose" => {
+            "expose:\n  - { class: <one of device.classes>, channel: ch0, read: <command>.<output> }"
+        }
+        "match" => "match:\n  - { bus: usb, vid: 0x1209, pid: 0x0001 }",
+        "transport" => "transport:\n  usb: { interface: 0 }",
+        "device" => {
+            "device:\n  id: vendor.part\n  name: Part name\n  vendor: { name: Vendor }\n  version: 0.1.0\n  classes: [sensor.temperature]"
+        }
+        "spec" => "spec: driverdesk/0.1",
+        "name" => "name: <human-readable name>",
+        "version" => "version: 0.1.0",
+        "classes" => "classes: [sensor.temperature]",
+        "vendor" => "vendor: { name: <vendor name> }",
+        _ => return None,
+    })
+}
+
+fn with_example(help: String, field: &str) -> String {
+    match example_for(field) {
+        Some(ex) => format!("{help}, for example:\n{ex}"),
+        None => help,
+    }
+}
+
 fn section_for(ptr: &str) -> &'static str {
     match ptr.split('/').nth(1).unwrap_or("") {
         "spec" => "§3.1",
@@ -325,7 +353,7 @@ fn convert(e: &ValidationError<'_>, doc: &Document, c: &Compiled, out: &mut Vec<
                         }
                     ),
                 )
-                .with_help(format!("`{p}` is required (spec {sec})"))
+                .with_help(with_example(format!("`{p}` is required (spec {sec})"), p))
                 .with_pointer(ptr),
             );
         }
@@ -395,7 +423,20 @@ fn convert(e: &ValidationError<'_>, doc: &Document, c: &Compiled, out: &mut Vec<
                     format!("`{got}` is not a valid value for `{}`", display_path(&ptr)),
                 )
                 .at_opt(spans.value_or_ancestor(&ptr), "invalid")
-                .with_help(pattern_help(pattern))
+                .with_help(if ptr == "/device/id" {
+                    let prefix = doc
+                        .json
+                        .pointer("/device/vendor/prefix")
+                        .and_then(Value::as_str)
+                        .unwrap_or("vendor");
+                    format!(
+                        "{}; here: `{prefix}.{}`",
+                        pattern_help(pattern),
+                        kebab(&got)
+                    )
+                } else {
+                    pattern_help(pattern).to_string()
+                })
                 .with_pointer(ptr),
             );
         }
@@ -446,7 +487,10 @@ fn convert(e: &ValidationError<'_>, doc: &Document, c: &Compiled, out: &mut Vec<
                     format!("`{}` must not be empty", display_path(&ptr)),
                 )
                 .at_opt(spans.key_or_value(&ptr), "empty")
-                .with_help(format!("add at least one entry (spec {sec})"))
+                .with_help(with_example(
+                    format!("add at least one entry (spec {sec})"),
+                    ptr.rsplit('/').next().unwrap_or(""),
+                ))
                 .with_pointer(ptr),
             );
         }
@@ -566,7 +610,33 @@ fn range_diag(ptr: &str, got: &Value, what: &str, limit: &Value, doc: &Document)
         ),
     )
     .at_opt(doc.spans.value_or_ancestor(ptr), "out of range")
+    .with_help(match limit.as_u64() {
+        Some(255) => "the value must fit in 8 bits (0x00–0xFF)".to_string(),
+        Some(65_535) => {
+            "the value must fit in 16 bits (0x0000–0xFFFF); check for an extra digit".to_string()
+        }
+        Some(16_777_215) => "the value must fit in 24 bits (0x000000–0xFFFFFF)".to_string(),
+        _ => format!("use a value within the limit ({})", scalar_text(limit)),
+    })
     .with_pointer(ptr.to_string())
+}
+
+/// `LedThermo` / `led_thermo` → `led-thermo`.
+fn kebab(s: &str) -> String {
+    let mut out = String::new();
+    for (i, c) in s.chars().enumerate() {
+        if c.is_ascii_uppercase() {
+            if i > 0 && !out.ends_with('-') {
+                out.push('-');
+            }
+            out.push(c.to_ascii_lowercase());
+        } else if c.is_ascii_alphanumeric() {
+            out.push(c);
+        } else if !out.ends_with('-') && !out.is_empty() {
+            out.push('-');
+        }
+    }
+    out.trim_matches('-').to_string()
 }
 
 fn scalar_text(v: &Value) -> String {

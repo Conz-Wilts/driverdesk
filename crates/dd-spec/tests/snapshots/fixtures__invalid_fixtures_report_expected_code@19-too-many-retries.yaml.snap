@@ -13,6 +13,7 @@ DD-S006 (https://driverdesk.dev/errors/DD-S006)
     ·               ╰── out of range
  34 │   set_led:
     ╰────
+  help: use a value within the limit (10)
 DD-L016 (https://driverdesk.dev/errors/DD-L016)
 
   ⚠ safety block is not signed
