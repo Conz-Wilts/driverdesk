@@ -1,6 +1,6 @@
 # B — Bootstrap: the project can build, test and touch hardware without a human
 
-- Status: not started
+- Status: in progress
 - Depends on: —
 - Branch: `stage/b`
 - Estimate: 1–2 weeks of work; hardware shipping runs in parallel
@@ -33,10 +33,10 @@ If hardware has not arrived, criteria 1–4 and 6 are enough to **start P0**. Cr
 
 ## Tasks
 
-- [ ] **B.T1 Repository skeleton** (deps: —)
+- [x] **B.T1 Repository skeleton** (deps: —)
   - Do: `.gitignore` (Rust, Python, node, `.env*`, `cache/`, `spikes/*` except README), `LICENSE` (Apache-2.0 full text), `spec/LICENSE` (CC-BY-4.0), `NOTICE`, `README.md` (one-paragraph pitch + status + link to north star), `CONTRIBUTING.md` (DCO sign-off, conventional commits), `SECURITY.md` (private reporting via GitHub advisories), `CODE_OF_CONDUCT.md` (Contributor Covenant). Fetch licence texts from their official sources (research gate: licence texts).
   - Accept: files exist; `git log` has a signed-off commit.
-- [ ] **B.T2 Hardware shopping list** (deps: —) — *do this first in practice: shipping takes the longest*
+- [>] **B.T2 Hardware shopping list** (deps: —) — *do this first in practice: shipping takes the longest*
   - Do: resolve R-B-3, R-B-4. Produce H-001 in `progress/HUMAN-ACTIONS.md`: exact products, links from a retailer that ships to the owner, quantities, prices, total. Baseline list: 3× Raspberry Pi Pico 2 with headers; 2× Raspberry Pi Debug Probe; 1× Raspberry Pi 5 (8 GB) + official PSU + 64 GB microSD or NVMe; 1× x86 mini PC with Windows 11 (N100-class); 3× uhubctl-compatible per-port-power hubs; BME280 and TMP117 breakouts (STEMMA QT/Qwiic) ×2 each; Qwiic-to-header cables; breadboards, jumper wires; 5× 3 mm LEDs + 330 Ω resistors; 4× good USB-C/micro-USB data cables. Leave P5/P6 devices for those stages.
   - Accept: H-001 written; budget total stated; each item has a reason.
 - [ ] **B.T3 Toolchain on the Mac** (deps: —)
