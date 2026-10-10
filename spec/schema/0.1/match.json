@@ -1,0 +1,351 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/match.json",
+  "title": "Matching (\u00a75)",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "oneOf": [
+      {
+        "$ref": "#/$defs/usb"
+      },
+      {
+        "$ref": "#/$defs/hid"
+      },
+      {
+        "$ref": "#/$defs/i2c"
+      },
+      {
+        "$ref": "#/$defs/spi"
+      },
+      {
+        "$ref": "#/$defs/serial"
+      },
+      {
+        "$ref": "#/$defs/pci"
+      }
+    ]
+  },
+  "$defs": {
+    "usb": {
+      "type": "object",
+      "properties": {
+        "bus": {
+          "const": "usb"
+        },
+        "vid": {
+          "$ref": "common.json#/$defs/u16"
+        },
+        "pid": {
+          "$ref": "common.json#/$defs/u16"
+        },
+        "bcd_device": {
+          "$ref": "common.json#/$defs/range_u16"
+        },
+        "device_class": {
+          "$ref": "common.json#/$defs/u8"
+        },
+        "device_subclass": {
+          "$ref": "common.json#/$defs/u8"
+        },
+        "device_protocol": {
+          "$ref": "common.json#/$defs/u8"
+        },
+        "interface_class": {
+          "$ref": "common.json#/$defs/u8"
+        },
+        "interface_subclass": {
+          "$ref": "common.json#/$defs/u8"
+        },
+        "interface_protocol": {
+          "$ref": "common.json#/$defs/u8"
+        },
+        "interface_number": {
+          "$ref": "common.json#/$defs/u8"
+        },
+        "manufacturer": {
+          "type": "string"
+        },
+        "product": {
+          "type": "string"
+        },
+        "serial": {
+          "type": "string"
+        },
+        "variant": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "quirks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]*$"
+          }
+        },
+        "instance": {
+          "type": "object"
+        },
+        "priority": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "bus"
+      ],
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "vid"
+          ]
+        },
+        {
+          "required": [
+            "device_class"
+          ]
+        },
+        {
+          "required": [
+            "interface_class"
+          ]
+        }
+      ]
+    },
+    "hid": {
+      "type": "object",
+      "properties": {
+        "bus": {
+          "const": "hid"
+        },
+        "vid": {
+          "$ref": "common.json#/$defs/u16"
+        },
+        "pid": {
+          "$ref": "common.json#/$defs/u16"
+        },
+        "usage_page": {
+          "$ref": "common.json#/$defs/u16"
+        },
+        "usage": {
+          "$ref": "common.json#/$defs/u16"
+        },
+        "report_id": {
+          "$ref": "common.json#/$defs/u8"
+        },
+        "variant": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "quirks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "instance": {
+          "type": "object"
+        },
+        "priority": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "bus"
+      ],
+      "additionalProperties": false
+    },
+    "i2c": {
+      "type": "object",
+      "properties": {
+        "bus": {
+          "const": "i2c"
+        },
+        "compatible": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+,[a-z0-9._+-]+$"
+        },
+        "probe": {
+          "type": "object",
+          "properties": {
+            "addresses": {
+              "type": "array",
+              "items": {
+                "$ref": "common.json#/$defs/u16"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "addresses"
+          ],
+          "additionalProperties": false
+        },
+        "variant": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "quirks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "instance": {
+          "type": "object"
+        },
+        "priority": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "bus"
+      ],
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "compatible"
+          ]
+        },
+        {
+          "required": [
+            "probe"
+          ]
+        }
+      ]
+    },
+    "spi": {
+      "type": "object",
+      "properties": {
+        "bus": {
+          "const": "spi"
+        },
+        "compatible": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+,[a-z0-9._+-]+$"
+        },
+        "variant": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "quirks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "instance": {
+          "type": "object"
+        },
+        "priority": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "bus",
+        "compatible"
+      ],
+      "additionalProperties": false
+    },
+    "serial": {
+      "type": "object",
+      "properties": {
+        "bus": {
+          "const": "serial"
+        },
+        "port_hint": {
+          "type": "string"
+        },
+        "variant": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "quirks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "instance": {
+          "type": "object"
+        },
+        "priority": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "bus"
+      ],
+      "additionalProperties": false
+    },
+    "pci": {
+      "type": "object",
+      "properties": {
+        "bus": {
+          "const": "pci"
+        },
+        "vendor": {
+          "$ref": "common.json#/$defs/u16"
+        },
+        "device": {
+          "$ref": "common.json#/$defs/u16"
+        },
+        "subsystem_vendor": {
+          "$ref": "common.json#/$defs/u16"
+        },
+        "subsystem_device": {
+          "$ref": "common.json#/$defs/u16"
+        },
+        "class": {
+          "$ref": "common.json#/$defs/u24"
+        },
+        "class_mask": {
+          "$ref": "common.json#/$defs/u24"
+        },
+        "revision": {
+          "type": "object",
+          "properties": {
+            "min": {
+              "$ref": "common.json#/$defs/u8"
+            },
+            "max": {
+              "$ref": "common.json#/$defs/u8"
+            }
+          },
+          "required": [
+            "min",
+            "max"
+          ],
+          "additionalProperties": false
+        },
+        "variant": {
+          "$ref": "common.json#/$defs/name"
+        },
+        "quirks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "instance": {
+          "type": "object"
+        },
+        "priority": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "bus"
+      ],
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "vendor"
+          ]
+        },
+        {
+          "required": [
+            "class"
+          ]
+        }
+      ]
+    }
+  }
+}

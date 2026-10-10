@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/profiles/display.basic.json",
+  "title": "Class profile display.basic",
+  "x-stability": "provisional",
+  "x-requires": "memory",
+  "type": "object",
+  "required": [
+    "memory"
+  ]
+}

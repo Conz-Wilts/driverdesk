@@ -1,0 +1,224 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/description.json",
+  "title": "DriverDesk device description 0.1",
+  "description": "Canonical schema for spec/driverdesk-0.1.md. Semantic rules are lint codes DD-Lxxx.",
+  "type": "object",
+  "required": [
+    "spec",
+    "device",
+    "match",
+    "transport",
+    "expose",
+    "tests"
+  ],
+  "properties": {
+    "spec": {
+      "const": "driverdesk/0.1"
+    },
+    "device": {
+      "$ref": "identity.json#/$defs/device"
+    },
+    "variants": {
+      "$ref": "identity.json#/$defs/variants"
+    },
+    "instance": {
+      "$ref": "identity.json#/$defs/instance"
+    },
+    "match": {
+      "$ref": "match.json"
+    },
+    "transport": {
+      "$ref": "transport.json"
+    },
+    "types": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "$ref": "common.json#/$defs/struct"
+      }
+    },
+    "registers": {
+      "$ref": "registers.json"
+    },
+    "vars": {
+      "$ref": "commands.json#/$defs/vars"
+    },
+    "commands": {
+      "$ref": "commands.json#/$defs/commands"
+    },
+    "sequences": {
+      "$ref": "commands.json#/$defs/sequences"
+    },
+    "settings": {
+      "$ref": "commands.json#/$defs/settings"
+    },
+    "states": {
+      "$ref": "states.json"
+    },
+    "timing": {
+      "type": "object",
+      "properties": {
+        "startup_us": {
+          "$ref": "common.json#/$defs/int_or_cel"
+        },
+        "reset_us": {
+          "$ref": "common.json#/$defs/int_or_cel"
+        },
+        "min_interval_us": {
+          "$ref": "common.json#/$defs/uint"
+        },
+        "conversion_us": {
+          "$ref": "common.json#/$defs/int_or_cel"
+        },
+        "watchdog_ms": {
+          "$ref": "common.json#/$defs/uint"
+        }
+      },
+      "additionalProperties": false
+    },
+    "safety": {
+      "$ref": "safety.json"
+    },
+    "events": {
+      "$ref": "complex.json#/$defs/events"
+    },
+    "expose": {
+      "$ref": "expose.json#/$defs/expose"
+    },
+    "provides": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "i2c": {
+          "type": "object",
+          "properties": {
+            "write": {
+              "$ref": "common.json#/$defs/name"
+            },
+            "read": {
+              "$ref": "common.json#/$defs/name"
+            },
+            "write_read": {
+              "$ref": "common.json#/$defs/name"
+            },
+            "max_transfer": {
+              "$ref": "common.json#/$defs/uint"
+            },
+            "speeds_hz": {
+              "type": "array",
+              "items": {
+                "$ref": "common.json#/$defs/uint"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "write",
+            "read"
+          ],
+          "additionalProperties": false
+        },
+        "spi": {
+          "type": "object",
+          "properties": {
+            "transfer": {
+              "$ref": "common.json#/$defs/name"
+            },
+            "max_transfer": {
+              "$ref": "common.json#/$defs/uint"
+            },
+            "modes": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  0,
+                  1,
+                  2,
+                  3
+                ]
+              }
+            }
+          },
+          "required": [
+            "transfer"
+          ],
+          "additionalProperties": false
+        },
+        "uart": {
+          "type": "object",
+          "properties": {
+            "write": {
+              "$ref": "common.json#/$defs/name"
+            },
+            "read": {
+              "$ref": "common.json#/$defs/name"
+            },
+            "set_baud": {
+              "$ref": "common.json#/$defs/name"
+            }
+          },
+          "required": [
+            "write",
+            "read"
+          ],
+          "additionalProperties": false
+        },
+        "gpio": {
+          "type": "object",
+          "properties": {
+            "set": {
+              "$ref": "common.json#/$defs/name"
+            },
+            "get": {
+              "$ref": "common.json#/$defs/name"
+            },
+            "lines": {
+              "$ref": "common.json#/$defs/u8"
+            }
+          },
+          "required": [
+            "set",
+            "get",
+            "lines"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "tests": {
+      "$ref": "expose.json#/$defs/tests"
+    },
+    "visibility": {
+      "$ref": "expose.json#/$defs/visibility"
+    },
+    "memory": {
+      "$ref": "complex.json#/$defs/memory"
+    },
+    "queues": {
+      "$ref": "complex.json#/$defs/queues"
+    },
+    "interrupts": {
+      "$ref": "complex.json#/$defs/interrupts"
+    },
+    "streams": {
+      "$ref": "complex.json#/$defs/streams"
+    },
+    "firmware": {
+      "$ref": "complex.json#/$defs/firmware"
+    },
+    "logic": {
+      "$ref": "complex.json#/$defs/logic"
+    },
+    "hints": {
+      "$ref": "complex.json#/$defs/hints"
+    }
+  },
+  "patternProperties": {
+    "^x-": true
+  },
+  "additionalProperties": false
+}

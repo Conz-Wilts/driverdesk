@@ -1,0 +1,29 @@
+# The smallest useful description: one USB device, one command, one channel, one test.
+spec: driverdesk/0.1
+device:
+  id: example.minimal
+  name: Minimal counter
+  vendor: { name: Example Labs, prefix: example }
+  version: 0.1.0
+  classes: [sensor.generic]
+match:
+  - bus: usb
+    vid: 0x1209
+    pid: 0x0002
+    interface_class: 0xFF
+transport:
+  usb:
+    interface: 0
+commands:
+  read_count:
+    reads_only: true
+    steps:
+      - control: { direction: in, type: vendor, recipient: interface, request: 0x01, value: 0, index: 0, length: 4 }
+        as: reply
+    output:
+      count: { cel: "le32(reply, 0)", unit: "1" }
+    timeout_ms: 50
+expose:
+  - { class: sensor.generic, channel: count0, read: read_count.count }
+tests:
+  - { name: count_is_non_negative, call: read_count, expect: { count: { between: [0, 4294967295] } } }

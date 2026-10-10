@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/profiles/input.keyboard.json",
+  "title": "Class profile input.keyboard",
+  "x-stability": "provisional",
+  "x-requires": "event",
+  "type": "object",
+  "required": [
+    "expose"
+  ]
+}

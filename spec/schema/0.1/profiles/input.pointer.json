@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/profiles/input.pointer.json",
+  "title": "Class profile input.pointer",
+  "x-stability": "provisional",
+  "x-requires": "event",
+  "type": "object",
+  "required": [
+    "expose"
+  ]
+}

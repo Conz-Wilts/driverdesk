@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/profiles/storage.block.json",
+  "title": "Class profile storage.block",
+  "x-stability": "provisional",
+  "x-requires": "queues",
+  "type": "object",
+  "required": [
+    "queues"
+  ]
+}

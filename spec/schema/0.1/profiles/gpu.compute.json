@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/profiles/gpu.compute.json",
+  "title": "Class profile gpu.compute",
+  "x-stability": "provisional",
+  "x-requires": "queues",
+  "type": "object",
+  "required": [
+    "queues"
+  ]
+}

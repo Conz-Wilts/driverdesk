@@ -1,0 +1,85 @@
+# pico-bridge: a Pico 2 running bridge firmware that gives the host an I2C bus over USB.
+# One bridge description serves every I2C chip description (transport stacking, §6.7).
+spec: driverdesk/0.1
+device:
+  id: example.pico-bridge
+  name: Pico USB-to-I2C bridge
+  vendor: { name: Example Labs, prefix: example }
+  version: 0.1.0
+  classes: [bridge.i2c]
+  license: CC0-1.0
+match:
+  - bus: usb
+    vid: 0x1209
+    pid: 0x0003
+    interface_class: 0xFF
+transport:
+  usb:
+    interface: 0
+    endpoints:
+      out: { address: 0x02, type: bulk, max_packet: 64 }
+      in:  { address: 0x82, type: bulk, max_packet: 64 }
+    os_descriptors: { winusb: true }
+  framing:
+    - { name: header,  type: u8 }
+    - { name: length,  type: u8, counts: payload }
+    - { name: payload, type: bytes(length) }
+    - { name: check,   checksum: crc8-smbus, over: [header, length, payload] }
+commands:
+  set_speed:
+    args:
+      hz: { type: u32, unit: Hz, enum: [100000, 400000] }
+    send:   { header: 0x30, payload: [ { hz: u32le } ] }
+    expect: { header: 0xB0 }
+    timeout_ms: 20
+  write_i2c:
+    args:
+      addr: { type: u8, min: 0x08, max: 0x77 }
+      data: { type: u8 }
+    steps:
+      - send: { header: 0x40, payload: [ { addr: u8 }, { data: bytes } ] }
+      - receive: { header: 0xC0, payload: [ { status: u8 } ] }
+        as: r
+      - { check: "r.status == 0", error: "I2C NAK or bus error", layer: transport }
+    timeout_ms: 50
+  read_i2c:
+    args:
+      addr:   { type: u8, min: 0x08, max: 0x77 }
+      length: { type: u8, min: 1, max: 60 }
+    steps:
+      - send: { header: 0x41, payload: [ { addr: u8 }, { length: u8 } ] }
+      - receive: { header: 0xC1, payload: [ { status: u8 }, { data: bytes } ] }
+        as: r
+      - { check: "r.status == 0", error: "I2C NAK or bus error", layer: transport }
+    output:
+      data: { cel: "r.data" }
+    timeout_ms: 50
+  write_read_i2c:
+    args:
+      addr:   { type: u8, min: 0x08, max: 0x77 }
+      length: { type: u8, min: 1, max: 60 }
+    steps:
+      - send: { header: 0x42, payload: [ { addr: u8 }, { length: u8 }, { data: bytes } ] }
+      - receive: { header: 0xC2, payload: [ { status: u8 }, { data: bytes } ] }
+        as: r
+      - { check: "r.status == 0", error: "I2C NAK or bus error", layer: transport }
+    output:
+      data: { cel: "r.data" }
+    timeout_ms: 50
+provides:
+  i2c:
+    write: write_i2c
+    read: read_i2c
+    write_read: write_read_i2c
+    max_transfer: 60
+    speeds_hz: [100000, 400000]
+safety:
+  limits:
+    write_i2c.addr: { min: 0x08, max: 0x77, reason: "addresses 0x00-0x07 and 0x78-0x7F are reserved by the I2C specification" }
+  rates:
+    write_i2c: 2000/s
+expose:
+  - { class: bridge.i2c, channel: i2c0, write: write_i2c }
+tests:
+  - { name: set_fast_mode, call: set_speed, args: { hz: 400000 }, expect: ok }
+  - { name: reserved_address_rejected, call: write_i2c, args: { addr: 0x03, data: 0 }, expect: rejected_by_safety }

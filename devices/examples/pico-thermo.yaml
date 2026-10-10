@@ -1,0 +1,70 @@
+# pico-thermo: a Raspberry Pi Pico 2 acting as a vendor-class USB device with an LED
+# and its on-chip temperature sensor. Firmware: firmware/pico-thermo (P1).
+spec: driverdesk/0.1
+device:
+  id: example.pico-thermo
+  name: Pico Thermo LED
+  vendor: { name: Example Labs, prefix: example }
+  version: 0.1.0
+  classes: [sensor.temperature, light.indicator]
+  license: CC0-1.0
+match:
+  - bus: usb
+    vid: 0x1209                    # pid.codes test ids for our own fixtures (ADR-0012)
+    pid: 0x0001
+    interface_class: 0xFF          # vendor-specific, so no OS driver claims it first
+transport:
+  usb:
+    interface: 0
+    endpoints:
+      out: { address: 0x01, type: bulk, max_packet: 64 }
+      in:  { address: 0x81, type: bulk, max_packet: 64 }
+    os_descriptors: { winusb: true }
+  framing:
+    - { name: header,  type: u8 }
+    - { name: length,  type: u8, counts: payload }
+    - { name: payload, type: bytes(length) }
+    - { name: check,   checksum: crc8-smbus, over: [header, length, payload] }
+commands:
+  hello:
+    send:   { header: 0x01 }
+    expect: { header: 0x81, payload: [ { proto: u8 }, { fw_major: u8 }, { fw_minor: u8 } ] }
+    output:
+      protocol: { cel: "proto", type: u8 }
+    timeout_ms: 50
+    retries: 2
+  read_temp:
+    send:   { header: 0x10 }
+    expect: { header: 0x90, payload: [ { raw: i16le } ] }
+    output:
+      celsius: { cel: "double(raw) / 100.0", unit: Cel }
+    timeout_ms: 50
+    retries: 2
+  set_led:
+    args:
+      trigger:    { type: bool }
+      level: { type: u8, unit: "%", min: 0, max: 100 }
+    send:   { header: 0x20, payload: [ { trigger: bool }, { level: u8 } ] }
+    expect: { header: 0xA0 }
+    timeout_ms: 50
+safety:
+  limits:
+    set_led.level: { max: 80, unit: "%", reason: "LED rated 20 mA at 3.3 V; 80% duty keeps average current under 16 mA" }
+  rates:
+    set_led: 100/s
+states:
+  initial: unbound
+  transitions:
+    - { from: unbound,    to: idle,   trigger: bind,  do: [ { call: hello, as: h }, { check: "h.protocol == 1", error: "unsupported firmware protocol" }, { wait_ms: 10 } ] }
+    - { from: idle,   to: active, trigger: request }
+    - { from: active, to: idle,   trigger: { idle_ms: 5000 } }
+    - { from: "*",    to: unbound,    trigger: unbind }
+expose:
+  - { class: sensor.temperature, channel: temp0, read: read_temp.celsius }
+  - { class: light.indicator,    channel: led0,  write: set_led }
+tests:
+  - { name: hello_protocol_1, call: hello, expect: { protocol: { equals: 1 } } }
+  - { name: room_temperature, call: read_temp, expect: { celsius: { between: [5, 45] } } }
+  - { name: led_on,  call: set_led, args: { trigger: true,  level: 50 }, expect: ok }
+  - { name: led_cap, call: set_led, args: { trigger: true,  level: 90 }, expect: rejected_by_safety }
+visibility: { default: public }

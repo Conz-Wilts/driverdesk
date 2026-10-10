@@ -1,0 +1,469 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driverdesk.dev/schema/0.1/complex.json",
+  "title": "Complex devices (\u00a720\u2013\u00a722), mostly provisional",
+  "$defs": {
+    "events": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "usb_interrupt": {
+                    "$ref": "common.json#/$defs/name"
+                  }
+                },
+                "required": [
+                  "usb_interrupt"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "hid_report": {
+                    "$ref": "common.json#/$defs/name"
+                  }
+                },
+                "required": [
+                  "hid_report"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "interrupt": {
+                    "$ref": "common.json#/$defs/name"
+                  }
+                },
+                "required": [
+                  "interrupt"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "poll": {
+                    "type": "object",
+                    "properties": {
+                      "command": {
+                        "$ref": "common.json#/$defs/name"
+                      },
+                      "every_ms": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "command",
+                      "every_ms"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "poll"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "frame": {
+                    "type": "object",
+                    "properties": {
+                      "header": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "header"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "frame"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "decode": {
+            "$ref": "common.json#/$defs/struct"
+          },
+          "output": {
+            "type": "object",
+            "propertyNames": {
+              "$ref": "common.json#/$defs/name"
+            },
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "cel": {
+                  "$ref": "common.json#/$defs/cel"
+                },
+                "unit": {
+                  "$ref": "common.json#/$defs/unit"
+                },
+                "type": {
+                  "$ref": "common.json#/$defs/scalar_type"
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "cel"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "rate_hint_hz": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        },
+        "required": [
+          "source"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "interrupts": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "enum": [
+              "msi",
+              "msix",
+              "intx",
+              "gpio"
+            ]
+          },
+          "vector": {
+            "$ref": "common.json#/$defs/uint"
+          },
+          "status": {
+            "$ref": "common.json#/$defs/path"
+          },
+          "ack": {
+            "type": "object",
+            "properties": {
+              "write": {
+                "$ref": "common.json#/$defs/reg_name"
+              },
+              "value": {
+                "$ref": "common.json#/$defs/int_or_cel"
+              }
+            },
+            "required": [
+              "write",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "memory": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "size": {
+            "$ref": "common.json#/$defs/int_or_cel"
+          },
+          "align": {
+            "$ref": "common.json#/$defs/uint"
+          },
+          "direction": {
+            "enum": [
+              "to_device",
+              "from_device",
+              "bidirectional"
+            ]
+          },
+          "dma": {
+            "type": "boolean"
+          },
+          "coherent": {
+            "type": "boolean"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "size",
+          "direction"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "queues": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "memory": {
+            "$ref": "common.json#/$defs/name"
+          },
+          "entry": {
+            "$ref": "common.json#/$defs/name"
+          },
+          "depth": {
+            "$ref": "common.json#/$defs/int_or_cel"
+          },
+          "producer": {
+            "enum": [
+              "host",
+              "device"
+            ]
+          },
+          "doorbell": {
+            "type": "object",
+            "properties": {
+              "write": {
+                "$ref": "common.json#/$defs/reg_name"
+              },
+              "value": {
+                "$ref": "common.json#/$defs/int_or_cel"
+              }
+            },
+            "required": [
+              "write",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "head": {
+            "oneOf": [
+              {
+                "$ref": "common.json#/$defs/reg_name"
+              },
+              {
+                "$ref": "common.json#/$defs/cel_obj"
+              }
+            ]
+          },
+          "tail": {
+            "oneOf": [
+              {
+                "$ref": "common.json#/$defs/reg_name"
+              },
+              {
+                "$ref": "common.json#/$defs/cel_obj"
+              }
+            ]
+          },
+          "phase_bit": {
+            "$ref": "common.json#/$defs/path"
+          },
+          "pair": {
+            "$ref": "common.json#/$defs/name"
+          }
+        },
+        "required": [
+          "memory",
+          "entry",
+          "depth",
+          "producer"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "streams": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.json#/$defs/name"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "direction": {
+            "enum": [
+              "in",
+              "out"
+            ]
+          },
+          "source": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "endpoint": {
+                    "$ref": "common.json#/$defs/name"
+                  }
+                },
+                "required": [
+                  "endpoint"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "queue": {
+                    "$ref": "common.json#/$defs/name"
+                  }
+                },
+                "required": [
+                  "queue"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "format": {
+            "type": "string"
+          },
+          "rate": {
+            "$ref": "common.json#/$defs/int_or_cel"
+          },
+          "unit": {
+            "$ref": "common.json#/$defs/unit"
+          },
+          "frame": {
+            "$ref": "common.json#/$defs/field_type"
+          },
+          "buffers": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "direction",
+          "source",
+          "format"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "firmware": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "$ref": "common.json#/$defs/name"
+          },
+          "sha256": {
+            "$ref": "common.json#/$defs/sha256"
+          },
+          "size": {
+            "$ref": "common.json#/$defs/uint"
+          },
+          "source": {
+            "enum": [
+              "lvfs",
+              "registry",
+              "url"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "load": {
+            "$ref": "common.json#/$defs/name"
+          }
+        },
+        "required": [
+          "name",
+          "sha256",
+          "source",
+          "load"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "logic": {
+      "type": "object",
+      "properties": {
+        "module": {
+          "type": "object",
+          "properties": {
+            "oci": {
+              "type": "string"
+            },
+            "digest": {
+              "$ref": "common.json#/$defs/sha256"
+            }
+          },
+          "required": [
+            "oci",
+            "digest"
+          ],
+          "additionalProperties": false
+        },
+        "world": {
+          "type": "string"
+        },
+        "exports": {
+          "type": "array",
+          "items": {
+            "$ref": "common.json#/$defs/name"
+          }
+        },
+        "permissions": {
+          "type": "object",
+          "properties": {
+            "commands": {
+              "type": "array",
+              "items": {
+                "$ref": "common.json#/$defs/name"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "limits": {
+          "type": "object",
+          "properties": {
+            "fuel": {
+              "$ref": "common.json#/$defs/uint"
+            },
+            "memory_bytes": {
+              "$ref": "common.json#/$defs/uint"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "module",
+        "world"
+      ],
+      "additionalProperties": false
+    },
+    "hints": {
+      "type": "object"
+    }
+  }
+}

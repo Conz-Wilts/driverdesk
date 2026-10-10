@@ -1,0 +1,109 @@
+# ILLUSTRATIVE, PROVISIONAL: the admin path of an NVMe controller (NVM Express Base
+# Specification 2.x §3.1 registers, §3.5 initialization, §5.17 Identify). Shows how §20
+# (memory, queues) describes a DMA, queue-driven PCIe device. Not yet runnable (R4).
+spec: driverdesk/0.1
+device:
+  id: example.nvme-admin
+  name: NVMe controller (admin queue only)
+  vendor: { name: Example Labs, prefix: example }
+  version: 0.0.1
+  classes: [storage.block]
+  license: CC0-1.0
+match:
+  - bus: pci
+    class: 0x010802            # mass storage / non-volatile memory / NVM Express
+transport:
+  pci:
+    bars:
+      regs: { index: 0, kind: mmio, size: 0x4000 }
+    requires_iommu: true
+    msix: 1
+types:
+  sqe:
+    - { opcode: u8 }
+    - { flags: u8 }
+    - { cid: u16le }
+    - { nsid: u32le }
+    - { rsvd: u64le }
+    - { mptr: u64le }
+    - { prp1: u64le }
+    - { prp2: u64le }
+    - { cdw10: u32le }
+    - { cdw11: u32le }
+    - { cdw12: u32le }
+    - { cdw13: u32le }
+    - { cdw14: u32le }
+    - { cdw15: u32le }
+  cqe:
+    - { dw0: u32le }
+    - { dw1: u32le }
+    - { sq_head: u16le }
+    - { sq_id: u16le }
+    - { cid: u16le }
+    - { status: u16le }
+registers:
+  config: { reg_bits: 32, val_bits: 32, byte_order: le, space: regs }
+  map:
+    CAP:  { address: 0x00, bits: 64, access: ro, volatile: false, fields: { mqes: { bits: "15:0" }, to: { bits: "31:24" }, dstrd: { bits: "35:32" } } }
+    VS:   { address: 0x08, access: ro, volatile: false }
+    CC:
+      address: 0x14
+      access: rw
+      fields:
+        en:     { bits: "0" }
+        css:    { bits: "6:4" }
+        mps:    { bits: "10:7" }
+        shn:    { bits: "15:14" }
+        iosqes: { bits: "19:16" }
+        iocqes: { bits: "23:20" }
+    CSTS: { address: 0x1C, access: ro, fields: { rdy: { bits: "0" }, cfs: { bits: "1" }, shst: { bits: "3:2" } } }
+    AQA:  { address: 0x24, access: rw, fields: { asqs: { bits: "11:0" }, acqs: { bits: "27:16" } } }
+    ASQ:  { address: 0x28, bits: 64, access: rw }
+    ACQ:  { address: 0x30, bits: 64, access: rw }
+    SQ0TDBL: { address: 0x1000, access: wo }
+    CQ0HDBL: { address: 0x1004, access: wo }
+memory:
+  asq:      { size: 4096, align: 4096, direction: to_device, dma: true }
+  acq:      { size: 4096, align: 4096, direction: from_device, dma: true }
+  identify: { size: 4096, align: 4096, direction: from_device, dma: true }
+queues:
+  admin_sq: { memory: asq, entry: sqe, depth: 64, producer: host, doorbell: { write: SQ0TDBL, value: "tail" }, pair: admin_cq }
+  admin_cq: { memory: acq, entry: cqe, depth: 64, producer: device, doorbell: { write: CQ0HDBL, value: "head" }, phase_bit: cqe.status }
+interrupts:
+  admin: { kind: msix, vector: 0 }
+sequences:
+  init:
+    - { update: CC, fields: { en: 0 } }
+    - { read: CAP.to, as: to }
+    - { poll: CSTS.rdy, until: "value == 0", interval_us: 1000, timeout_ms: 30000 }
+    - { write: AQA, value: { cel: "bor(shl(63, 16), 63)" } }
+    - { dma_addr: asq, as: asq_addr }
+    - { dma_addr: acq, as: acq_addr }
+    - { write: ASQ, value: { cel: "asq_addr" } }
+    - { write: ACQ, value: { cel: "acq_addr" } }
+    - { update: CC, fields: { css: 0, mps: 0, iosqes: 6, iocqes: 4, en: 1 } }
+    - { poll: CSTS.rdy, until: "value == 1", interval_us: 1000, timeout_ms: 30000 }
+  shutdown:
+    - { update: CC, fields: { shn: 1 } }
+    - { poll: CSTS.shst, until: "value == 2", interval_us: 1000, timeout_ms: 10000 }
+commands:
+  identify_controller:
+    reads_only: true
+    steps:
+      - { dma_addr: identify, as: buf }
+      - enqueue: admin_sq
+        entry: { opcode: 0x06, cid: 1, nsid: 0, prp1: { cel: "buf" }, cdw10: 1 }
+        as: slot
+      - { await: admin_cq, match: "cqe.cid == 1", timeout_ms: 1000, as: done }
+      - { check: "shr(done.status, 1) == 0", error: "Identify failed", layer: transport }
+      - { read_memory: identify, offset: 24, length: 40, as: model_raw }
+    output:
+      model: { cel: "string(model_raw)" }
+    timeout_ms: 2000
+expose:
+  - { class: storage.block, channel: ctrl0, read: identify_controller.model }
+safety:
+  registers:
+    CC.shn: { allowed: [0, 1], reason: "abrupt shutdown (2) risks data loss; normal shutdown only" }
+tests:
+  - { name: identify_has_model, call: identify_controller, expect: { cel: "size(model) > 0" }, rung: [hil] }
