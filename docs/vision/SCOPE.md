@@ -4,7 +4,7 @@
 
 ## Goal
 
-**One place where hardware drivers live, get tested against every operating system, and connect to any OS.**
+**One place where hardware drivers live, get tested against every operating system, and connect to any OS — eventually for every device class (ADR-0013).**
 
 - Hardware makers upload a driver once (as a description + optional logic module) and see it tested on every supported OS.
 - OS writers implement one small host interface and immediately get the whole driver catalogue, plus a test service that tells them which drivers work on their OS and why the others don't.
@@ -47,9 +47,13 @@ The kernel stops being the place where device-specific code accumulates. Drivers
 
 **In scope (until R3):** USB, HID, serial, I²C/SPI behind bridges, PCI via VFIO (R2); device classes sensors, actuators, instruments, input, serial, simple network/audio/camera/storage via userspace surfaces.
 
-**Out of scope until R4 (or never):** GPUs, high-speed NIC/NVMe data paths, boot-critical devices, firmware updating (LVFS/fwupd already does this well — integrate, don't compete), Wi-Fi beyond fullMAC.
+**Later (R4+, in this order — ADR-0013):** boot-critical devices (generated native drivers + on-device descriptions), high-speed NVMe/NIC data paths (kernel-bypass via VFIO/IOMMU), full Wi-Fi, GPUs (display → compute → shared desktop). Long-term goal: every device class.
+
+**Integrate, don't build:** firmware updating (LVFS/fwupd).
 
 **Never:** a stable in-kernel driver ABI demand on Linux; closed code inside kernels; DRM-style secrecy promises for "private" drivers.
+
+**Execution targets:** a description is target-neutral data. It can be run by the DriverDesk runtime (default), compiled to a native driver (kernel module, DriverKit, UMDF, microkernel driver), or drive a kernel-bypass data path — chosen per device, OS or user.
 
 ## Success measures
 

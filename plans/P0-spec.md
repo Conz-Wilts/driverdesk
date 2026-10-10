@@ -63,6 +63,7 @@ Claim: a precise, versioned device-description standard exists, a validator enfo
 
 ## Risks and debugging hints
 
+- **Target-neutral (ADR-0013)**: nothing in the description may assume it is interpreted only by our runtime; it must also be compilable to native drivers later. Review P0.T2 against this.
 - **Spec bloat**: keep 0.1 to what P1–P2 need. Anything else goes in `spec/proposals/` for later versions.
 - **Span mapping** for schema errors is fiddly: build the span map as a `HashMap<JsonPointer, Span>` during parsing; test with deeply nested and flow-style YAML.
 - **CEL int vs double** surprises: CEL has no implicit numeric conversion; the linter should flag `raw / 100` when `raw` is int and the output unit expects double — suggest `double(raw) / 100.0`.
