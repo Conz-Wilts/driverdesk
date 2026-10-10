@@ -27,8 +27,8 @@ If hardware has not arrived, criteria 1–4 and 6 are enough to **start P0**. Cr
 
 - **R-B-1** How to load `dummy_hcd` + `raw_gadget` in GitHub Actions? · needed by B.T6 · Default: virtme-ng booting Ubuntu's generic kernel with `linux-modules-extra` (the approach used in hidapi's CI); build `dummy_hcd` from kernel source if not packaged. · Status: open (lead: hidapi PR #815 workflow)
 - **R-B-2** Can the virtual lab run locally on Apple Silicon? · needed by B.T6 (nice-to-have) · Default: no; run vlab locally on `lab-linux` over SSH, and in CI. · Status: open
-- **R-B-3** Which per-port-power USB hub is (a) supported by uhubctl, (b) currently buyable in the owner's country (infer from `defaults read -g AppleLocale`; likely New Zealand), (c) ≥4 ports, USB 2.0 or 3.x? · needed by B.T2 · Default: pick from uhubctl's README compatibility table, prefer models listed as "per-port" and recently confirmed. · Status: open
-- **R-B-4** Pico 2 (RP2350) support status in `probe-rs` and `embassy-rp` (versions, flashing via Debug Probe). · needed by B.T8 · Default: RP2350 supported by both; if not, fall back to Pico 1 (RP2040) which is certainly supported. · Status: open
+- **R-B-3** Which per-port-power USB hub is (a) supported by uhubctl, (b) currently buyable in the owner's country (infer from `defaults read -g AppleLocale`; likely New Zealand), (c) ≥4 ports, USB 2.0 or 3.x? · needed by B.T2 · Default: pick from uhubctl's README compatibility table, prefer models listed as "per-port" and recently confirmed. · Answered: R-002
+- **R-B-4** Pico 2 (RP2350) support status in `probe-rs` and `embassy-rp` (versions, flashing via Debug Probe). · needed by B.T8 · Default: RP2350 supported by both; if not, fall back to Pico 1 (RP2040) which is certainly supported. · Answered: R-003
 - **R-B-5** GitHub self-hosted runner on Raspberry Pi 5 (arm64 Linux) and Windows on ARM vs x86 — supported architectures. · needed by B.T7 · Default: linux-arm64 and win-x64 runners are supported. · Status: open
 
 ## Tasks
@@ -36,7 +36,7 @@ If hardware has not arrived, criteria 1–4 and 6 are enough to **start P0**. Cr
 - [x] **B.T1 Repository skeleton** (deps: —)
   - Do: `.gitignore` (Rust, Python, node, `.env*`, `cache/`, `spikes/*` except README), `LICENSE` (Apache-2.0 full text), `spec/LICENSE` (CC-BY-4.0), `NOTICE`, `README.md` (one-paragraph pitch + status + link to north star), `CONTRIBUTING.md` (DCO sign-off, conventional commits), `SECURITY.md` (private reporting via GitHub advisories), `CODE_OF_CONDUCT.md` (Contributor Covenant). Fetch licence texts from their official sources (research gate: licence texts).
   - Accept: files exist; `git log` has a signed-off commit.
-- [>] **B.T2 Hardware shopping list** (deps: —) — *do this first in practice: shipping takes the longest*
+- [x] **B.T2 Hardware shopping list** (deps: —) — *do this first in practice: shipping takes the longest*
   - Do: resolve R-B-3, R-B-4. Produce H-001 in `progress/HUMAN-ACTIONS.md`: exact products, links from a retailer that ships to the owner, quantities, prices, total. Baseline list: 3× Raspberry Pi Pico 2 with headers; 2× Raspberry Pi Debug Probe; 1× Raspberry Pi 5 (8 GB) + official PSU + 64 GB microSD or NVMe; 1× x86 mini PC with Windows 11 (N100-class); 3× uhubctl-compatible per-port-power hubs; BME280 and TMP117 breakouts (STEMMA QT/Qwiic) ×2 each; Qwiic-to-header cables; breadboards, jumper wires; 5× 3 mm LEDs + 330 Ω resistors; 4× good USB-C/micro-USB data cables. Leave P5/P6 devices for those stages.
   - Accept: H-001 written; budget total stated; each item has a reason.
 - [x] **B.T3 Toolchain on the Mac** (deps: —)
