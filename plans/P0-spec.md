@@ -1,6 +1,6 @@
 # P0 — The spec and the yardstick
 
-- Status: in progress
+- Status: **gate passed 2026-10-10** (docs/reports/P0.md)
 - Depends on: B.T1–B.T5
 - Branch: `stage/p0`
 - Estimate: 2 weeks
@@ -59,7 +59,7 @@ Claim: a precise, versioned device-description standard exists, a validator enfo
   - Do: 50 chips with a public datasheet AND a mainline Linux driver, spread across: temperature/humidity/pressure (IIO, hwmon), accelerometers/gyros (IIO), ADCs/DACs, light sensors, GPIO expanders, RTCs, LED drivers. Prefer I²C (works with our bridge). For each: datasheet URL + SHA-256 (download to `cache/`, gitignored), Linux driver path + commit. `cargo xtask bench-check` verifies URLs and hashes. Random 35/15 split with recorded seed.
   - Accept: exit criterion 6.
 - [x] **P0.T11 Docs site** (deps: P0.T3) — mdBook in `docs/book/`: intro, tutorial, spec rendered, error code pages (each lint rule = one page, linked from diagnostics). Exit criterion 7.
-- [ ] **P0.T12 Gate** — `/gate P0`.
+- [x] **P0.T12 Gate** — `/gate P0`.
 
 ## Risks and debugging hints
 
