@@ -1,5 +1,7 @@
 # Stage plans
 
+Every stage traces back to `docs/vision/SCOPE.md` (what we build, for whom).
+
 Each stage proves one claim. Each has numbered tasks with acceptance criteria, research questions with **defaults** (so research never blocks progress), and a gate.
 
 | Stage | Claim proven | Depends on | Est. (Claude-driven) | File |
@@ -13,7 +15,8 @@ Each stage proves one claim. Each has numbered tasks with acceptance criteria, r
 | **P5** | Unmodified apps see the device as a native OS device | P2 | 2–3 weeks | `P5-native-surfaces.md` |
 | **P6** | Works without the vendor: traffic → working driver | P3, P1 | 3–4 weeks | `P6-trace.md` |
 | **P7** | Vendor logic is private-ish, portable and contained | P2 | 3 weeks | `P7-logic-sandbox.md` |
-| **R1** | Alpha with design partners + hosted cloud alpha | P0–P7 gates | months 7–13 | `R1-alpha.md` |
+| **P8** | An OS writer can port the runtime and test their OS against the whole catalogue | P4, P7 | 3–4 weeks | `P8-os-porting-kit.md` |
+| **R1** | Alpha with design partners + hosted cloud alpha | P0–P8 gates | months 7–13 | `R1-alpha.md` |
 | **R2** | Public beta, billing, PCI, distro packaging, spec 1.0 | R1 | months 13–20 | `R2-beta.md` |
 | **R3** | 1.0, kernel driver generation, foundation | R2 | months 20–36 | `R3-v1.md` |
 | **R4** | Platform: complex classes, on-device descriptions | R3 | years 3–5 | `R4-platform.md` |
@@ -27,7 +30,9 @@ flowchart LR
   P2 --> P7
   P3 --> P6
   P1 --> P6
-  P4 & P5 & P6 & P7 --> R1 --> R2 --> R3 --> R4
+  P4 --> P8
+  P7 --> P8
+  P5 & P6 & P8 --> R1 --> R2 --> R3 --> R4
 ```
 
 Parallelism: after P1, the order P2 → P3 → P4 → P5 → P6 → P7 is the default, but when one stage is blocked on hardware or a human action, work on any other stage whose dependencies are met.

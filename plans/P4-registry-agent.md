@@ -16,7 +16,8 @@ Claim: a description can be published privately and signed, and on a fresh machi
 5. **Revocation** propagates: revoke on the node → running agent stops the driver within the configured refresh interval (default 5 min; test with 10 s).
 6. **Offline bundle**: `dd bundle create` + `dd bundle import` on an air-gapped vlab VM; works with no network; bundle expiry enforced.
 7. **Privacy**: agent lookups contain only the match key and the TUF snapshot version — no user/machine identifiers. Asserted by a test that inspects requests.
-8. Threat model `docs/security/threat-model.md` (STRIDE per component) and `security-review` skill run over the stage diff; all high findings fixed.
+8. **Client protocol spec** `spec/client-protocol-0.1.md`: everything an independent agent needs (lookup by match key, OCI pulls, TUF roles and expiry, Sigstore verification policy, private-content decryption, offline bundle format, privacy rules), precise enough that P8 builds a second implementation from it alone.
+9. Threat model `docs/security/threat-model.md` (STRIDE per component) and `security-review` skill run over the stage diff; all high findings fixed.
 
 ## Pre-made decisions
 
@@ -48,7 +49,8 @@ Claim: a description can be published privately and signed, and on a fresh machi
 - [ ] **P4.T8 Offline bundles** — exit criterion 6.
 - [ ] **P4.T9 Security suite + privacy test** — exit criteria 4, 5, 7.
 - [ ] **P4.T10 Plug-and-play HIL** — exit criterion 3 on vlab and `lab-linux`.
-- [ ] **P4.T11 Threat model + security review + gate** — exit criterion 8, `/gate P4`.
+- [ ] **P4.T10b Client protocol spec** — exit criterion 8; written from the implementation, reviewed by a subagent that must answer 20 implementer questions from the spec alone.
+- [ ] **P4.T11 Threat model + security review + gate** — exit criterion 9, `/gate P4`.
 
 ## Risks and debugging hints
 

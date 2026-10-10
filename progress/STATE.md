@@ -22,5 +22,6 @@
 (none yet — see each plan's Research questions)
 
 ## Session log (newest first)
+- **2026-10-10** — Added docs/vision/SCOPE.md (three users: hardware makers, OS writers, every OS) and stage P8 (OS porting kit, OS conformance, catalogue runs, second client). P4 gains a client protocol spec; R1 gains an OS developer portal.
 
-- **2026-10-10** — Planning session. Created operating manual (CLAUDE.md), autonomy protocols (docs/autonomy), stage plans B, P0–P7, R1–R4, ADR-0001…0012, research note R-001, human action queue, project skills (/next /research /debug /decide /gate). North star: docs/vision/driverdesk-plan.html. No code yet.
+- **2026-10-10** — Planning session. Created operating manual (CLAUDE.md), autonomy protocols (docs/autonomy), stage plans B, P0–P8, R1–R4, ADR-0001…0012, research note R-001, human action queue, project skills (/next /research /debug /decide /gate). North star: docs/vision/driverdesk-plan.html. No code yet.

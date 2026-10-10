@@ -2,7 +2,7 @@
 
 DriverDesk is an open-source platform where device drivers are **data** (a YAML description) plus optional **sandboxed logic** (Wasm), run by a portable Rust runtime on any OS, distributed through a signed registry, and authored mostly by AI. A hosted cloud (Supabase-style) is the business.
 
-North-star plan: `docs/vision/driverdesk-plan.html` (also published at https://claude.ai/artifact/2K9JMEXWe75yPZrZ6H8z3v). Accepted decisions: `docs/decisions/`. Do not re-argue either without new evidence (see DECIDING).
+Product scope (what we build, for whom): `docs/vision/SCOPE.md`. North-star plan: `docs/vision/driverdesk-plan.html` (also published at https://claude.ai/artifact/2K9JMEXWe75yPZrZ6H8z3v). Accepted decisions: `docs/decisions/`. Do not re-argue either without new evidence (see DECIDING).
 
 ## Autonomy contract
 
@@ -63,7 +63,7 @@ Task checkbox states: `[ ]` todo · `[>]` in progress · `[x]` done · `[~]` don
 
 ```
 CLAUDE.md                 this file
-plans/                    one file per stage: B, P0–P7, R1–R4 (README.md = index + dependency graph)
+plans/                    one file per stage: B, P0–P8, R1–R4 (README.md = index + dependency graph)
 progress/STATE.md         where we are, current task, session log
 progress/HUMAN-ACTIONS.md queue of things only a person can do
 docs/autonomy/            protocols: RESEARCHING, DECIDING, TESTING, DEBUGGING, LAB
