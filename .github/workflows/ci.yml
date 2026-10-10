@@ -51,11 +51,26 @@ jobs:
           echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
       - run: cargo xtask ci
 
+  book:
+    name: book (mdBook, error pages up to date)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install Rust toolchain (rust-toolchain.toml)
+        run: rustup show active-toolchain || rustup toolchain install
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: mdbook
+      - run: cargo xtask docs
+      - name: Generated error pages are committed
+        run: git diff --exit-code -- docs/book/src/errors
+
   ci:
     # Single required check for branch protection.
     name: ci
-    needs: xtask-ci
+    needs: [xtask-ci, book]
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - run: test "${{ needs.xtask-ci.result }}" = success
+      - run: test "${{ needs.xtask-ci.result }}" = success && test "${{ needs.book.result }}" = success

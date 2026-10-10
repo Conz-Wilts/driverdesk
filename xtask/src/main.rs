@@ -1,5 +1,7 @@
 //! Project commands: `cargo xtask <doctor|ci|gate|vlab>` (ADR-0007).
 
+mod bench_check;
+mod docs;
 mod gate;
 mod spec_check;
 
@@ -16,6 +18,8 @@ commands:
   ci            fmt --check, clippy -D warnings, nextest, cargo-deny, gitleaks, ai tests
   gate <ID>     list the exit criteria of stage <ID> (scripted checks arrive per stage)
   spec-check    cross-check spec text, schemas, examples and fixtures (P0)
+  docs          regenerate docs/book error pages and build the book (needs mdbook)
+  bench-check   verify benchmark/chips.yaml; --online re-downloads datasheets (P0)
   vlab -- <cmd> run <cmd> inside the virtual USB lab (B.T6)";
 
 fn main() -> ExitCode {
@@ -39,6 +43,11 @@ fn run() -> Result<()> {
             gate::print_exit_criteria(&root, id)
         }
         Some("spec-check") => spec_check::run(&root),
+        Some("docs") => {
+            docs::run(&root)?;
+            step(&root.join("docs/book"), "mdbook", &["mdbook", "build"])
+        }
+        Some("bench-check") => bench_check::run(&root, args.iter().any(|a| a == "--online")),
         Some("vlab") => bail!("vlab is not implemented yet (B.T6)"),
         Some("-h" | "--help" | "help") | None => {
             println!("{USAGE}");

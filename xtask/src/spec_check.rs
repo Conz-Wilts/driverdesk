@@ -169,6 +169,38 @@ pub fn run(root: &Path) -> Result<()> {
         emitted.len()
     );
 
+    // 6. docs: every code has guidance and a book page; the tutorial assembles to a valid file
+    for c in &documented {
+        if !crate::docs::GUIDE.iter().any(|(g, _, _)| g == c) {
+            failures.push(format!("code {c} has no guidance in xtask/src/docs.rs"));
+        }
+        if !root.join(format!("docs/book/src/errors/{c}.md")).exists() {
+            failures.push(format!(
+                "code {c} has no page docs/book/src/errors/{c}.md (run `cargo xtask docs`)"
+            ));
+        }
+    }
+    let tutorial = std::fs::read_to_string(root.join("docs/book/src/tutorial.md"))
+        .context("reading tutorial")?;
+    let assembled: String = yaml_blocks(&tutorial).into_iter().map(|(_, b)| b).collect();
+    let r = dd_spec::validate(&assembled);
+    if r.is_valid() {
+        println!(
+            "tutorial assembles to a valid description ({} warnings)",
+            r.warnings()
+        );
+    } else {
+        let codes: Vec<&str> = r
+            .diagnostics
+            .iter()
+            .filter(|d| d.severity == dd_spec::Severity::Error)
+            .map(|d| d.code)
+            .collect();
+        failures.push(format!(
+            "the tutorial's YAML blocks do not assemble to a valid description: {codes:?}"
+        ));
+    }
+
     if failures.is_empty() {
         println!("\nspec-check: all green");
         Ok(())

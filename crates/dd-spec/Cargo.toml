@@ -22,3 +22,4 @@ thiserror = "2"
 
 [dev-dependencies]
 insta = { version = "1.49", features = ["glob"] }
+proptest = "1"

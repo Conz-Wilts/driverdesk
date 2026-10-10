@@ -30,3 +30,9 @@ spikes/*
 .DS_Store
 .idea/
 .vscode/
+
+# cargo-fuzz
+fuzz/target/
+fuzz/corpus/
+fuzz/artifacts/
+fuzz/Cargo.lock
