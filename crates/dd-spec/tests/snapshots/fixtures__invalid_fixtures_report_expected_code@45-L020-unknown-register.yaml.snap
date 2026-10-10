@@ -1,0 +1,16 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/45-L020-unknown-register.yaml
+---
+DD-L020 (https://driverdesk.dev/errors/DD-L020)
+
+  × unknown register `TEMPERATURE`
+    ╭─[45-L020-unknown-register.yaml:39:17]
+ 38 │     steps:
+ 39 │       - { read: TEMPERATURE, as: raw }
+    ·                 ─────┬─────
+    ·                      ╰── not in registers.map
+ 40 │     output:
+    ╰────
+  help: declare it under `registers.map` (spec §8)

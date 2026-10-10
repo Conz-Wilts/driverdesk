@@ -1,0 +1,28 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/32-L008-test-unknown-command.yaml
+---
+DD-L008 (https://driverdesk.dev/errors/DD-L008)
+
+  × unknown command `read_temperature`
+    ╭─[32-L008-test-unknown-command.yaml:54:37]
+ 53 │ tests:
+ 54 │   - { name: room_temperature, call: read_temperature, expect: { celsius: { between: [5, 45] } } }
+    ·                                     ────────┬───────
+    ·                                             ╰── not declared
+ 55 │   - { name: led_cap, call: set_led, args: { enabled: true, level: 90 }, expect: rejected_by_safety }
+    ╰────
+  help: declared: read_temp, set_led
+DD-L016 (https://driverdesk.dev/errors/DD-L016)
+
+  ⚠ safety block is not signed
+    ╭─[32-L008-test-unknown-command.yaml:41:1]
+ 40 │     timeout_ms: 50
+ 41 │ safety:
+    · ───┬──
+    ·    ╰── unsigned
+ 42 │   limits:
+    ╰────
+  help: fine for local development; the registry refuses to publish vendor descriptions with an
+        unsigned safety block (spec §14.6)

@@ -1,0 +1,28 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/24-L002-undefined-state.yaml
+---
+DD-L002 (https://driverdesk.dev/errors/DD-L002)
+
+  × transition uses undefined state `sleeping`
+    ╭─[24-L002-undefined-state.yaml:48:27]
+ 47 │   transitions:
+ 48 │     - { from: active, to: sleeping, trigger: suspend }
+    ·                           ────┬───
+    ·                               ╰── not in states.list
+ 49 │     - { from: unbound, to: idle,   trigger: bind }
+    ╰────
+  help: declared states: active, idle, unbound
+DD-L016 (https://driverdesk.dev/errors/DD-L016)
+
+  ⚠ safety block is not signed
+    ╭─[24-L002-undefined-state.yaml:41:1]
+ 40 │     timeout_ms: 50
+ 41 │ safety:
+    · ───┬──
+    ·    ╰── unsigned
+ 42 │   limits:
+    ╰────
+  help: fine for local development; the registry refuses to publish vendor descriptions with an
+        unsigned safety block (spec §14.6)

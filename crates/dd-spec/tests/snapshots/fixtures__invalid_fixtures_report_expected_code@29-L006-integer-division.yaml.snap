@@ -1,0 +1,28 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/29-L006-integer-division.yaml
+---
+DD-L006 (https://driverdesk.dev/errors/DD-L006)
+
+  ⚠ integer division in an output with unit `Cel` drops the fraction
+    ╭─[29-L006-integer-division.yaml:31:23]
+ 30 │     output:
+ 31 │       celsius: { cel: "raw / 100", unit: Cel }
+    ·                       ─────┬─────
+    ·                            ╰── integer arithmetic
+ 32 │     timeout_ms: 50
+    ╰────
+  help: CEL has no implicit conversion: write `double(raw) / 100.0` (spec §10.2)
+DD-L016 (https://driverdesk.dev/errors/DD-L016)
+
+  ⚠ safety block is not signed
+    ╭─[29-L006-integer-division.yaml:41:1]
+ 40 │     timeout_ms: 50
+ 41 │ safety:
+    · ───┬──
+    ·    ╰── unsigned
+ 42 │   limits:
+    ╰────
+  help: fine for local development; the registry refuses to publish vendor descriptions with an
+        unsigned safety block (spec §14.6)

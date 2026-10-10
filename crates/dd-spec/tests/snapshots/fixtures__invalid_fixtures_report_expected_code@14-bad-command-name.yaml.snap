@@ -1,0 +1,50 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/14-bad-command-name.yaml
+---
+DD-S005 (https://driverdesk.dev/errors/DD-S005)
+
+  × `ReadTemp` is not a valid name in `commands`
+    ╭─[14-bad-command-name.yaml:27:3]
+ 26 │ commands:
+ 27 │   ReadTemp:
+    ·   ────┬───
+    ·       ╰── invalid name
+ 28 │     send:   { header: 0x10 }
+    ╰────
+  help: names use lower_snake_case: a lower-case letter first, then letters, digits or `_`
+DD-L007 (https://driverdesk.dev/errors/DD-L007)
+
+  × unknown command `read_temp`
+    ╭─[14-bad-command-name.yaml:51:56]
+ 50 │ expose:
+ 51 │   - { class: sensor.temperature, channel: temp0, read: read_temp.celsius }
+    ·                                                        ────────┬────────
+    ·                                                                ╰── not declared
+ 52 │   - { class: light.indicator,    channel: led0,  write: set_led }
+    ╰────
+  help: did you mean `ReadTemp`?
+DD-L008 (https://driverdesk.dev/errors/DD-L008)
+
+  × unknown command `read_temp`
+    ╭─[14-bad-command-name.yaml:54:37]
+ 53 │ tests:
+ 54 │   - { name: room_temperature, call: read_temp, expect: { celsius: { between: [5, 45] } } }
+    ·                                     ────┬────
+    ·                                         ╰── not declared
+ 55 │   - { name: led_cap, call: set_led, args: { enabled: true, level: 90 }, expect: rejected_by_safety }
+    ╰────
+  help: did you mean `ReadTemp`?
+DD-L016 (https://driverdesk.dev/errors/DD-L016)
+
+  ⚠ safety block is not signed
+    ╭─[14-bad-command-name.yaml:41:1]
+ 40 │     timeout_ms: 50
+ 41 │ safety:
+    · ───┬──
+    ·    ╰── unsigned
+ 42 │   limits:
+    ╰────
+  help: fine for local development; the registry refuses to publish vendor descriptions with an
+        unsigned safety block (spec §14.6)

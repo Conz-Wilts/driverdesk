@@ -1,0 +1,29 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/42-L017-untested-limit.yaml
+---
+DD-L016 (https://driverdesk.dev/errors/DD-L016)
+
+  ⚠ safety block is not signed
+    ╭─[42-L017-untested-limit.yaml:41:1]
+ 40 │     timeout_ms: 50
+ 41 │ safety:
+    · ───┬──
+    ·    ╰── unsigned
+ 42 │   limits:
+    ╰────
+  help: fine for local development; the registry refuses to publish vendor descriptions with an
+        unsigned safety block (spec §14.6)
+DD-L017 (https://driverdesk.dev/errors/DD-L017)
+
+  ⚠ safety limit `set_led.level` has no test proving it is enforced
+    ╭─[42-L017-untested-limit.yaml:43:5]
+ 42 │   limits:
+ 43 │     set_led.level: { max: 80, unit: "%", reason: "LED rated 20 mA" }
+    ·     ──────┬──────
+    ·           ╰── untested limit
+ 44 │ states:
+    ╰────
+  help: add a test that calls `set_led` with an out-of-range value and `expect:
+        rejected_by_safety` (spec §16)

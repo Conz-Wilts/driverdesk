@@ -1,0 +1,16 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/44-L019-reads-only-writes.yaml
+---
+DD-L019 (https://driverdesk.dev/errors/DD-L019)
+
+  × command is declared `reads_only` but step 0 (`update`) writes to the device
+    ╭─[44-L019-reads-only-writes.yaml:39:11]
+ 38 │     steps:
+ 39 │       - { update: CONFIG, fields: { mode: continuous } }
+    ·           ───┬──
+    ·              ╰── writes
+ 40 │       - { read: TEMP, as: raw }
+    ╰────
+  help: remove `reads_only: true`, or remove the write (spec §9.1)

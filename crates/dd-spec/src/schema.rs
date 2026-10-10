@@ -296,6 +296,13 @@ fn convert(e: &ValidationError<'_>, doc: &Document, c: &Compiled, out: &mut Vec<
         }
         ValidationErrorKind::Required { property } => {
             let p = property.as_str().unwrap_or("?");
+            // A misspelt key already gets "unknown field … did you mean `p`?"; don't repeat it.
+            if e.instance()
+                .as_object()
+                .is_some_and(|m| m.keys().any(|k| k != p && suggest(k, [p]).is_some()))
+            {
+                return;
+            }
             let sec = section_for(&format!("{ptr}/{p}"));
             let at = if ptr.is_empty() {
                 doc.spans.first_key()

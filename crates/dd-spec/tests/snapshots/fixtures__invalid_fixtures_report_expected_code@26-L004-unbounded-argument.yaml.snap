@@ -1,0 +1,29 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/26-L004-unbounded-argument.yaml
+---
+DD-L004 (https://driverdesk.dev/errors/DD-L004)
+
+  × argument `speed` of `set_led` is written to the device but has no bounds
+    ╭─[26-L004-unbounded-argument.yaml:38:7]
+ 37 │       level:   { type: u8, unit: "%" }
+ 38 │       speed:   { type: u16 }
+    ·       ──┬──
+    ·         ╰── unbounded
+ 39 │     send:   { header: 0x20, payload: [ { enabled: bool }, { level: u8 } ] }
+    ╰────
+  help: add `min`/`max` or `enum` to the argument, or a limit `safety.limits.set_led.speed` (spec
+        §9.2, §14.2)
+DD-L016 (https://driverdesk.dev/errors/DD-L016)
+
+  ⚠ safety block is not signed
+    ╭─[26-L004-unbounded-argument.yaml:42:1]
+ 41 │     timeout_ms: 50
+ 42 │ safety:
+    · ───┬──
+    ·    ╰── unsigned
+ 43 │   limits:
+    ╰────
+  help: fine for local development; the registry refuses to publish vendor descriptions with an
+        unsigned safety block (spec §14.6)

@@ -1,0 +1,16 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/47-L021-field-outside-register.yaml
+---
+DD-L021 (https://driverdesk.dev/errors/DD-L021)
+
+  × field `ready` uses bit 17 but the register is 16 bits wide
+    ╭─[47-L021-field-outside-register.yaml:29:24]
+ 28 │         mode: { bits: "11:10", enum: { continuous: 0, shutdown: 1 } }
+ 29 │         ready: { bits: "17", access: ro }
+    ·                        ──┬─
+    ·                          ╰── outside the register
+ 30 │     ID: { address: 0x0F, access: ro, volatile: false }
+    ╰────
+  help: bits run 0..15; set the register's `bits` if it is wider (spec §8.3)

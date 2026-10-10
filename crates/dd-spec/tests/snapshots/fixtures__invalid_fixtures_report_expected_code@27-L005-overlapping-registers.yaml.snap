@@ -1,0 +1,20 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/27-L005-overlapping-registers.yaml
+---
+DD-L005 (https://driverdesk.dev/errors/DD-L005)
+
+  × registers `ID` (0xF..0x10) and `REV` (0xF..0x10) overlap
+    ╭─[27-L005-overlapping-registers.yaml:31:5]
+ 29 │         ready: { bits: "13", access: ro }
+ 30 │     ID: { address: 0x0F, access: ro, volatile: false }
+    ·     ─┬
+    ·      ╰── this register
+ 31 │     REV: { address: 0x0F, access: ro }
+    ·     ─┬─
+    ·      ╰── overlaps
+ 32 │ sequences:
+    ╰────
+  help: fix the address, `bits`, or `repeat`; if the overlap is real (aliased registers) set
+        `overlap: true` on both (spec §8.2)

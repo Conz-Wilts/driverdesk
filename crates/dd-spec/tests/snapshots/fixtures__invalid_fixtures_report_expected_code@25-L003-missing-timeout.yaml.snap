@@ -1,0 +1,29 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/25-L003-missing-timeout.yaml
+---
+DD-L003 (https://driverdesk.dev/errors/DD-L003)
+
+  × command `set_led` talks to the device but has no `timeout_ms`
+    ╭─[25-L003-missing-timeout.yaml:34:3]
+ 33 │     retries: 2
+ 34 │   set_led:
+    ·   ───┬───
+    ·      ╰── add timeout_ms
+ 35 │     args:
+    ╰────
+  help: every device interaction needs a deadline so a stuck device cannot hang the host (spec
+        §9.1)
+DD-L016 (https://driverdesk.dev/errors/DD-L016)
+
+  ⚠ safety block is not signed
+    ╭─[25-L003-missing-timeout.yaml:40:1]
+ 39 │     expect: { header: 0xA0 }
+ 40 │ safety:
+    · ───┬──
+    ·    ╰── unsigned
+ 41 │   limits:
+    ╰────
+  help: fine for local development; the registry refuses to publish vendor descriptions with an
+        unsigned safety block (spec §14.6)

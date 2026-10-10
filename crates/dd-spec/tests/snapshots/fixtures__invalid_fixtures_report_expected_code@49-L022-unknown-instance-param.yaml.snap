@@ -1,0 +1,16 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/49-L022-unknown-instance-param.yaml
+---
+DD-L022 (https://driverdesk.dev/errors/DD-L022)
+
+  × `instance` has no `addr`
+    ╭─[49-L022-unknown-instance-param.yaml:19:21]
+ 18 │   i2c:
+ 19 │     address: { cel: "instance.addr" }
+    ·                     ────────┬───────
+    ·                             ╰── unknown
+ 20 │ registers:
+    ╰────
+  help: available: address

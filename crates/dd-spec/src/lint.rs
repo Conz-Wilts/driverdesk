@@ -329,18 +329,20 @@ impl<'a> Linter<'a> {
             let mut fields = BTreeMap::new();
             if let Some(fm) = fsrc.and_then(obj) {
                 for (fname, f) in fm {
-                    if let Some((h, lo)) =
-                        f.get("bits").and_then(Value::as_str).and_then(parse_bits)
-                    {
-                        fields.insert(
-                            fname.clone(),
-                            (
-                                h,
-                                lo,
-                                f.get("access").and_then(Value::as_str).map(str::to_string),
-                            ),
-                        );
-                    }
+                    // Unparsable bits are reported by the schema; still index the name.
+                    let (h, lo) = f
+                        .get("bits")
+                        .and_then(Value::as_str)
+                        .and_then(parse_bits)
+                        .unwrap_or((0, 0));
+                    fields.insert(
+                        fname.clone(),
+                        (
+                            h,
+                            lo,
+                            f.get("access").and_then(Value::as_str).map(str::to_string),
+                        ),
+                    );
                 }
             }
             let entry = Reg { access, fields };
@@ -823,7 +825,13 @@ impl<'a> Linter<'a> {
         };
         for (i, step) in list.iter().enumerate() {
             let sp = format!("{base}/{i}");
-            let Some(op) = step_op(step) else { continue };
+            let Some(op) = step_op(step) else {
+                // Schema reports the unknown operation; keep its result name to avoid cascades.
+                if let Some(a) = step.get("as").and_then(Value::as_str) {
+                    scope.names.insert(a.to_string());
+                }
+                continue;
+            };
             let opp = format!("{sp}/{}", escape_token(op));
             wait += literal_wait_ms(step);
             if step_writes(step) {
@@ -1196,7 +1204,11 @@ impl<'a> Linter<'a> {
             }
             // L003 timeout
             let timeout = cmd.get("timeout_ms").and_then(Value::as_f64);
-            if touches && timeout.is_none() {
+            let near_miss = cmd.as_object().is_some_and(|m| {
+                m.keys()
+                    .any(|k| k != "timeout_ms" && suggest(k, ["timeout_ms"]).is_some())
+            });
+            if touches && cmd.get("timeout_ms").is_none() && !near_miss {
                 self.push(
                     Diagnostic::error("DD-L003", format!("command `{name}` talks to the device but has no `timeout_ms`"))
                         .at_opt(self.key(&base), "add timeout_ms")
@@ -1542,6 +1554,11 @@ impl<'a> Linter<'a> {
                     .collect()
             })
             .unwrap_or_default();
+        // Class cross-checks only make sense when `device.classes` is a well-formed list.
+        let classes_ok = self
+            .j
+            .pointer("/device/classes")
+            .is_some_and(Value::is_array);
         let mut channels: HashSet<(String, String)> = HashSet::new();
         let mut covered: BTreeSet<String> = BTreeSet::new();
         for (i, e) in list.iter().enumerate() {
@@ -1551,7 +1568,7 @@ impl<'a> Linter<'a> {
                 .and_then(Value::as_str)
                 .unwrap_or("")
                 .to_string();
-            if !class.is_empty() && !classes.contains(&class) {
+            if classes_ok && !class.is_empty() && !classes.contains(&class) {
                 self.push(
                     Diagnostic::error(
                         "DD-L007",
@@ -1666,7 +1683,8 @@ impl<'a> Linter<'a> {
             }
         }
         for (i, c) in classes.iter().enumerate() {
-            let needs_expose = !c.starts_with("bridge.")
+            let needs_expose = !list.is_empty()
+                && !c.starts_with("bridge.")
                 && !matches!(
                     c.as_str(),
                     "net.ethernet"

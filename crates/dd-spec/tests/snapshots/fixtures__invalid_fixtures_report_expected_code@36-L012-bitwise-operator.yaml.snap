@@ -1,0 +1,16 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/36-L012-bitwise-operator.yaml
+---
+DD-L012 (https://driverdesk.dev/errors/DD-L012)
+
+  × expression does not compile
+    ╭─[36-L012-bitwise-operator.yaml:41:23]
+ 40 │     output:
+ 41 │       celsius: { cel: "double(raw | 0x8000) * 0.0078125", unit: Cel }
+    ·                       ─────────────────┬────────────────
+    ·                                        ╰── CEL
+ 42 │     timeout_ms: 20
+    ╰────
+  help: CEL has no `|` operator; use the DriverDesk functions band, bor, bxor, bnot, shl, shr

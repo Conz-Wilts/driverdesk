@@ -1,0 +1,16 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/40-L015-write-read-only.yaml
+---
+DD-L015 (https://driverdesk.dev/errors/DD-L015)
+
+  × write to `TEMP`, which is read-only (`access: ro`)
+    ╭─[40-L015-write-read-only.yaml:35:16]
+ 34 │     - { wait_ms: 2 }
+ 35 │     - { write: TEMP, value: 0 }
+    ·                ──┬─
+    ·                  ╰── read-only
+ 36 │ commands:
+    ╰────
+  help: check the register name, or fix `access` if the datasheet says it is writable (spec §8.2)

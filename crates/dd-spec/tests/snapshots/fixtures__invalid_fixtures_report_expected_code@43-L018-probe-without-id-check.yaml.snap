@@ -1,0 +1,17 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/43-L018-probe-without-id-check.yaml
+---
+DD-L018 (https://driverdesk.dev/errors/DD-L018)
+
+  × probing needs a read-only identity check, but no variant has `id_check`
+    ╭─[43-L018-probe-without-id-check.yaml:16:5]
+ 15 │   - bus: i2c
+ 16 │     probe: { addresses: [0x48, 0x49] }
+    ·     ──┬──
+    ·       ╰── unsafe probe
+ 17 │ transport:
+    ╰────
+  help: add `variants: { <name>: { name: ..., id_check: { register: ID, equals: 0x.. } } }` so
+        probing only reads (spec §5.4)

@@ -1,0 +1,28 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/34-L010-unknown-spec-version.yaml
+---
+DD-L010 (https://driverdesk.dev/errors/DD-L010)
+
+  × unknown spec version `driverdesk/0.1.0`
+   ╭─[34-L010-unknown-spec-version.yaml:3:7]
+ 2 │ # the spec version is wrong
+ 3 │ spec: driverdesk/0.1.0
+   ·       ────────┬───────
+   ·               ╰── not a known version
+ 4 │ device:
+   ╰────
+  help: write `spec: driverdesk/0.1`
+DD-L016 (https://driverdesk.dev/errors/DD-L016)
+
+  ⚠ safety block is not signed
+    ╭─[34-L010-unknown-spec-version.yaml:41:1]
+ 40 │     timeout_ms: 50
+ 41 │ safety:
+    · ───┬──
+    ·    ╰── unsigned
+ 42 │   limits:
+    ╰────
+  help: fine for local development; the registry refuses to publish vendor descriptions with an
+        unsigned safety block (spec §14.6)

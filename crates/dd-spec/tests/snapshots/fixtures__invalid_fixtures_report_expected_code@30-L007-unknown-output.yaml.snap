@@ -1,0 +1,28 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/30-L007-unknown-output.yaml
+---
+DD-L007 (https://driverdesk.dev/errors/DD-L007)
+
+  × unknown output of `read_temp` `temperature`
+    ╭─[30-L007-unknown-output.yaml:51:56]
+ 50 │ expose:
+ 51 │   - { class: sensor.temperature, channel: temp0, read: read_temp.temperature }
+    ·                                                        ──────────┬──────────
+    ·                                                                  ╰── not declared
+ 52 │   - { class: light.indicator,    channel: led0,  write: set_led }
+    ╰────
+  help: declared: celsius
+DD-L016 (https://driverdesk.dev/errors/DD-L016)
+
+  ⚠ safety block is not signed
+    ╭─[30-L007-unknown-output.yaml:41:1]
+ 40 │     timeout_ms: 50
+ 41 │ safety:
+    · ───┬──
+    ·    ╰── unsigned
+ 42 │   limits:
+    ╰────
+  help: fine for local development; the registry refuses to publish vendor descriptions with an
+        unsigned safety block (spec §14.6)

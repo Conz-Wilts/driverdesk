@@ -1,0 +1,16 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/48-L022-unknown-name.yaml
+---
+DD-L022 (https://driverdesk.dev/errors/DD-L022)
+
+  × unknown name `rwa` in expression
+    ╭─[48-L022-unknown-name.yaml:41:23]
+ 40 │     output:
+ 41 │       celsius: { cel: "double(sign_extend(rwa, 16)) * 0.0078125", unit: Cel }
+    ·                       ─────────────────────┬────────────────────
+    ·                                            ╰── not defined here
+ 42 │     timeout_ms: 20
+    ╰────
+  help: did you mean `raw`?

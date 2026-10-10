@@ -1,0 +1,28 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/12-unknown-bus.yaml
+---
+DD-S005 (https://driverdesk.dev/errors/DD-S005)
+
+  × unknown bus `usbb` in `match[0]`
+    ╭─[12-unknown-bus.yaml:11:10]
+ 10 │ match:
+ 11 │   - bus: usbb
+    ·          ──┬─
+    ·            ╰── unknown
+ 12 │     vid: 0x1209
+    ╰────
+  help: did you mean `usb`?
+DD-L016 (https://driverdesk.dev/errors/DD-L016)
+
+  ⚠ safety block is not signed
+    ╭─[12-unknown-bus.yaml:41:1]
+ 40 │     timeout_ms: 50
+ 41 │ safety:
+    · ───┬──
+    ·    ╰── unsigned
+ 42 │   limits:
+    ╰────
+  help: fine for local development; the registry refuses to publish vendor descriptions with an
+        unsigned safety block (spec §14.6)

@@ -1,0 +1,28 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/35-L011-vid-only-match.yaml
+---
+DD-L011 (https://driverdesk.dev/errors/DD-L011)
+
+  ⚠ USB match uses only the vendor id; it would claim every product of that vendor
+    ╭─[35-L011-vid-only-match.yaml:12:5]
+ 11 │   - bus: usb
+ 12 │     vid: 0x1209
+    ·     ─┬─
+    ·      ╰── too broad
+ 13 │ transport:
+    ╰────
+  help: add `pid` (and `interface_class` for vendor-specific interfaces) (spec §5.2)
+DD-L016 (https://driverdesk.dev/errors/DD-L016)
+
+  ⚠ safety block is not signed
+    ╭─[35-L011-vid-only-match.yaml:39:1]
+ 38 │     timeout_ms: 50
+ 39 │ safety:
+    · ───┬──
+    ·    ╰── unsigned
+ 40 │   limits:
+    ╰────
+  help: fine for local development; the registry refuses to publish vendor descriptions with an
+        unsigned safety block (spec §14.6)

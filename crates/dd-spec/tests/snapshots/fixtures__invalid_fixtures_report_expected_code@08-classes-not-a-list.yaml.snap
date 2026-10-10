@@ -1,0 +1,16 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/08-classes-not-a-list.yaml
+---
+DD-S003 (https://driverdesk.dev/errors/DD-S003)
+
+  × `device.classes` must be a list, found text
+    ╭─[08-classes-not-a-list.yaml:9:12]
+  8 │   version: 0.1.0
+  9 │   classes: sensor.temperature
+    ·            ─────────┬────────
+    ·                     ╰── wrong type
+ 10 │ variants:
+    ╰────
+  help: write a list

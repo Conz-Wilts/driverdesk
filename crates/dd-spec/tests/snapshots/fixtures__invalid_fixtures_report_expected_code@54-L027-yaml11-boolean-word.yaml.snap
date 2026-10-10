@@ -1,0 +1,16 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/54-L027-yaml11-boolean-word.yaml
+---
+DD-L027 (https://driverdesk.dev/errors/DD-L027)
+
+  × unquoted `off` as a key means true/false to YAML 1.1 tools
+    ╭─[54-L027-yaml11-boolean-word.yaml:28:55]
+ 27 │       fields:
+ 28 │         mode: { bits: "11:10", enum: { continuous: 0, off: 1 } }
+    ·                                                       ─┬─
+    ·                                                        ╰── ambiguous between YAML versions
+ 29 │         ready: { bits: "13", access: ro }
+    ╰────
+  help: use `disabled`, `unbound` or `"off"` so every YAML parser reads the same thing (spec §3)

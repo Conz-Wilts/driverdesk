@@ -1,0 +1,17 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/33-L009-actuator-without-safety.yaml
+---
+DD-L009 (https://driverdesk.dev/errors/DD-L009)
+
+  × `light.indicator` is an actuator class but the description has no `safety` block
+    ╭─[33-L009-actuator-without-safety.yaml:9:12]
+  8 │   version: 0.1.0
+  9 │   classes: [sensor.temperature, light.indicator]
+    ·            ──────────────────┬──────────────────
+    ·                              ╰── actuator
+ 10 │ match:
+    ╰────
+  help: add `safety:` with limits for every argument that drives the output, e.g. `safety:
+        { limits: { set_led.level: { max: 80, reason: "..." } } }` (spec §14)

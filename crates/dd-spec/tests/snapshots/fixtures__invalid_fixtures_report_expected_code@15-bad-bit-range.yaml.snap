@@ -1,0 +1,16 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/15-bad-bit-range.yaml
+---
+DD-S005 (https://driverdesk.dev/errors/DD-S005)
+
+  × `11-10` is not a valid value for `registers.map.CONFIG.fields.mode.bits`
+    ╭─[15-bad-bit-range.yaml:28:23]
+ 27 │       fields:
+ 28 │         mode: { bits: "11-10", enum: { continuous: 0, shutdown: 1 } }
+    ·                       ───┬───
+    ·                          ╰── invalid
+ 29 │         ready: { bits: "13", access: ro }
+    ╰────
+  help: bit ranges are `"H:L"` (inclusive, LSB = 0) or a single bit `"N"`, quoted, for bits 0–63

@@ -1,0 +1,50 @@
+# expect: DD-L020
+# a field is set to a name that is not in its enum
+spec: driverdesk/0.1
+device:
+  id: example.temp-chip
+  name: I2C temperature chip
+  vendor: { name: Example Labs, prefix: example }
+  version: 0.1.0
+  classes: [sensor.temperature]
+variants:
+  chip: { name: CHIP, id_check: { register: ID, equals: 0x55 }, default: true }
+instance:
+  address: { type: u8, enum: [0x48, 0x49], default: 0x48 }
+match:
+  - bus: i2c
+    compatible: example,temp-chip
+transport:
+  i2c:
+    address: { cel: "instance.address" }
+registers:
+  config: { reg_bits: 8, val_bits: 16, byte_order: be }
+  map:
+    TEMP: { address: 0x00, access: ro }
+    CONFIG:
+      address: 0x01
+      access: rw
+      fields:
+        mode: { bits: "11:10", enum: { continuous: 0, shutdown: 1 } }
+        ready: { bits: "13", access: ro }
+    ID: { address: 0x0F, access: ro, volatile: false }
+sequences:
+  init:
+    - { update: CONFIG, fields: { mode: contiuous } }
+    - { wait_ms: 2 }
+commands:
+  read_temp:
+    reads_only: true
+    steps:
+      - { read: TEMP, as: raw }
+    output:
+      celsius: { cel: "double(sign_extend(raw, 16)) * 0.0078125", unit: Cel }
+    timeout_ms: 20
+states:
+  initial: unbound
+  transitions:
+    - { from: unbound, to: ready, trigger: bind, do: init }
+expose:
+  - { class: sensor.temperature, channel: temp, read: read_temp.celsius }
+tests:
+  - { name: room_temperature, call: read_temp, expect: { celsius: { between: [5, 45] } } }

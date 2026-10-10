@@ -1,0 +1,28 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/53-L026-unknown-unit.yaml
+---
+DD-L026 (https://driverdesk.dev/errors/DD-L026)
+
+  × unknown unit `degC`
+    ╭─[53-L026-unknown-unit.yaml:31:52]
+ 30 │     output:
+ 31 │       celsius: { cel: "double(raw) / 100.0", unit: degC }
+    ·                                                    ──┬─
+    ·                                                      ╰── not a UCUM code
+ 32 │     timeout_ms: 50
+    ╰────
+  help: did you mean `Cel`? Units are case-sensitive UCUM codes (spec §11)
+DD-L016 (https://driverdesk.dev/errors/DD-L016)
+
+  ⚠ safety block is not signed
+    ╭─[53-L026-unknown-unit.yaml:41:1]
+ 40 │     timeout_ms: 50
+ 41 │ safety:
+    · ───┬──
+    ·    ╰── unsigned
+ 42 │   limits:
+    ╰────
+  help: fine for local development; the registry refuses to publish vendor descriptions with an
+        unsigned safety block (spec §14.6)

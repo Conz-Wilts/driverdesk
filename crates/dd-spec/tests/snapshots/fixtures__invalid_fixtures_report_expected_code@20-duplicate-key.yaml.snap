@@ -1,0 +1,31 @@
+---
+source: crates/dd-spec/tests/fixtures.rs
+expression: "dd_spec::diag::render_plain(&report.diagnostics, &name, &src)"
+input_file: spec/fixtures/invalid/20-duplicate-key.yaml
+---
+DD-S007 (https://driverdesk.dev/errors/DD-S007)
+
+  × duplicate key `timeout_ms`
+    ╭─[20-duplicate-key.yaml:33:5]
+ 31 │       celsius: { cel: "double(raw) / 100.0", unit: Cel }
+ 32 │     timeout_ms: 50
+    ·     ─────┬────
+    ·          ╰── first defined here
+ 33 │     timeout_ms: 60
+    ·     ─────┬────
+    ·          ╰── duplicate
+ 34 │     retries: 2
+    ╰────
+  help: YAML keeps only one of the values; remove or rename one of them
+DD-L016 (https://driverdesk.dev/errors/DD-L016)
+
+  ⚠ safety block is not signed
+    ╭─[20-duplicate-key.yaml:42:1]
+ 41 │     timeout_ms: 50
+ 42 │ safety:
+    · ───┬──
+    ·    ╰── unsigned
+ 43 │   limits:
+    ╰────
+  help: fine for local development; the registry refuses to publish vendor descriptions with an
+        unsigned safety block (spec §14.6)
