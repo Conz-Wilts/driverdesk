@@ -5,8 +5,8 @@
 ## Now
 
 - **Current stage:** B (bootstrap) — `plans/B-bootstrap.md`
-- **Current task:** none. Done: B.T1–B.T4. Next: B.T6 (virtual USB lab; can be written now, verified once CI exists) and B.T9. B.T5 waits on H-002, B.T7/B.T8 on H-001.
-- **Branch:** `stage/b` (local only; no remote until H-002).
+- **Current task:** none. Done: B.T1–B.T4. Next: B.T6 (virtual USB lab; can be written now, verified once CI exists) and B.T9. B.T5 unblocked (repo created). B.T7/B.T8 wait on H-001.
+- **Branch:** `stage/b`, remote https://github.com/Conz-Wilts/driverdesk
 
 ## Current task notes
 
@@ -14,7 +14,6 @@
 
 ## Blockers / waiting on humans
 
-- H-002 (GitHub org + gh auth) blocks B.T5. Verified 2026-10-10: no `driverdesk*` org yet; gh token lacks `admin:org`.
 - H-001 (buy hardware, ≈NZ$1,792) open — blocks B.T7, B.T8.
 
 ## Open questions being researched

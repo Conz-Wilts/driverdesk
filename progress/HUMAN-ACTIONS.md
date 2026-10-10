@@ -7,7 +7,7 @@ Rules for Claude: batch requests; give copy-pasteable commands; never ask for se
 | ID | Status | What | Unblocks |
 |---|---|---|---|
 | H-001 | **open** | Buy lab hardware (list below, ~NZ$1,800) | B.T7, B.T8, P1 HIL |
-| H-002 | **open** | Create GitHub home + let Claude use `gh` | B.T5 (CI) |
+| H-002 | done 2026-10-10 | GitHub home: public repo `Conz-Wilts/driverdesk` (owner's choice, no org) | B.T5 (CI) |
 | H-003 | pending (B.T7) | Set up Raspberry Pi 5 lab node (flash card, plug in, run one command) | HIL Linux |
 | H-004 | pending (B.T7) | Set up Windows mini PC lab node (first boot, run one command) | HIL Windows |
 | H-005 | pending (B.T7) | Create macOS lab-runner user on your Mac, allow USB accessories | HIL macOS |
@@ -21,15 +21,9 @@ Rules for Claude: batch requests; give copy-pasteable commands; never ask for se
 
 ---
 
-## H-002 — GitHub home for the project (open)
+## H-002 — GitHub home for the project (done 2026-10-10)
 
-1. Decide nothing: Claude's choice is a **GitHub organisation** named `driverdesk` (if taken, use `driverdesk-dev`, then `driverdesk-org`). Create it (free plan) at https://github.com/organizations/plan while signed in as `Conz-Wilts`.
-2. In this terminal, make sure `gh` can create repos and manage Actions for the org:
-   ```
-   gh auth refresh -h github.com -s repo,workflow,admin:org
-   ```
-   (`admin:org` lets Claude register the lab machines as self-hosted runners.)
-3. Tell Claude the org name you got.
+Owner chose a public repo on their personal account: https://github.com/Conz-Wilts/driverdesk. Existing `gh` scopes (`repo`, `workflow`) cover repo creation, branch protection and repo-level self-hosted runners; no org needed.
 
 ---
 

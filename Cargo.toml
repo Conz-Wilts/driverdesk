@@ -6,7 +6,7 @@ members = ["crates/*", "xtask"]
 version = "0.0.0"
 edition = "2024"
 license = "Apache-2.0"
-repository = "https://github.com/driverdesk/driverdesk"
+repository = "https://github.com/Conz-Wilts/driverdesk"
 rust-version = "1.99"
 
 [workspace.lints.rust]
