@@ -41,15 +41,24 @@ enum Format {
     Json,
 }
 
+/// Validation needs about 1 MiB of stack in debug builds; Windows gives the main thread only
+/// 1 MiB, so work runs on a thread with the Linux/macOS default of 8 MiB (D-002).
+const STACK_BYTES: usize = 8 * 1024 * 1024;
+
 fn main() -> ExitCode {
     let cli = Cli::parse();
-    match cli.command {
-        Command::Validate {
-            files,
-            format,
-            deny_warnings,
-        } => validate(&files, format, deny_warnings),
-    }
+    std::thread::Builder::new()
+        .stack_size(STACK_BYTES)
+        .spawn(move || match cli.command {
+            Command::Validate {
+                files,
+                format,
+                deny_warnings,
+            } => validate(&files, format, deny_warnings),
+        })
+        .expect("spawn worker thread")
+        .join()
+        .unwrap_or(ExitCode::from(2))
 }
 
 fn validate(files: &[PathBuf], format: Format, deny_warnings: bool) -> ExitCode {

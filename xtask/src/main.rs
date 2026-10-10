@@ -22,8 +22,17 @@ commands:
   bench-check   verify benchmark/chips.yaml; --online re-downloads datasheets (P0)
   vlab -- <cmd> run <cmd> inside the virtual USB lab (B.T6)";
 
+/// Room for `dd_spec::validate` in debug builds on Windows (1 MiB main-thread stack, D-002).
+const STACK_BYTES: usize = 8 * 1024 * 1024;
+
 fn main() -> ExitCode {
-    match run() {
+    let result = std::thread::Builder::new()
+        .stack_size(STACK_BYTES)
+        .spawn(run)
+        .expect("spawn worker thread")
+        .join()
+        .unwrap_or_else(|_| Err(anyhow::anyhow!("xtask panicked")));
+    match result {
         Ok(()) => ExitCode::SUCCESS,
         Err(e) => {
             eprintln!("xtask: error: {e:#}");

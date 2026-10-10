@@ -76,3 +76,24 @@ fn validation_is_fast_on_examples() {
     let limit = if cfg!(debug_assertions) { 500 } else { 50 };
     assert!(per.as_millis() < limit, "validate took {per:?} per run");
 }
+
+#[test]
+fn corpus_validates_within_a_2_mib_stack() {
+    // Guards stack growth (D-002): `dd` and `xtask` give validation 8 MiB; this keeps a 4x margin.
+    let h = std::thread::Builder::new()
+        .stack_size(2 * 1024 * 1024)
+        .spawn(|| {
+            for dir in [
+                "devices/examples",
+                "spec/fixtures/invalid",
+                "crates/dd-spec/tests/regressions",
+            ] {
+                for e in std::fs::read_dir(root().join(dir)).expect("dir") {
+                    let src = std::fs::read_to_string(e.expect("entry").path()).unwrap_or_default();
+                    let _ = dd_spec::validate(&src);
+                }
+            }
+        })
+        .expect("spawn");
+    assert!(h.join().is_ok(), "validation overflowed a 2 MiB stack");
+}
