@@ -94,7 +94,7 @@ Keys beginning with `x-` (for example `x-acme-calibration-notes`) MAY appear at 
 
 ### 3.4 Numbers
 
-Integers MAY be written in decimal, hexadecimal (`0x1F`), octal (`0o17`) or binary (`0b1010`) as YAML 1.2 allows; validators MUST accept all four and SHOULD preserve the author's form in messages. Underscores are not allowed. Floating-point values use YAML floats.
+Integers MAY be written in decimal or, as the YAML 1.2 core schema allows, hexadecimal (`0x1F`) or octal (`0o17`); validators MUST accept all three and SHOULD preserve the author's form in messages. Binary literals (`0b1010`) are not YAML 1.2 and are read as text; write hexadecimal instead. Underscores are not allowed. Floating-point values use YAML floats.
 
 ### 3.5 Parametric values
 
