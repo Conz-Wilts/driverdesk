@@ -75,6 +75,7 @@ fn validate(files: &[PathBuf], format: Format, deny_warnings: bool) -> ExitCode 
                     miette::GraphicalReportHandler::new_themed(
                         miette::GraphicalTheme::unicode_nocolor(),
                     )
+                    .with_links(false)
                 };
                 for d in &report.diagnostics {
                     let mut out = String::new();
