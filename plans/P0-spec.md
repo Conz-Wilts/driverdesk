@@ -51,7 +51,7 @@ Claim: a precise, versioned device-description standard exists, a validator enfo
   `DD-L001` unreachable state · `L002` transition to undefined state · `L003` command without timeout · `L004` numeric write argument without safety limit · `L005` overlapping register ranges · `L006` unit/type mismatch in expression · `L007` `expose` references unknown command/field · `L008` test references unknown command · `L009` actuator class without safety block · `L010` unknown spec version (with upgrade hint) · `L011` match too broad (VID only) · `L012` CEL does not compile · `L013` unknown checksum algorithm · `L014` timeout shorter than the sum of declared waits · `L015` write to read-only register · `L016` safety block not signed (warning in 0.1).
   - Accept: one fixture + snapshot per rule; codes listed in the spec appendix.
 - [x] **P0.T7 `cargo xtask spec-check`** (deps: P0.T3, P0.T5) — cross-checks text ↔ schema ↔ examples (exit criterion 1 & 2).
-- [>] **P0.T8 Robustness** (deps: P0.T6) — proptest/arbitrary fuzzing; `cargo fuzz` target for the parser (run 10 min in a nightly workflow). Exit criterion 5.
+- [x] **P0.T8 Robustness** (deps: P0.T6) — proptest/arbitrary fuzzing; `cargo fuzz` target for the parser (run 10 min in a nightly workflow). Exit criterion 5.
 - [x] **P0.T9 Persona usability loop** (deps: P0.T6)
   - Do: for each invalid fixture, give a fresh subagent (persona: "embedded C engineer, knows the device, has never seen DriverDesk or Rust") only the `dd validate` output and the fixture; ask for the corrected YAML; check by re-validating. Iterate on messages until ≥ 90%. Record scores per iteration in `docs/reports/P0-persona.md`.
   - Accept: exit criterion 4.

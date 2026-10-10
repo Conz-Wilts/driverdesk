@@ -5,7 +5,7 @@
 ## Now
 
 - **Current stages:** B (bootstrap, B.T6/T7/T8/T9 left) — `plans/B-bootstrap.md`; P0 (spec) started in parallel — `plans/P0-spec.md`
-- **Current task:** P0.T8 (fuzz 10 min local run in progress, then P0 gate). Done: B.T1–B.T5, P0.T0–T7, T9–T11. Next: `/gate P0`, then B.T6 (virtual USB lab) and P1. B.T7/B.T8 wait on H-001.
+- **Current task:** P0 gate (`/gate P0`). P0.T0–T11 done. Done: B.T1–B.T5, P0.T0–T7, T9–T11. Next: `/gate P0`, then B.T6 (virtual USB lab) and P1. B.T7/B.T8 wait on H-001.
 - **Branches:** `stage/b` (PR #1), `stage/p0` (branched from stage/b). Remote https://github.com/Conz-Wilts/driverdesk
 
 ## Current task notes
@@ -21,7 +21,7 @@
 (none yet — see each plan's Research questions)
 
 ## Session log (newest first)
-- **2026-10-10** — Owner asked to build the whole standard incl. complex devices. P0 built on `stage/p0`: spec text `spec/driverdesk-0.1.md` (stable core + provisional §20–22 for PCI/DMA/queues/streams/firmware/logic), JSON Schemas `spec/schema/0.1/`, 7 examples (incl. BME280 full compensation, HID keyboard, NVMe admin queue), `dd-spec` validator (YAML spans, schema, 29 lint rules, CEL library, UCUM, CRC catalogue), `dd validate`, 57 fixtures + snapshots, `cargo xtask spec-check|bench-check|docs`, proptest 3×100k pass, mdBook with tutorial + 38 error pages, benchmark 50 chips (online-verified), persona usability 98.2% (`docs/reports/P0-persona.md`). Research R-006 (crates). Fuzz 10 min local in progress.
+- **2026-10-10** — Owner asked to build the whole standard incl. complex devices. P0 built on `stage/p0`: spec text `spec/driverdesk-0.1.md` (stable core + provisional §20–22 for PCI/DMA/queues/streams/firmware/logic), JSON Schemas `spec/schema/0.1/`, 7 examples (incl. BME280 full compensation, HID keyboard, NVMe admin queue), `dd-spec` validator (YAML spans, schema, 29 lint rules, CEL library, UCUM, CRC catalogue), `dd validate`, 57 fixtures + snapshots, `cargo xtask spec-check|bench-check|docs`, proptest 3×100k pass, mdBook with tutorial + 38 error pages, benchmark 50 chips (online-verified), persona usability 98.2% (`docs/reports/P0-persona.md`). Research R-006 (crates). Fuzz: first run found D-001 (arithmetic on invalid input) → fixed; rerun 261,363 execs / 600 s clean. Windows stack overflow D-002 fixed. Security review: no findings ≥ 8/10; hardening applied (control-char escaping, tag rejection). PR #2 CI green on 3 OSes.
 - **2026-10-10** — P0 started on `stage/p0` (owner asked whether the driver standard exists: not yet, it is P0). P0.T1: read Linux driver source (TMP117, BMP280/BME280, lm75, i2c-tiny-usb, cp210x, regmap, IIO, usb_device_id, DT bindings) → R-004; survey of SVD, SystemRDL, IP-XACT, Zephyr, ESPHome, SunSpec, HID, device-driver → R-005 with 10 decisions for spec 0.1. P0.T0: plan updated (variants, instance parameters, CEL bitwise library).
 - **2026-10-10** — B.T5: public repo https://github.com/Conz-Wilts/driverdesk (owner's choice, H-002 done). `ci.yml` green on ubuntu/macos/windows (run 38089187304, draft PR #1). `main` protected (required check `ci`, admins included). Private vuln reporting on; fork-PR workflows need approval for all external contributors (self-hosted runner safety).
 - **2026-10-10** — Stage B started on `stage/b`. B.T1 skeleton (licences, README, CONTRIBUTING, SECURITY, CoC); B.T2 H-001 shopping list (R-002 hubs, R-003 RP2350); B.T3 toolchain pinned (Rust 1.99.0, docs/toolchain.md, `cargo xtask doctor` green); B.T4 workspace with 15 stub crates + xtask + ai/ (`cargo xtask ci` green locally).
