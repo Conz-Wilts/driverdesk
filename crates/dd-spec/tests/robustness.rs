@@ -1,7 +1,7 @@
 //! `dd_spec::validate` must never panic, whatever the input (P0 exit criterion 5).
 //!
-//! Case counts default to a quick local run; the nightly workflow sets `PROPTEST_CASES=100000`
-//! and runs in release mode.
+//! Case counts default to a quick local run; for a deep run set `PROPTEST_CASES=100000` and
+//! use `--release`.
 
 use proptest::prelude::*;
 
